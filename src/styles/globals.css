@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+  font-family: Onest, Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -31,4 +31,9 @@ body {
   min-height: 100vh;
   background: #f4fbf6;
   color: #1f2732;
+}
+
+p {
+  font-family: inherit;
+  font-weight: 400;
 }

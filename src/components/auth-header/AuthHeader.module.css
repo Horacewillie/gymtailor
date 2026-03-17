@@ -1,38 +1,198 @@
 .header {
-  height: 52px;
-  padding: 0 clamp(1rem, 2.5vw, 1.6rem);
+  height: 64px;
+  padding: 0 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fff;
-  border-bottom: 1px solid #eef2f1;
+  border-top: 1px solid rgba(31, 39, 50, 0.12);
+}
+
+.header[data-variant="auth"] {
+  background: transparent;
+  border-top-color: rgba(31, 39, 50, 0.12);
+}
+
+.header[data-variant="dashboard"] {
+  background: transparent;
+  border-top-color: rgba(31, 39, 50, 0.12);
 }
 
 .brand {
   font-size: 0.68rem;
   letter-spacing: 0.36em;
   text-decoration: none;
-  color: #162131;
+  color: rgba(31, 39, 50, 0.88);
   font-weight: 700;
 }
 
 .accountText {
-  font-size: 0.74rem;
-  color: #7b8691;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #0e121b;
 }
 
 .signInLink {
   margin-left: 0.25rem;
-  color: #202a39;
+  color: #0e121b;
   letter-spacing: 0.18em;
   font-size: 0.62rem;
   font-weight: 700;
   text-decoration: none;
-  border-bottom: 1px solid #8f98a2;
+  border-bottom: 1px solid rgba(14, 18, 27, 0.35);
   padding-bottom: 0.05rem;
 }
 
 .signInLink:hover {
   color: #2b9f69;
   border-bottom-color: #2b9f69;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #38f7a1;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: rgba(19, 29, 25, 0.85);
+}
+
+/* Dashboard navbar variant (brand left, tabs centered, controls right) */
+.header[data-variant="dashboardNav"] {
+  padding: 0;
+}
+
+.dashboardNav {
+  height: 64px;
+  width: 100%;
+  padding: 0 28px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+.dashboardLeft {
+  justify-self: start;
+  display: flex;
+  align-items: center;
+}
+
+.tabs {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tab,
+.tabActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-size: 0.66rem;
+  color: rgba(31, 39, 50, 0.62);
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 500;
+  padding: 8px 10px;
+  border-radius: 999px;
+}
+
+.tabActive {
+  background: #fff;
+  color: rgba(15, 24, 34, 0.86);
+  border: 1px solid rgba(31, 39, 50, 0.08);
+}
+
+.tabIcon {
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  color: rgba(31, 39, 50, 0.55);
+}
+
+.dashboardRight {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pillIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(31, 39, 50, 0.08);
+  color: rgba(31, 39, 50, 0.65);
+}
+
+.branchPill {
+  height: 30px;
+  border-radius: 999px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(31, 39, 50, 0.08);
+  color: rgba(15, 24, 34, 0.85);
+  font-size: 0.64rem;
+  font-weight: 600;
+  font-family: Onest, Inter, system-ui, sans-serif;
+}
+
+.branchDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(15, 24, 34, 0.92);
+}
+
+.branchChev {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  position: relative;
+}
+
+.branchChev::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid rgba(31, 39, 50, 0.55);
+  border-bottom: 2px solid rgba(31, 39, 50, 0.55);
+  transform: translate(-50%, -55%) rotate(45deg);
+}
+
+.avatarSmall {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #38f7a1;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: rgba(19, 29, 25, 0.85);
+}
+
+@media (max-width: 980px) {
+  .dashboardNav {
+    padding: 0 16px;
+  }
+
+  .tabs {
+    display: none;
+  }
 }

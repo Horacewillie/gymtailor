@@ -1,0 +1,118 @@
+.page {
+  min-height: 100vh;
+  background: radial-gradient(1200px 700px at 28% 0%, #e6fbf1 0%, #f4fbf6 54%, #f6fbf8 100%);
+  color: #1f2732;
+}
+
+.main {
+  min-height: calc(100vh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 44px 24px 48px;
+}
+
+.center {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.title {
+  margin: 0;
+  font-family: "Loubag", Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-size: clamp(1.9rem, 3.2vw, 2.5rem);
+  line-height: 1.05;
+  color: rgba(15, 24, 34, 0.86);
+  text-align: center;
+}
+
+.anim {
+  --green: #38f7a1;
+  --ink: #191b25;
+  width: 86px;
+  height: 32px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  justify-items: center;
+  position: relative;
+}
+
+.barLeft,
+.barRight {
+  width: 5px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--green);
+  transform-origin: bottom;
+  align-self: end;
+}
+
+.barLeft {
+  height: 26px;
+  animation: barLeftMove 900ms ease-in-out infinite;
+}
+
+.barRight {
+  height: 18px;
+  animation: barRightMove 900ms ease-in-out infinite;
+}
+
+.ball {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ink);
+  align-self: center;
+  animation: ballPass 900ms ease-in-out infinite;
+}
+
+@keyframes barLeftMove {
+  0%,
+  100% {
+    transform: translateY(-2px);
+    height: 26px;
+  }
+  50% {
+    transform: translateY(6px);
+    height: 18px;
+  }
+}
+
+@keyframes barRightMove {
+  0%,
+  100% {
+    transform: translateY(2px);
+    height: 18px;
+  }
+  50% {
+    transform: translateY(-6px);
+    height: 26px;
+  }
+}
+
+@keyframes ballPass {
+  0% {
+    transform: translateX(-18px);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateX(18px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(-18px);
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barLeft,
+  .barRight,
+  .ball {
+    animation: none;
+  }
+}
+
