@@ -5,15 +5,14 @@
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid rgba(31, 39, 50, 0.12);
+  background: linear-gradient(180deg, rgba(224, 250, 236, 0.95) -104.29%, rgba(224, 250, 236, 0) 100%);
 }
 
 .header[data-variant="auth"] {
-  background: transparent;
   border-top-color: rgba(31, 39, 50, 0.12);
 }
 
 .header[data-variant="dashboard"] {
-  background: transparent;
   border-top-color: rgba(31, 39, 50, 0.12);
 }
 
