@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { AuthHeader } from "../../components/auth-header/AuthHeader";
 import { Button } from "../../components/button/Button";
+import { DashboardShell } from "../../components/dashboard-shell/DashboardShell";
 import styles from "./OwnerDashboardPage.module.css";
 
 type TimeKey = "7d" | "1m" | "3m" | "6m" | "1y" | "ytd";
@@ -51,18 +51,6 @@ function IconChevronDown(props: { className?: string }) {
   );
 }
 
-/** Right-side header pill icon (visual only). */
-function IconGlobe() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm7.9 9h-3.3a15.5 15.5 0 0 0-1.1-5.1A8.03 8.03 0 0 1 19.9 11ZM12 4c.9 1.2 1.8 3.2 2.3 7H9.7c.5-3.8 1.4-5.8 2.3-7ZM8.5 5.9A15.5 15.5 0 0 0 7.4 11H4.1a8.03 8.03 0 0 1 4.4-5.1ZM4.1 13h3.3c.2 2 .6 3.8 1.1 5.1A8.03 8.03 0 0 1 4.1 13Zm8 7c-.9-1.2-1.8-3.2-2.3-7h4.6c-.5 3.8-1.4 5.8-2.3 7Zm3.5-1.9c.5-1.3.9-3.1 1.1-5.1h3.3a8.03 8.03 0 0 1-4.4 5.1Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
 /** Action card icon for equipment. */
 function IconDumbbell() {
   return (
@@ -81,54 +69,6 @@ function IconUsers() {
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
       <path
         d="M16 11a4 4 0 1 0-3.6-5.7A5 5 0 0 1 16 11ZM8 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-3.3 0-6 1.8-6 4v1h12v-1c0-2.2-2.7-4-6-4Zm8 0c-.7 0-1.4.1-2 .3 1.5.9 2.5 2.2 2.5 3.7v1H22v-1c0-2.2-2.7-4-6-4Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-/** Dashboard tab icon for Equipment. */
-function IconBox() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M12 2 3 6.5v11L12 22l9-4.5v-11L12 2Zm0 2.2 6.8 3.4L12 11 5.2 7.6 12 4.2ZM5 9.4l6 3v7.1l-6-3V9.4Zm14 7.1-6 3v-7.1l6-3v7.1Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-/** Dashboard tab icon for Members. */
-function IconMembers() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4ZM8 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm8 2c-2.9 0-5.3 1.6-5.3 3.6V19h10.6v-1.4C21.3 15.6 18.9 14 16 14Zm-8 0c-2.9 0-5.3 1.6-5.3 3.6V19h10.6v-1.4C13.3 15.6 10.9 14 8 14Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-/** Dashboard tab icon for Report. */
-function IconReport() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M4 4h16v16H4V4Zm2 2v12h12V6H6Zm2 9h2v2H8v-2Zm0-7h2v6H8V8Zm4 3h2v6h-2v-6Zm4-2h2v8h-2V9Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-/** Dashboard tab icon for Branding. */
-function IconBranding() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M12 2l2.6 6.2L21 11l-6.4 2.8L12 20l-2.6-6.2L3 11l6.4-2.8L12 2Z"
         fill="currentColor"
       />
     </svg>
@@ -199,224 +139,168 @@ function SessionsChart() {
 export function OwnerDashboardPage() {
   // UI-only state for time toggles and active nav styling.
   const [time, setTime] = useState<TimeKey>("7d");
-  const [activeTab, setActiveTab] = useState<"Home" | "Equipment" | "Members" | "Report" | "Branding">(
-    "Home",
-  );
 
   const timeLabel = useMemo(() => TIME_OPTIONS.find((t) => t.value === time)?.label ?? "7D", [time]);
 
   return (
     <div className={styles.page}>
-      <AuthHeader
-        variant="dashboardNav"
-        userInitial="J"
-        branchLabel="All branches"
-        dashboardRightIcon={<IconGlobe />}
-        // Tabs are anchors for semantics, but we prevent navigation here since routes aren't wired yet.
-        dashboardTabs={[
-          {
-            label: "Home",
-            active: activeTab === "Home",
-            icon: <span className={styles.dotHome} aria-hidden="true" />,
-            onClick: (e) => {
-              e.preventDefault();
-              setActiveTab("Home");
-            },
-          },
-          {
-            label: "Equipment",
-            active: activeTab === "Equipment",
-            icon: <IconBox />,
-            onClick: (e) => {
-              e.preventDefault();
-              setActiveTab("Equipment");
-            },
-          },
-          {
-            label: "Members",
-            active: activeTab === "Members",
-            icon: <IconMembers />,
-            onClick: (e) => {
-              e.preventDefault();
-              setActiveTab("Members");
-            },
-          },
-          {
-            label: "Report",
-            active: activeTab === "Report",
-            icon: <IconReport />,
-            onClick: (e) => {
-              e.preventDefault();
-              setActiveTab("Report");
-            },
-          },
-          {
-            label: "Branding",
-            active: activeTab === "Branding",
-            icon: <IconBranding />,
-            onClick: (e) => {
-              e.preventDefault();
-              setActiveTab("Branding");
-            },
-          },
-        ]}
-      />
+      <DashboardShell>
+        <main className={styles.main}>
+          <section className={styles.container}>
+            <header className={styles.header}>
+              <h1 className={styles.h1}>Good Morning!</h1>
+              <p className={styles.h1Sub}>
+                Track what&apos;s happening across members, workouts, and equipment.
+              </p>
+            </header>
 
-      <main className={styles.main}>
-        <section className={styles.container}>
-          <header className={styles.header}>
-            <h1 className={styles.h1}>Good Morning!</h1>
-            <p className={styles.h1Sub}>
-              Track what&apos;s happening across members, workouts, and equipment.
-            </p>
-          </header>
-
-          <section className={styles.actions} aria-label="Quick actions">
-            <div className={styles.actionCard}>
-              <div className={styles.actionIcon}>
-                <IconDumbbell />
-              </div>
-              <div className={styles.actionCopy}>
-                <div className={styles.actionTitle}>Add your equipment</div>
-                <div className={styles.actionSub}>
-                  Upload a CSV to import everything at once, or add items manually.
+            <section className={styles.actions} aria-label="Quick actions">
+              <div className={styles.actionCard}>
+                <div className={styles.actionIcon}>
+                  <IconDumbbell />
                 </div>
-              </div>
-              <Button className={styles.darkBtn} pill size="md">
-                ADD EQUIPMENT <IconChevronDown className={styles.chevDownIcon} />
-              </Button>
-            </div>
-
-            <div className={styles.actionCard}>
-              <div className={styles.actionIcon}>
-                <IconUsers />
-              </div>
-              <div className={styles.actionCopy}>
-                <div className={styles.actionTitle}>Add your members</div>
-                <div className={styles.actionSub}>
-                  Members sign in by selecting your gym and confirming their email.
-                </div>
-              </div>
-              <Button className={styles.darkBtn} pill size="md">
-                ADD MEMBERS
-              </Button>
-            </div>
-          </section>
-
-          <section className={styles.overview} aria-label="Overview">
-            <div className={styles.timeRow}>
-              <div className={styles.timePills} role="tablist" aria-label="Time period">
-                {TIME_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    className={opt.value === time ? styles.timePillActive : styles.timePill}
-                    onClick={() => setTime(opt.value)}
-                    aria-label={`Time period ${opt.label}`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-              <div className={styles.timeLabel} aria-hidden="true">
-                {timeLabel}
-              </div>
-            </div>
-
-            <div className={styles.grid}>
-              <div className={styles.colLeft}>
-                <div className={styles.statCard}>
-                  <div className={styles.cardHeadRow}>
-                    <div className={styles.cardHead}>Total members</div>
-                    <span className={styles.info} aria-hidden="true">
-                      <IconInfo />
-                    </span>
-                  </div>
-                  <div className={styles.bigNum}>1,834</div>
-                  <div className={styles.pills}>
-                    <div className={styles.pillGray}>
-                      Active: <b>1,824</b>
-                    </div>
-                    <div className={styles.pillRed}>Defaulting: 10</div>
+                <div className={styles.actionCopy}>
+                  <div className={styles.actionTitle}>Add your equipment</div>
+                  <div className={styles.actionSub}>
+                    Upload a CSV to import everything at once, or add items manually.
                   </div>
                 </div>
-
-                <div className={styles.statCard}>
-                  <div className={styles.cardHeadRow}>
-                    <div className={styles.cardHead}>Equipment utilization</div>
-                    <span className={styles.info} aria-hidden="true">
-                      <IconInfo />
-                    </span>
-                  </div>
-                  <div className={styles.utilRow}>
-                    <div className={styles.bigNum}>78.46%</div>
-                    <div className={styles.up}>↑ 3.56%</div>
-                  </div>
-                </div>
+                <Button className={styles.darkBtn} pill size="md">
+                  ADD EQUIPMENT <IconChevronDown className={styles.chevDownIcon} />
+                </Button>
               </div>
 
-              <div className={styles.chartCard}>
-                <div className={styles.cardHeadRow}>
-                  <div className={styles.cardHead}>Sessions over time</div>
-                  <span className={styles.info} aria-hidden="true">
-                    <IconInfo />
-                  </span>
+              <div className={styles.actionCard}>
+                <div className={styles.actionIcon}>
+                  <IconUsers />
                 </div>
-                <div className={styles.chartWrap}>
-                  <SessionsChart />
+                <div className={styles.actionCopy}>
+                  <div className={styles.actionTitle}>Add your members</div>
+                  <div className={styles.actionSub}>
+                    Members sign in by selecting your gym and confirming their email.
+                  </div>
                 </div>
-                <div className={styles.legend}>
-                  <span className={styles.legendItem}>
-                    <MiniLegendDot color="#0f8f64" /> Completed
-                  </span>
-                  <span className={styles.legendItem}>
-                    <MiniLegendDot color="#f97316" /> Started
-                  </span>
-                  <span className={styles.legendItem}>
-                    <MiniLegendDot color="rgba(31,39,50,0.22)" /> Abandoned
-                  </span>
-                </div>
+                <Button className={styles.darkBtn} pill size="md">
+                  ADD MEMBERS
+                </Button>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section className={styles.tableSection} aria-label="Most used equipment">
-            <h2 className={styles.h2}>Most used equipment.</h2>
-            <p className={styles.h2Sub}>See which equipment appears most often in member workouts.</p>
-
-            <div className={styles.tableCard}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>RANK</th>
-                    <th>EQUIPMENT</th>
-                    <th className={styles.rightAlign}>MEMBERS</th>
-                    <th className={styles.rightAlign}>USAGE RATE</th>
-                    <th className={styles.rightAlign}>FREQUENCY</th>
-                    <th className={styles.rightAlign}>TREND</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {TABLE_ROWS.map((r) => (
-                    <tr key={r.rank}>
-                      <td>{r.rank}</td>
-                      <td>{r.equipment}</td>
-                      <td className={styles.rightAlign}>{r.members}</td>
-                      <td className={styles.rightAlign}>{r.usageRate}</td>
-                      <td className={styles.rightAlign}>{r.frequency}</td>
-                      <td className={styles.rightAlign}>
-                        <span className={r.trend >= 0 ? styles.trendUp : styles.trendDown}>
-                          {r.trend >= 0 ? "↑" : "↓"} {Math.abs(r.trend)}%
-                        </span>
-                      </td>
-                    </tr>
+            <section className={styles.overview} aria-label="Overview">
+              <div className={styles.timeRow}>
+                <div className={styles.timePills} role="tablist" aria-label="Time period">
+                  {TIME_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      className={opt.value === time ? styles.timePillActive : styles.timePill}
+                      onClick={() => setTime(opt.value)}
+                      aria-label={`Time period ${opt.label}`}
+                    >
+                      {opt.label}
+                    </button>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </div>
+                <div className={styles.timeLabel} aria-hidden="true">
+                  {timeLabel}
+                </div>
+              </div>
+
+              <div className={styles.grid}>
+                <div className={styles.colLeft}>
+                  <div className={styles.statCard}>
+                    <div className={styles.cardHeadRow}>
+                      <div className={styles.cardHead}>Total members</div>
+                      <span className={styles.info} aria-hidden="true">
+                        <IconInfo />
+                      </span>
+                    </div>
+                    <div className={styles.bigNum}>1,834</div>
+                    <div className={styles.pills}>
+                      <div className={styles.pillGray}>
+                        Active: <b>1,824</b>
+                      </div>
+                      <div className={styles.pillRed}>Defaulting: 10</div>
+                    </div>
+                  </div>
+
+                  <div className={styles.statCard}>
+                    <div className={styles.cardHeadRow}>
+                      <div className={styles.cardHead}>Equipment utilization</div>
+                      <span className={styles.info} aria-hidden="true">
+                        <IconInfo />
+                      </span>
+                    </div>
+                    <div className={styles.utilRow}>
+                      <div className={styles.bigNum}>78.46%</div>
+                      <div className={styles.up}>↑ 3.56%</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.chartCard}>
+                  <div className={styles.cardHeadRow}>
+                    <div className={styles.cardHead}>Sessions over time</div>
+                    <span className={styles.info} aria-hidden="true">
+                      <IconInfo />
+                    </span>
+                  </div>
+                  <div className={styles.chartWrap}>
+                    <SessionsChart />
+                  </div>
+                  <div className={styles.legend}>
+                    <span className={styles.legendItem}>
+                      <MiniLegendDot color="#0f8f64" /> Completed
+                    </span>
+                    <span className={styles.legendItem}>
+                      <MiniLegendDot color="#f97316" /> Started
+                    </span>
+                    <span className={styles.legendItem}>
+                      <MiniLegendDot color="rgba(31,39,50,0.22)" /> Abandoned
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className={styles.tableSection} aria-label="Most used equipment">
+              <h2 className={styles.h2}>Most used equipment.</h2>
+              <p className={styles.h2Sub}>See which equipment appears most often in member workouts.</p>
+
+              <div className={styles.tableCard}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>RANK</th>
+                      <th>EQUIPMENT</th>
+                      <th className={styles.rightAlign}>MEMBERS</th>
+                      <th className={styles.rightAlign}>USAGE RATE</th>
+                      <th className={styles.rightAlign}>FREQUENCY</th>
+                      <th className={styles.rightAlign}>TREND</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {TABLE_ROWS.map((r) => (
+                      <tr key={r.rank}>
+                        <td>{r.rank}</td>
+                        <td>{r.equipment}</td>
+                        <td className={styles.rightAlign}>{r.members}</td>
+                        <td className={styles.rightAlign}>{r.usageRate}</td>
+                        <td className={styles.rightAlign}>{r.frequency}</td>
+                        <td className={styles.rightAlign}>
+                          <span className={r.trend >= 0 ? styles.trendUp : styles.trendDown}>
+                            {r.trend >= 0 ? "↑" : "↓"} {Math.abs(r.trend)}%
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </section>
-        </section>
-      </main>
+        </main>
+      </DashboardShell>
     </div>
   );
 }

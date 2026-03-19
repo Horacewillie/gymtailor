@@ -8,6 +8,7 @@ import { GymSetupPage } from "../pages/gym-setup/GymSetupPage";
 import { OwnerDashboardPage } from "../pages/dashboard/OwnerDashboardPage";
 import { SecureAccountPage } from "../pages/secure-account/SecureAccountPage";
 import { OnboardingLoadingPage } from "../pages/onboarding-loading/OnboardingLoadingPage";
+import { EquipmentPage } from "../pages/equipment/EquipmentPage";
 
 /**
  * App-level error boundary used during UI build-out.
@@ -67,6 +68,7 @@ export function App() {
           <Route path="/" element={<Navigate to="/onboarding/create-account" replace />} />
           {/* Post-onboarding destination. */}
           <Route path="/dashboard" element={<OwnerDashboardPage />} />
+          <Route path="/dashboard/equipment" element={<EquipmentPage />} />
 
           {/* Onboarding flow (owner setup). */}
           <Route path="/onboarding/create-account" element={<CreateAccountPage />} />
