@@ -19,11 +19,11 @@ const TIME_OPTIONS: Array<{ value: TimeKey; label: string }> = [
 const TABLE_ROWS = [
   { rank: 1, equipment: "Treadmill", members: 188, usageRate: "74%", frequency: 612, trend: +9 },
   { rank: 2, equipment: "Dumbbells", members: 162, usageRate: "64%", frequency: 548, trend: +14 },
-  { rank: 3, equipment: "Barbel", members: 149, usageRate: "59%", frequency: 472, trend: +4 },
+  { rank: 3, equipment: "Barbell", members: 149, usageRate: "59%", frequency: 472, trend: +4 },
   { rank: 4, equipment: "Rowing Machine", members: 171, usageRate: "67%", frequency: 451, trend: +11 },
   { rank: 5, equipment: "Stair Climber", members: 121, usageRate: "55%", frequency: 404, trend: +2 },
   { rank: 6, equipment: "Cable Machine", members: 118, usageRate: "50%", frequency: 403, trend: +7 },
-  { rank: 7, equipment: "Adjustable Bench", members: 112, usageRate: "47%", frequency: 301, trend: +15 },
+  { rank: 7, equipment: "Adjustable Bench", members: 112, usageRate: "47%", frequency: 301, trend: -9 },
   { rank: 8, equipment: "Medicine Ball", members: 89, usageRate: "41%", frequency: 200, trend: +15 },
   { rank: 9, equipment: "Free Weights", members: 85, usageRate: "39%", frequency: 189, trend: +14 },
   { rank: 10, equipment: "Kettlebell", members: 74, usageRate: "12%", frequency: 130, trend: -25 },
@@ -31,6 +31,13 @@ const TABLE_ROWS = [
 
 function MiniLegendDot(props: { color: string }) {
   return <span className={styles.legendDot} style={{ background: props.color }} />;
+}
+
+/** Trend color: positive = green; any negative / downward = red. */
+function trendClassForValue(t: number) {
+  if (t > 0) return styles.trendUp;
+  if (t < 0) return styles.trendDown;
+  return styles.trendNeutral;
 }
 
 /** Generic chevron icon (reused in the "ADD EQUIPMENT" CTA). */
@@ -264,31 +271,43 @@ export function OwnerDashboardPage() {
             </section>
 
             <section className={styles.tableSection} aria-label="Most used equipment">
-              <h2 className={styles.h2}>Most used equipment.</h2>
+              <h2 className={styles.h2}>Most used equipment</h2>
               <p className={styles.h2Sub}>See which equipment appears most often in member workouts.</p>
 
               <div className={styles.tableCard}>
                 <table className={styles.table}>
                   <thead>
                     <tr>
-                      <th>RANK</th>
-                      <th>EQUIPMENT</th>
-                      <th className={styles.rightAlign}>MEMBERS</th>
-                      <th className={styles.rightAlign}>USAGE RATE</th>
-                      <th className={styles.rightAlign}>FREQUENCY</th>
-                      <th className={styles.rightAlign}>TREND</th>
+                      <th scope="col" className={styles.thRank}>
+                        RANK
+                      </th>
+                      <th scope="col" className={styles.thEquipment}>
+                        EQUIPMENT
+                      </th>
+                      <th scope="col" className={styles.thNum}>
+                        MEMBERS
+                      </th>
+                      <th scope="col" className={styles.thNum}>
+                        USAGE RATE
+                      </th>
+                      <th scope="col" className={styles.thNum}>
+                        FREQUENCY
+                      </th>
+                      <th scope="col" className={styles.thTrend}>
+                        TREND
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {TABLE_ROWS.map((r) => (
                       <tr key={r.rank}>
-                        <td>{r.rank}</td>
-                        <td>{r.equipment}</td>
-                        <td className={styles.rightAlign}>{r.members}</td>
-                        <td className={styles.rightAlign}>{r.usageRate}</td>
-                        <td className={styles.rightAlign}>{r.frequency}</td>
-                        <td className={styles.rightAlign}>
-                          <span className={r.trend >= 0 ? styles.trendUp : styles.trendDown}>
+                        <td className={styles.tdRank}>{r.rank}</td>
+                        <td className={styles.tdEquipment}>{r.equipment}</td>
+                        <td className={styles.tdNum}>{r.members}</td>
+                        <td className={styles.tdNum}>{r.usageRate}</td>
+                        <td className={styles.tdNum}>{r.frequency}</td>
+                        <td className={styles.tdTrend}>
+                          <span className={trendClassForValue(r.trend)}>
                             {r.trend >= 0 ? "↑" : "↓"} {Math.abs(r.trend)}%
                           </span>
                         </td>

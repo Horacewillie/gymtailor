@@ -1,6 +1,9 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Button } from "../../components/button/Button";
+import { Modal } from "../../components/modal/Modal";
+import { SuccessModal } from "../../components/success-modal/SuccessModal";
 import { DashboardShell } from "../../components/dashboard-shell/DashboardShell";
+import { EquipmentDetailPanel } from "./EquipmentDetailPanel";
 import styles from "./EquipmentPage.module.css";
 
 type EquipmentStatus = "Available" | "Unavailable";
@@ -76,17 +79,6 @@ function IconTrash() {
   );
 }
 
-function IconX() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M18.3 5.7a1 1 0 0 1 0 1.4L13.4 12l4.9 4.9a1 1 0 1 1-1.4 1.4L12 13.4l-4.9 4.9a1 1 0 0 1-1.4-1.4l4.9-4.9-4.9-4.9a1 1 0 0 1 1.4-1.4l4.9 4.9 4.9-4.9a1 1 0 0 1 1.4 0Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
 function IconPhoto() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -143,6 +135,62 @@ function downloadTextFile(filename: string, contents: string, mime = "text/plain
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+}
+
+/** Max upload size for CSV import (matches UI copy). */
+const MAX_CSV_IMPORT_BYTES = 50 * 1024 * 1024;
+
+/** Template users download before filling data — columns documented in the modal. */
+const EQUIPMENT_IMPORT_CSV_TEMPLATE = `Equipment,Category,Total units
+Bench press,Free weights,2
+Elliptical,Cardio,1
+`;
+
+function parseCsvLine(line: string): string[] {
+  const result: string[] = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      inQuotes = !inQuotes;
+    } else if (c === "," && !inQuotes) {
+      result.push(cur);
+      cur = "";
+    } else if (c !== "\r") {
+      cur += c;
+    }
+  }
+  result.push(cur);
+  return result.map((s) => s.trim().replace(/^"|"$/g, "").replace(/""/g, '"'));
+}
+
+function parseEquipmentImportCsv(text: string): EquipmentItem[] {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+  if (lines.length < 2) return [];
+  const out: EquipmentItem[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCsvLine(lines[i]);
+    const name = cols[0]?.trim() ?? "";
+    if (!name) continue;
+    const cat = (cols[1]?.trim() || "General").trim();
+    const unitsRaw = cols[2]?.trim();
+    const units = Math.max(1, Math.floor(Number(unitsRaw)) || 1);
+    const id = `${name.toLowerCase().replace(/\s+/g, "-")}-csv-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 9)}`;
+    out.push({
+      id,
+      name,
+      addedOn: new Date(),
+      category: cat,
+      status: "Available",
+      totalUnits: units,
+      frequency: 0,
+    });
+  }
+  return out;
 }
 
 const SEED_ITEMS: EquipmentItem[] = [
@@ -258,6 +306,33 @@ export function EquipmentPage() {
   const addMenuWrapRef = useRef<HTMLDivElement | null>(null);
 
   const [addModalOpen, setAddModalOpen] = useState(false);
+  /** After add form submit. */
+  const [addSuccessModalOpen, setAddSuccessModalOpen] = useState(false);
+
+  const [importCsvModalOpen, setImportCsvModalOpen] = useState(false);
+  const [csvImportFile, setCsvImportFile] = useState<File | null>(null);
+  const [csvImportError, setCsvImportError] = useState<string | null>(null);
+  const csvImportFileInputId = useId();
+
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<AddEquipmentDraft>({
+    imageFile: null,
+    name: "",
+    category: "",
+    notifyMember: false,
+  });
+  const updateFileInputId = useId();
+  const [updateSuccessModalOpen, setUpdateSuccessModalOpen] = useState(false);
+
+  /** Row pending removal — confirmation modal open when set. */
+  const [removeTarget, setRemoveTarget] = useState<{ id: string; name: string } | null>(null);
+  const [removeSuccessModalOpen, setRemoveSuccessModalOpen] = useState(false);
+
+  /** Equipment detail overlay (slides in over list; nav stays visible). */
+  const [equipmentDetailId, setEquipmentDetailId] = useState<string | null>(null);
+  const [equipmentDetailOpen, setEquipmentDetailOpen] = useState(false);
+
   const addFileInputId = useId();
   const [draft, setDraft] = useState<AddEquipmentDraft>({
     imageFile: null,
@@ -267,6 +342,19 @@ export function EquipmentPage() {
   });
 
   const canAdd = draft.name.trim().length > 0 && draft.category.trim().length > 0;
+  const canSaveEdit =
+    editingId !== null && editDraft.name.trim().length > 0 && editDraft.category.trim().length > 0;
+
+  const editImageUrl = useMemo(() => {
+    if (!editDraft.imageFile) return null;
+    return URL.createObjectURL(editDraft.imageFile);
+  }, [editDraft.imageFile]);
+
+  useEffect(() => {
+    return () => {
+      if (editImageUrl) URL.revokeObjectURL(editImageUrl);
+    };
+  }, [editImageUrl]);
 
   const addMenuOptions = useMemo(() => {
     return [
@@ -277,9 +365,32 @@ export function EquipmentPage() {
           setAddModalOpen(true);
         },
       },
-      { id: "csv", label: "Upload CSV for bulk import", onSelect: () => window.alert("Upload CSV") },
+      {
+        id: "csv",
+        label: "Upload CSV for bulk import",
+        onSelect: () => {
+          setImportCsvModalOpen(true);
+        },
+      },
     ] as const;
   }, []);
+
+  const equipmentDetailItem = useMemo(
+    () => (equipmentDetailId ? items.find((i) => i.id === equipmentDetailId) ?? null : null),
+    [items, equipmentDetailId],
+  );
+
+  useEffect(() => {
+    if (!equipmentDetailId) {
+      setEquipmentDetailOpen(false);
+      return;
+    }
+    setEquipmentDetailOpen(false);
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setEquipmentDetailOpen(true));
+    });
+    return () => cancelAnimationFrame(id);
+  }, [equipmentDetailId]);
 
   useEffect(() => {
     if (!addMenuOpen) return;
@@ -299,14 +410,6 @@ export function EquipmentPage() {
     };
   }, [addMenuOpen]);
 
-  useEffect(() => {
-    if (!addModalOpen) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setAddModalOpen(false);
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [addModalOpen]);
 
   const total = items.length;
   const availableCount = useMemo(() => items.filter((i) => i.status === "Available").length, [items]);
@@ -393,149 +496,518 @@ export function EquipmentPage() {
               </div>
             </div>
 
-            {addModalOpen ? (
-              <div
-                className={styles.modalOverlay}
-                role="dialog"
-                aria-modal="true"
-                aria-label="Add equipment"
-                onMouseDown={(e) => {
-                  // Close when clicking the overlay, but not when clicking inside the modal.
-                  if (e.target === e.currentTarget) setAddModalOpen(false);
-                }}
-              >
-                <div className={styles.modal}>
-                  <div className={styles.modalHeader}>
-                    <h2 className={styles.modalTitle}>Add equipment</h2>
-                    <button
-                      type="button"
-                      className={styles.closeBtn}
-                      aria-label="Close"
-                      onClick={() => setAddModalOpen(false)}
-                    >
-                      <IconX />
-                    </button>
-                  </div>
+            <Modal
+              open={addModalOpen}
+              onClose={() => setAddModalOpen(false)}
+              title="Add equipment"
+              titleId="add-equipment-title"
+              size="lg"
+              footer={
+                <>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    pill
+                    fullWidth
+                    size="lg"
+                    onClick={() => setAddModalOpen(false)}
+                  >
+                    CANCEL
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    pill
+                    fullWidth
+                    size="lg"
+                    disabled={!canAdd}
+                    onClick={() => {
+                      if (!canAdd) return;
+                      const next: EquipmentItem = {
+                        id: `${draft.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
+                        name: draft.name.trim(),
+                        addedOn: new Date(),
+                        category: draft.category,
+                        status: "Available",
+                        totalUnits: 1,
+                        frequency: 0,
+                      };
+                      setItems((prev) => [next, ...prev]);
+                      setAddModalOpen(false);
+                      setDraft({ imageFile: null, name: "", category: "", notifyMember: false });
+                      setPage(1);
+                      setAddSuccessModalOpen(true);
+                    }}
+                  >
+                    ADD EQUIPMENT
+                  </Button>
+                </>
+              }
+            >
+              <>
+                <div className={styles.fieldLabel}>UPLOAD EQUIPMENT IMAGE</div>
 
-                  <div className={styles.modalBody}>
-                    <div className={styles.fieldLabel}>UPLOAD EQUIPMENT IMAGE</div>
+                <input
+                  id={addFileInputId}
+                  className={styles.fileInput}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={(e) => {
+                    const input = e.currentTarget;
+                    const f = input.files?.[0] ?? null;
+                    setDraft((d) => ({ ...d, imageFile: f }));
+                  }}
+                />
 
-                    <input
-                      id={addFileInputId}
-                      className={styles.fileInput}
-                      type="file"
-                      accept="image/png,image/jpeg"
-                      onChange={(e) => {
-                        const input = e.currentTarget;
-                        const f = input.files?.[0] ?? null;
-                        setDraft((d) => ({ ...d, imageFile: f }));
-                      }}
-                    />
+                <label className={styles.dropzone} htmlFor={addFileInputId}>
+                  <span className={styles.dropIcon} aria-hidden="true">
+                    <IconPhoto />
+                  </span>
+                  <span className={styles.dropText}>
+                    Drop your files here or <span className={styles.dropLink}>Click to upload</span>
+                  </span>
+                  <span className={styles.dropHint}>JPG, PNG. Max size: 2MB</span>
+                </label>
 
-                    <label className={styles.dropzone} htmlFor={addFileInputId}>
-                      <span className={styles.dropIcon} aria-hidden="true">
-                        <IconPhoto />
-                      </span>
-                      <span className={styles.dropText}>
-                        Drop your files here or <span className={styles.dropLink}>Click to upload</span>
-                      </span>
-                      <span className={styles.dropHint}>JPG, PNG. Max size: 2MB</span>
-                    </label>
+                <div className={styles.noteRow}>
+                  <span className={styles.noteIcon} aria-hidden="true">
+                    i
+                  </span>
+                  <span>Your gym members will see this image on their end.</span>
+                </div>
 
-                    <div className={styles.noteRow}>
-                      <span className={styles.noteIcon} aria-hidden="true">
-                        i
-                      </span>
-                      <span>Your gym members will see this image on their end.</span>
-                    </div>
+                <div className={styles.fieldLabel}>EQUIPMENT NAME</div>
+                <input
+                  className={styles.input}
+                  placeholder="Enter equipment name"
+                  value={draft.name}
+                  onChange={(e) => {
+                    const next = e.currentTarget.value;
+                    setDraft((d) => ({ ...d, name: next }));
+                  }}
+                />
 
-                    <div className={styles.fieldLabel}>EQUIPMENT NAME</div>
-                    <input
-                      className={styles.input}
-                      placeholder="Enter equipment name"
-                      value={draft.name}
-                      onChange={(e) => {
-                        // Capture first to avoid React event/value becoming null during scheduling.
-                        const next = e.currentTarget.value;
-                        setDraft((d) => ({ ...d, name: next }));
-                      }}
-                    />
+                <div style={{ height: 14 }} />
 
-                    <div style={{ height: 14 }} />
+                <div className={styles.fieldLabel}>CATEGORY</div>
+                <select
+                  className={styles.select}
+                  value={draft.category}
+                  onChange={(e) => {
+                    const next = e.currentTarget.value;
+                    setDraft((d) => ({ ...d, category: next }));
+                  }}
+                >
+                  <option value="" disabled>
+                    Select category
+                  </option>
+                  {categories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
 
-                    <div className={styles.fieldLabel}>CATEGORY</div>
-                    <select
-                      className={styles.select}
-                      value={draft.category}
-                      onChange={(e) => {
-                        const next = e.currentTarget.value;
-                        setDraft((d) => ({ ...d, category: next }));
-                      }}
-                    >
-                      <option value="" disabled>
-                        Select category
-                      </option>
-                      {categories.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
+                <label className={styles.checkRow}>
+                  <input
+                    type="checkbox"
+                    checked={draft.notifyMember}
+                    onChange={(e) => {
+                      const next = e.currentTarget.checked;
+                      setDraft((d) => ({ ...d, notifyMember: next }));
+                    }}
+                  />
+                  Notify member about this update
+                </label>
+              </>
+            </Modal>
 
-                    <label className={styles.checkRow}>
-                      <input
-                        type="checkbox"
-                        checked={draft.notifyMember}
-                        onChange={(e) => {
-                          const next = e.currentTarget.checked;
-                          setDraft((d) => ({ ...d, notifyMember: next }));
-                        }}
-                      />
-                      Notify member about this update
-                    </label>
-                  </div>
-
-                  <div className={styles.modalFooter}>
+            <Modal
+              open={importCsvModalOpen}
+              onClose={() => {
+                setImportCsvModalOpen(false);
+                setCsvImportFile(null);
+                setCsvImportError(null);
+              }}
+              title="Import equipment from CSV"
+              titleId="import-equipment-csv-title"
+              size="sm"
+              footer={
+                <>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    pill
+                    fullWidth
+                    size="md"
+                    onClick={() => {
+                      setImportCsvModalOpen(false);
+                      setCsvImportFile(null);
+                      setCsvImportError(null);
+                    }}
+                  >
+                    CANCEL
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    pill
+                    fullWidth
+                    size="md"
+                    disabled={!csvImportFile}
+                    onClick={() => {
+                      if (!csvImportFile) return;
+                      void (async () => {
+                        try {
+                          const text = await csvImportFile.text();
+                          const parsed = parseEquipmentImportCsv(text);
+                          if (parsed.length === 0) {
+                            setCsvImportError(
+                              "No valid equipment rows found. Use the template columns: Equipment, Category, Total units.",
+                            );
+                            return;
+                          }
+                          setCsvImportError(null);
+                          setItems((prev) => [...parsed, ...prev]);
+                          setImportCsvModalOpen(false);
+                          setCsvImportFile(null);
+                          setPage(1);
+                          setAddSuccessModalOpen(true);
+                        } catch {
+                          setCsvImportError("Could not read this file. Try a UTF-8 CSV export.");
+                        }
+                      })();
+                    }}
+                  >
+                    CONTINUE
+                  </Button>
+                </>
+              }
+            >
+              <>
+                <div className={styles.csvTemplateBox}>
+                  <div className={styles.csvTemplateHeading}>Download the origin template</div>
+                  <p className={styles.csvTemplateDesc}>
+                    Download a CSV template to match the required format and fill in the data. Then upload the file below
+                    to add multiple equipment.
+                  </p>
+                  <div className={styles.csvTemplateBtnRow}>
                     <Button
                       type="button"
                       variant="ghost"
                       pill
                       fullWidth
-                      size="lg"
-                      onClick={() => setAddModalOpen(false)}
-                    >
-                      CANCEL
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="primary"
-                      pill
-                      fullWidth
-                      size="lg"
-                      disabled={!canAdd}
+                      size="md"
+                      className={styles.csvTemplateDownloadBtn}
                       onClick={() => {
-                        if (!canAdd) return;
-                        const next: EquipmentItem = {
-                          id: `${draft.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
-                          name: draft.name.trim(),
-                          addedOn: new Date(),
-                          category: draft.category,
-                          status: "Available",
-                          totalUnits: 1,
-                          frequency: 0,
-                        };
-                        setItems((prev) => [next, ...prev]);
-                        setAddModalOpen(false);
-                        setDraft({ imageFile: null, name: "", category: "", notifyMember: false });
-                        setPage(1);
+                        downloadTextFile(
+                          "equipment-import-template.csv",
+                          EQUIPMENT_IMPORT_CSV_TEMPLATE,
+                          "text/csv;charset=utf-8",
+                        );
                       }}
                     >
-                      ADD EQUIPMENT
+                      DOWNLOAD CSV TEMPLATE
                     </Button>
                   </div>
                 </div>
-              </div>
-            ) : null}
+
+                <div className={styles.csvUploadHeading}>Upload your CSV file</div>
+                <p className={styles.csvUploadDesc}>
+                  Upload the CSV file with your equipment inventory below.
+                </p>
+
+                <input
+                  id={csvImportFileInputId}
+                  className={styles.fileInput}
+                  type="file"
+                  accept=".csv,text/csv"
+                  onChange={(e) => {
+                    const input = e.currentTarget;
+                    const f = input.files?.[0] ?? null;
+                    setCsvImportError(null);
+                    if (!f) {
+                      setCsvImportFile(null);
+                      return;
+                    }
+                    if (f.size > MAX_CSV_IMPORT_BYTES) {
+                      setCsvImportError("Maximum file size is 50MB.");
+                      setCsvImportFile(null);
+                      input.value = "";
+                      return;
+                    }
+                    setCsvImportFile(f);
+                  }}
+                />
+                <label
+                  className={`${styles.dropzone} ${styles.csvImportDropzone}`}
+                  htmlFor={csvImportFileInputId}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const f = e.dataTransfer.files?.[0];
+                    setCsvImportError(null);
+                    if (!f) return;
+                    if (!/\.csv$/i.test(f.name) && f.type !== "text/csv" && f.type !== "application/vnd.ms-excel") {
+                      setCsvImportError("Please choose a .csv file.");
+                      return;
+                    }
+                    if (f.size > MAX_CSV_IMPORT_BYTES) {
+                      setCsvImportError("Maximum file size is 50MB.");
+                      setCsvImportFile(null);
+                      return;
+                    }
+                    setCsvImportFile(f);
+                  }}
+                >
+                  <span className={styles.csvDropBadge} aria-hidden="true">
+                    CSV
+                  </span>
+                  <span className={styles.dropText}>
+                    Drop your files here or <span className={styles.dropLink}>Click to upload</span>
+                  </span>
+                  <span className={styles.dropHint}>Maximum size: 50MB</span>
+                </label>
+                {csvImportFile ? (
+                  <div className={styles.csvSelectedFile} aria-live="polite">
+                    Selected: <strong>{csvImportFile.name}</strong>
+                  </div>
+                ) : null}
+                {csvImportError ? (
+                  <div className={styles.csvImportError} role="alert">
+                    {csvImportError}
+                  </div>
+                ) : null}
+              </>
+            </Modal>
+
+            <Modal
+              open={updateModalOpen}
+              onClose={() => {
+                setUpdateModalOpen(false);
+                setEditingId(null);
+                setEditDraft({ imageFile: null, name: "", category: "", notifyMember: false });
+              }}
+              title="Update equipment"
+              titleId="update-equipment-title"
+              size="lg"
+              footer={
+                <>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    pill
+                    fullWidth
+                    size="lg"
+                    onClick={() => {
+                      setUpdateModalOpen(false);
+                      setEditingId(null);
+                    }}
+                  >
+                    CANCEL
+                  </Button>
+                  <Button
+                    type="button"
+                    pill
+                    fullWidth
+                    size="lg"
+                    className={styles.modalSaveBtn}
+                    disabled={!canSaveEdit}
+                    onClick={() => {
+                      if (!canSaveEdit || !editingId) return;
+                      setItems((prev) =>
+                        prev.map((it) =>
+                          it.id === editingId
+                            ? {
+                                ...it,
+                                name: editDraft.name.trim(),
+                                category: editDraft.category,
+                              }
+                            : it,
+                        ),
+                      );
+                      setUpdateModalOpen(false);
+                      setEditingId(null);
+                      setEditDraft({ imageFile: null, name: "", category: "", notifyMember: false });
+                      setUpdateSuccessModalOpen(true);
+                    }}
+                  >
+                    SAVE CHANGES
+                  </Button>
+                </>
+              }
+            >
+              <>
+                <div className={styles.fieldLabel}>UPLOAD EQUIPMENT IMAGE</div>
+                <input
+                  id={updateFileInputId}
+                  className={styles.fileInput}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={(e) => {
+                    const input = e.currentTarget;
+                    const f = input.files?.[0] ?? null;
+                    setEditDraft((d) => ({ ...d, imageFile: f }));
+                  }}
+                />
+                {editImageUrl ? (
+                  <div className={styles.imagePreviewWrap}>
+                    <img className={styles.imagePreview} src={editImageUrl} alt="" />
+                  </div>
+                ) : (
+                  <label className={styles.dropzone} htmlFor={updateFileInputId}>
+                    <span className={styles.dropIcon} aria-hidden="true">
+                      <IconPhoto />
+                    </span>
+                    <span className={styles.dropText}>
+                      Drop your files here or <span className={styles.dropLink}>Click to upload</span>
+                    </span>
+                    <span className={styles.dropHint}>JPG, PNG. Max size: 2MB</span>
+                  </label>
+                )}
+
+                <div className={styles.noteRow}>
+                  <span className={styles.noteIcon} aria-hidden="true">
+                    i
+                  </span>
+                  <span>Your gym members will see this image on their end.</span>
+                </div>
+
+                <div className={styles.fieldLabel}>EQUIPMENT NAME</div>
+                <input
+                  className={styles.input}
+                  placeholder="Enter equipment name"
+                  value={editDraft.name}
+                  onChange={(e) => {
+                    const next = e.currentTarget.value;
+                    setEditDraft((d) => ({ ...d, name: next }));
+                  }}
+                />
+
+                <div style={{ height: 14 }} />
+
+                <div className={styles.fieldLabel}>CATEGORY</div>
+                <select
+                  className={styles.select}
+                  value={editDraft.category}
+                  onChange={(e) => {
+                    const next = e.currentTarget.value;
+                    setEditDraft((d) => ({ ...d, category: next }));
+                  }}
+                >
+                  <option value="" disabled>
+                    Select category
+                  </option>
+                  {categories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+
+                <label className={styles.checkRow}>
+                  <input
+                    type="checkbox"
+                    checked={editDraft.notifyMember}
+                    onChange={(e) => {
+                      const next = e.currentTarget.checked;
+                      setEditDraft((d) => ({ ...d, notifyMember: next }));
+                    }}
+                  />
+                  Notify member about this update
+                </label>
+              </>
+            </Modal>
+
+            <SuccessModal
+              open={addSuccessModalOpen}
+              onClose={() => setAddSuccessModalOpen(false)}
+              titleId="equipment-added-success"
+              line1="Equipment added"
+              line2="successfully"
+              primaryLabel="ADD EQUIPMENT UNIT"
+              onPrimary={() => setAddSuccessModalOpen(false)}
+              secondaryLabel="DISMISS"
+              onSecondary={() => setAddSuccessModalOpen(false)}
+              primaryLayout="narrow"
+            />
+
+            <SuccessModal
+              open={updateSuccessModalOpen}
+              onClose={() => setUpdateSuccessModalOpen(false)}
+              titleId="equipment-updated-success"
+              line1="Equipment updated"
+              line2="successfully"
+              primaryLabel="DISMISS"
+              onPrimary={() => setUpdateSuccessModalOpen(false)}
+              primaryLayout="full"
+            />
+
+            <Modal
+              open={removeTarget !== null}
+              onClose={() => setRemoveTarget(null)}
+              title="Remove equipment?"
+              titleId="remove-equipment-title"
+              titleClassName={styles.removeModalTitle}
+              size="sm"
+              footerAlign="end"
+              footer={
+                <>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    pill
+                    size="md"
+                    className={styles.removeModalCancelBtn}
+                    onClick={() => setRemoveTarget(null)}
+                  >
+                    CANCEL
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    pill
+                    size="md"
+                    className={styles.removeModalConfirmBtn}
+                    onClick={() => {
+                      if (!removeTarget) return;
+                      setItems((prev) => prev.filter((x) => x.id !== removeTarget.id));
+                      setChecked((prev) => {
+                        const next = { ...prev };
+                        delete next[removeTarget.id];
+                        return next;
+                      });
+                      setRemoveTarget(null);
+                      setRemoveSuccessModalOpen(true);
+                    }}
+                  >
+                    YES, REMOVE
+                  </Button>
+                </>
+              }
+            >
+              {removeTarget ? (
+                <p className={styles.removeModalBody}>
+                  Are you sure you want to remove <strong>{removeTarget.name}</strong> from your inventory?
+                  Removing it will stop it from appearing in member workout recommendations for all your branches.
+                </p>
+              ) : null}
+            </Modal>
+
+            <SuccessModal
+              open={removeSuccessModalOpen}
+              onClose={() => setRemoveSuccessModalOpen(false)}
+              titleId="equipment-removed-success"
+              line1="Equipment removed"
+              line2="successfully"
+              primaryLabel="DISMISS"
+              onPrimary={() => setRemoveSuccessModalOpen(false)}
+              primaryLayout="full"
+            />
 
             <section className={styles.stats} aria-label="Equipment overview">
               <div className={styles.statCard}>
@@ -645,7 +1117,15 @@ export function EquipmentPage() {
                           }
                         />
                       </td>
-                      <td>{r.name}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className={styles.equipmentNameBtn}
+                          onClick={() => setEquipmentDetailId(r.id)}
+                        >
+                          {r.name}
+                        </button>
+                      </td>
                       <td>{formatAddedOn(r.addedOn)}</td>
                       <td>{r.category}</td>
                       <td>
@@ -667,8 +1147,14 @@ export function EquipmentPage() {
                             className={styles.iconBtn}
                             aria-label={`Edit ${r.name}`}
                             onClick={() => {
-                              // Placeholder: wiring a real edit flow would open a modal/drawer.
-                              window.alert(`Edit: ${r.name}`);
+                              setEditingId(r.id);
+                              setEditDraft({
+                                imageFile: null,
+                                name: r.name,
+                                category: r.category,
+                                notifyMember: false,
+                              });
+                              setUpdateModalOpen(true);
                             }}
                           >
                             <IconEdit />
@@ -677,7 +1163,7 @@ export function EquipmentPage() {
                             type="button"
                             className={[styles.iconBtn, styles.iconBtnDanger].join(" ")}
                             aria-label={`Delete ${r.name}`}
-                            onClick={() => setItems((prev) => prev.filter((x) => x.id !== r.id))}
+                            onClick={() => setRemoveTarget({ id: r.id, name: r.name })}
                           >
                             <IconTrash />
                           </button>
@@ -743,6 +1229,15 @@ export function EquipmentPage() {
           </section>
         </main>
       </DashboardShell>
+
+      {equipmentDetailItem ? (
+        <EquipmentDetailPanel
+          item={equipmentDetailItem}
+          open={equipmentDetailOpen}
+          onBack={() => setEquipmentDetailOpen(false)}
+          onExitAnimationEnd={() => setEquipmentDetailId(null)}
+        />
+      ) : null}
     </div>
   );
 }
