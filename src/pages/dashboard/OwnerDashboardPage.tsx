@@ -17,7 +17,6 @@ const TIME_OPTIONS: Array<{ value: TimeKey; label: string }> = [
   { value: "ytd", label: "YTD" },
 ];
 
-
 // Helper to map API equipment to table row format
 type EquipmentApi = {
   id: number;
@@ -45,18 +44,21 @@ function mapEquipmentToRow(equip: EquipmentApi, idx: number): TableRow {
     members: Array.isArray(equip.members_used) ? equip.members_used.length : 0,
     usageRate: equip.usage_rate ? `${equip.usage_rate}%` : "-",
     frequency: equip.frequency ?? "-",
-    trend: Array.isArray(equip.trend) && equip.trend.length > 0
-      ? (() => {
-          // Calculate trend as difference in usage (example: last vs previous)
-          // Here, just show +N for new users in trend array
-          return equip.trend.length;
-        })()
-      : 0,
+    trend:
+      Array.isArray(equip.trend) && equip.trend.length > 0
+        ? (() => {
+            // Calculate trend as difference in usage (example: last vs previous)
+            // Here, just show +N for new users in trend array
+            return equip.trend.length;
+          })()
+        : 0,
   };
 }
 
 function MiniLegendDot(props: { color: string }) {
-  return <span className={styles.legendDot} style={{ background: props.color }} />;
+  return (
+    <span className={styles.legendDot} style={{ background: props.color }} />
+  );
 }
 
 /** Trend color: positive = green; any negative / downward = red. */
@@ -124,7 +126,12 @@ function SessionsChart() {
   // Static SVG chart drawn to match screenshot shape/layout.
   // This avoids pulling a charting dependency while design is being finalized.
   return (
-    <svg className={styles.chart} viewBox="0 0 520 240" role="img" aria-label="Sessions chart">
+    <svg
+      className={styles.chart}
+      viewBox="0 0 520 240"
+      role="img"
+      aria-label="Sessions chart"
+    >
       <defs>
         <clipPath id="clip">
           <rect x="20" y="16" width="482" height="176" rx="10" />
@@ -139,7 +146,12 @@ function SessionsChart() {
       </g>
 
       {/* lines */}
-      <g clipPath="url(#clip)" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <g
+        clipPath="url(#clip)"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path
           d="M28 166 L110 110 L192 112 L274 110 L356 86 L438 56 L502 38"
           stroke="#0f8f64"
@@ -158,7 +170,11 @@ function SessionsChart() {
       </g>
 
       {/* x labels */}
-      <g fill="rgba(31,39,50,0.45)" fontSize="10" fontFamily="Onest, Inter, system-ui, sans-serif">
+      <g
+        fill="rgba(31,39,50,0.45)"
+        fontSize="10"
+        fontFamily="Onest, Inter, system-ui, sans-serif"
+      >
         {["DEC 1", "DEC 2", "DEC 3", "DEC 4", "DEC 6", "DEC 7"].map((d, i) => (
           <text key={d} x={60 + i * 84} y="220" textAnchor="middle">
             {d}
@@ -172,7 +188,9 @@ function SessionsChart() {
 export function OwnerDashboardPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [dashboardData, setDashboardData] = useState<any>(location.state?.dashboardData || null);
+  const [dashboardData, setDashboardData] = useState<any>(
+    location.state?.dashboardData || null,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -181,14 +199,15 @@ export function OwnerDashboardPage() {
     if (!dashboardData) {
       setLoading(true);
       const api = new Api();
-      const token = localStorage.getItem('token');
-      api.get<any>("/api/dashboard", {
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        }
-      })
+      const token = localStorage.getItem("token");
+      api
+        .get<any>("/api/dashboard", {
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        })
         .then((data) => {
-          console.log('dashboardData:', data);
+          console.log("dashboardData:", data);
           setDashboardData(data);
           setError(null);
         })
@@ -205,14 +224,21 @@ export function OwnerDashboardPage() {
     : [];
 
   // Fallbacks for member count and utilization
-  const memberCount = typeof dashboardData?.member_count === "number" ? dashboardData.member_count : 0;
-  const equipmentUtilization = typeof dashboardData?.equipment_utilization === "number"
-    ? dashboardData.equipment_utilization.toFixed(2)
-    : "0.00";
+  const memberCount =
+    typeof dashboardData?.member_count === "number"
+      ? dashboardData.member_count
+      : 0;
+  const equipmentUtilization =
+    typeof dashboardData?.equipment_utilization === "number"
+      ? dashboardData.equipment_utilization.toFixed(2)
+      : "0.00";
   // UI-only state for time toggles and active nav styling.
   const [time, setTime] = useState<TimeKey>("7d");
 
-  const timeLabel = useMemo(() => TIME_OPTIONS.find((t) => t.value === time)?.label ?? "7D", [time]);
+  const timeLabel = useMemo(
+    () => TIME_OPTIONS.find((t) => t.value === time)?.label ?? "7D",
+    [time],
+  );
 
   if (loading) {
     return (
@@ -231,7 +257,7 @@ export function OwnerDashboardPage() {
       <div className={styles.page}>
         <DashboardShell>
           <main className={styles.main}>
-            <div style={{ color: 'red' }}>{error}</div>
+            <div style={{ color: "red" }}>{error}</div>
           </main>
         </DashboardShell>
       </div>
@@ -246,7 +272,8 @@ export function OwnerDashboardPage() {
             <header className={styles.header}>
               <h1 className={styles.h1}>Good Morning!</h1>
               <p className={styles.h1Sub}>
-                Track what&apos;s happening across members, workouts, and equipment.
+                Track what&apos;s happening across members, workouts, and
+                equipment.
               </p>
             </header>
 
@@ -258,16 +285,22 @@ export function OwnerDashboardPage() {
                 <div className={styles.actionCopy}>
                   <div className={styles.actionTitle}>Add your equipment</div>
                   <div className={styles.actionSub}>
-                    Upload a CSV to import everything at once, or add items manually.
+                    Upload a CSV to import everything at once, or add items
+                    manually.
                   </div>
                 </div>
                 <Button
                   className={styles.darkBtn}
                   pill
                   size="md"
-                  onClick={() => navigate("/dashboard/equipment", { state: { openAdd: true } })}
+                  onClick={() =>
+                    navigate("/dashboard/equipment", {
+                      state: { openAdd: true },
+                    })
+                  }
                 >
-                  ADD EQUIPMENT <IconChevronDown className={styles.chevDownIcon} />
+                  ADD EQUIPMENT{" "}
+                  <IconChevronDown className={styles.chevDownIcon} />
                 </Button>
               </div>
 
@@ -278,7 +311,8 @@ export function OwnerDashboardPage() {
                 <div className={styles.actionCopy}>
                   <div className={styles.actionTitle}>Add your members</div>
                   <div className={styles.actionSub}>
-                    Members sign in by selecting your gym and confirming their email.
+                    Members sign in by selecting your gym and confirming their
+                    email.
                   </div>
                 </div>
                 <Button className={styles.darkBtn} pill size="md">
@@ -289,12 +323,20 @@ export function OwnerDashboardPage() {
 
             <section className={styles.overview} aria-label="Overview">
               <div className={styles.timeRow}>
-                <div className={styles.timePills} role="tablist" aria-label="Time period">
+                <div
+                  className={styles.timePills}
+                  role="tablist"
+                  aria-label="Time period"
+                >
                   {TIME_OPTIONS.map((opt) => (
                     <button
                       key={opt.value}
                       type="button"
-                      className={opt.value === time ? styles.timePillActive : styles.timePill}
+                      className={
+                        opt.value === time
+                          ? styles.timePillActive
+                          : styles.timePill
+                      }
                       onClick={() => setTime(opt.value)}
                       aria-label={`Time period ${opt.label}`}
                     >
@@ -321,13 +363,17 @@ export function OwnerDashboardPage() {
 
                   <div className={styles.statCard}>
                     <div className={styles.cardHeadRow}>
-                      <div className={styles.cardHead}>Equipment utilization</div>
+                      <div className={styles.cardHead}>
+                        Equipment utilization
+                      </div>
                       <span className={styles.info} aria-hidden="true">
                         <IconInfo />
                       </span>
                     </div>
                     <div className={styles.utilRow}>
-                      <div className={styles.bigNum}>{equipmentUtilization}%</div>
+                      <div className={styles.bigNum}>
+                        {equipmentUtilization}%
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -357,9 +403,14 @@ export function OwnerDashboardPage() {
               </div>
             </section>
 
-            <section className={styles.tableSection} aria-label="Most used equipment">
+            <section
+              className={styles.tableSection}
+              aria-label="Most used equipment"
+            >
               <h2 className={styles.h2}>Most used equipment</h2>
-              <p className={styles.h2Sub}>See which equipment appears most often in member workouts.</p>
+              <p className={styles.h2Sub}>
+                See which equipment appears most often in member workouts.
+              </p>
 
               <div className={styles.tableCard}>
                 <table className={styles.table}>
@@ -410,4 +461,3 @@ export function OwnerDashboardPage() {
     </div>
   );
 }
-
