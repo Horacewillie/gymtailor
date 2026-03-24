@@ -1058,16 +1058,26 @@ export function EquipmentPage() {
                     pill
                     size="md"
                     className={styles.removeModalConfirmBtn}
-                    onClick={() => {
+                    onClick={async () => {
                       if (!removeTarget) return;
-                      setItems((prev) => prev.filter((x) => x.id !== removeTarget.id));
-                      setChecked((prev) => {
-                        const next = { ...prev };
-                        delete next[removeTarget.id];
-                        return next;
-                      });
-                      setRemoveTarget(null);
-                      setRemoveSuccessModalOpen(true);
+                      const token = localStorage.getItem("token") || localStorage.getItem("access_token");
+                      try {
+                        await api.delete(`/api/equipment/${encodeURIComponent(removeTarget.id)}`, {
+                          headers: {
+                            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                          },
+                        });
+                        setItems((prev) => prev.filter((x) => x.id !== removeTarget.id));
+                        setChecked((prev) => {
+                          const next = { ...prev };
+                          delete next[removeTarget.id];
+                          return next;
+                        });
+                        setRemoveTarget(null);
+                        setRemoveSuccessModalOpen(true);
+                      } catch (error) {
+                        console.error("Failed to delete equipment:", error);
+                      }
                     }}
                   >
                     YES, REMOVE

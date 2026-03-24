@@ -37,4 +37,23 @@ export default class Api {
     }
     return response.json();
   }
+
+  async delete<T = void>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      ...options,
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`DELETE ${endpoint} failed: ${response.status}`);
+    }
+    if (response.status === 204) {
+      return undefined as T;
+    }
+    const text = await response.text();
+    return (text ? JSON.parse(text) : undefined) as T;
+  }
 }
