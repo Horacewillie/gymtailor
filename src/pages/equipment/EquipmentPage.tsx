@@ -130,6 +130,16 @@ type CreateEquipmentApiResponse = {
   serial_number?: string;
 };
 
+const DEFAULT_GYM_CATEGORIES = [
+  "Cardio",
+  "Strength",
+  "Free Weights",
+  "Functional Training",
+  "Group Cycle",
+  "Machine",
+  "Recovery",
+];
+
 function formatAddedOn(d: Date) {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const day = String(d.getDate()).padStart(2, "0");
@@ -435,7 +445,9 @@ export function EquipmentPage() {
   const unavailableCount = useMemo(() => items.filter((i) => i.status === "Unavailable").length, [items]);
 
   const categories = useMemo(() => {
-    return Array.from(new Set(items.map((i) => i.category))).sort((a, b) => a.localeCompare(b));
+    return Array.from(new Set([...DEFAULT_GYM_CATEGORIES, ...items.map((i) => i.category)]))
+      .filter((c) => c.trim().length > 0)
+      .sort((a, b) => a.localeCompare(b));
   }, [items]);
 
   const filtered = useMemo(() => {
