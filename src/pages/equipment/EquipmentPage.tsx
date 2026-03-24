@@ -859,7 +859,7 @@ export function EquipmentPage() {
               }}
               title="Update equipment"
               titleId="update-equipment-title"
-              size="lg"
+              size="sm"
               footer={
                 <>
                   <Button
