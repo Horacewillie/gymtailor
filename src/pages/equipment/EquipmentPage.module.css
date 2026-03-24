@@ -545,12 +545,19 @@
   margin: 0;
   font: inherit;
   font-size: inherit;
+  font-weight: 600;
   color: inherit;
   cursor: pointer;
   text-align: left;
   text-decoration: underline;
   text-decoration-color: transparent;
   transition: text-decoration-color 0.15s ease, color 0.15s ease;
+}
+
+/* Added On column (3rd cell, after checkbox + equipment name). */
+.table tbody td:nth-child(3) {
+  font-weight: 600;
+  color: rgba(15, 24, 34, 0.88);
 }
 
 .equipmentNameBtn:hover {
@@ -582,6 +589,23 @@
 
 .checkCell {
   width: 30px;
+}
+
+/* Keep numeric columns visually locked so headers align with values. */
+.table thead th:nth-child(6),
+.table tbody td:nth-child(6),
+.table thead th:nth-child(7),
+.table tbody td:nth-child(7) {
+  width: 96px;
+  text-align: right;
+  padding-right: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Actions column gets a stable width so frequency column doesn't drift. */
+.table thead th:nth-child(8),
+.table tbody td:nth-child(8) {
+  width: 86px;
 }
 
 .table tbody td {

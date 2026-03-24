@@ -355,7 +355,7 @@ export function AddEquipmentPage() {
                           name: equipmentName,
                           category,
                           unit: 5,
-                          status: status === "Available" ? "active" : status.toLowerCase(),
+                          status: "active",
                         },
                       ],
                     };
