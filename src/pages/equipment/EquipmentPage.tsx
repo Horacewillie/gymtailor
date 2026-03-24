@@ -101,6 +101,8 @@ type AddEquipmentDraft = {
 };
 
 type EquipmentListApiItem = {
+  id?: string | number;
+  equipment_id?: string | number;
   name: string;
   date_created: string;
   category: string;
@@ -138,6 +140,13 @@ function parseApiDateTime(value: string): Date {
 
 function mapApiStatus(status: string): EquipmentStatus {
   return status.toLowerCase() === "unavailable" ? "Unavailable" : "Available";
+}
+
+function getApiEquipmentId(item: EquipmentListApiItem): string | null {
+  const raw = item.id ?? item.equipment_id;
+  if (raw === null || raw === undefined) return null;
+  const id = String(raw).trim();
+  return id.length > 0 ? id : null;
 }
 
 function toCsv(items: EquipmentItem[]) {
@@ -453,16 +462,19 @@ export function EquipmentPage() {
       .then((response) => {
         console.log("[EquipmentPage] API response:", response);
         if (!mounted || !Array.isArray(response?.equipments)) return;
-        const mapped = response.equipments.map((equipment, idx) => ({
-          id: `${equipment.name.toLowerCase().replace(/\s+/g, "-")}-${idx}-${Date.now()}`,
-          name: equipment.name,
-          serialNumber: "",
-          addedOn: parseApiDateTime(equipment.date_created),
-          category: equipment.category,
-          status: mapApiStatus(equipment.status),
-          totalUnits: Number(equipment.total_units) || 0,
-          frequency: Number(equipment.frequency) || 0,
-        }));
+        const mapped = response.equipments.map((equipment, idx) => {
+          const apiEquipmentId = getApiEquipmentId(equipment);
+          return {
+            id: apiEquipmentId ?? `${equipment.name.toLowerCase().replace(/\s+/g, "-")}-${idx}-${Date.now()}`,
+            name: equipment.name,
+            serialNumber: "",
+            addedOn: parseApiDateTime(equipment.date_created),
+            category: equipment.category,
+            status: mapApiStatus(equipment.status),
+            totalUnits: Number(equipment.total_units) || 0,
+            frequency: Number(equipment.frequency) || 0,
+          };
+        });
         setItems(mapped);
         setPage(1);
       })
