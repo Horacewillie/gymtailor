@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import Api from "../../api/Api";
 import { Button } from "../../components/button/Button";
 import { Modal } from "../../components/modal/Modal";
 import { SuccessModal } from "../../components/success-modal/SuccessModal";
@@ -11,6 +12,7 @@ type EquipmentStatus = "Available" | "Unavailable";
 type EquipmentItem = {
   id: string;
   name: string;
+  serialNumber?: string;
   addedOn: Date;
   category: string;
   status: EquipmentStatus;
@@ -93,8 +95,25 @@ function IconPhoto() {
 type AddEquipmentDraft = {
   imageFile: File | null;
   name: string;
+  serialNumber: string;
   category: string;
   notifyMember: boolean;
+};
+
+type EquipmentListApiItem = {
+  name: string;
+  date_created: string;
+  category: string;
+  status: string;
+  total_units: number;
+  frequency: number;
+};
+
+type EquipmentListApiResponse = {
+  total: number;
+  available: number;
+  unavailable: number;
+  equipments: EquipmentListApiItem[];
 };
 
 function formatAddedOn(d: Date) {
@@ -107,6 +126,18 @@ function formatAddedOn(d: Date) {
   const mm = String(d.getMinutes()).padStart(2, "0");
   const ampm = h >= 12 ? "PM" : "AM";
   return `${day} ${month} ${year} • ${hh}:${mm} ${ampm}`;
+}
+
+function parseApiDateTime(value: string): Date {
+  if (!value) return new Date();
+  // API sends "YYYY-MM-DD HH:mm:ss"; normalize so Date parsing is reliable.
+  const normalized = value.replace(" ", "T");
+  const parsed = new Date(normalized);
+  return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+}
+
+function mapApiStatus(status: string): EquipmentStatus {
+  return status.toLowerCase() === "unavailable" ? "Unavailable" : "Available";
 }
 
 function toCsv(items: EquipmentItem[]) {
@@ -141,9 +172,10 @@ function downloadTextFile(filename: string, contents: string, mime = "text/plain
 const MAX_CSV_IMPORT_BYTES = 50 * 1024 * 1024;
 
 /** Template users download before filling data — columns documented in the modal. */
-const EQUIPMENT_IMPORT_CSV_TEMPLATE = `Equipment,Category,Total units
-Bench press,Free weights,2
-Elliptical,Cardio,1
+const EQUIPMENT_IMPORT_CSV_TEMPLATE = `Serial Number,Product VA,Grouping
+D92CBNE020000160,Group Cycle Connect with Console,Group Cycle
+D92CBNE020000165,Group Cycle Connect with Console,Group Cycle
+D92CBNE020000168,Group Cycle Connect with Console,Group Cycle
 `;
 
 function parseCsvLine(line: string): string[] {
@@ -165,19 +197,49 @@ function parseCsvLine(line: string): string[] {
   return result.map((s) => s.trim().replace(/^"|"$/g, "").replace(/""/g, '"'));
 }
 
+function normalizeHeader(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
 function parseEquipmentImportCsv(text: string): EquipmentItem[] {
   const lines = text
     .split(/\r?\n/)
     .map((l) => l.trim())
-    .filter((l) => l.length > 0);
+    .filter((l) => l.length > 0 && l.includes(","));
   if (lines.length < 2) return [];
+  const headers = parseCsvLine(lines[0]).map(normalizeHeader);
+  const serialIdx = headers.findIndex((h) => h === "serialnumber");
+  const productIdx = headers.findIndex((h) => h === "productva" || h === "equipment");
+  const groupingIdx = headers.findIndex((h) => h === "grouping" || h === "category");
+  const totalUnitsIdx = headers.findIndex((h) => h === "totalunits");
+
+  const hasUnitRowsFormat = serialIdx >= 0 && productIdx >= 0 && groupingIdx >= 0;
+  const hasLegacyFormat = productIdx >= 0 && groupingIdx >= 0 && totalUnitsIdx >= 0;
+  if (!hasUnitRowsFormat && !hasLegacyFormat) return [];
+
   const out: EquipmentItem[] = [];
+  const grouped = new Map<string, { name: string; category: string; serials: string[] }>();
+
   for (let i = 1; i < lines.length; i++) {
     const cols = parseCsvLine(lines[i]);
-    const name = cols[0]?.trim() ?? "";
+    const name = (cols[productIdx] ?? "").trim();
+    const cat = (cols[groupingIdx] ?? "").trim() || "General";
     if (!name) continue;
-    const cat = (cols[1]?.trim() || "General").trim();
-    const unitsRaw = cols[2]?.trim();
+
+    if (hasUnitRowsFormat) {
+      const serial = (cols[serialIdx] ?? "").trim();
+      if (!serial) continue;
+      const key = `${name.toLowerCase()}::${cat.toLowerCase()}`;
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.serials.push(serial);
+      } else {
+        grouped.set(key, { name, category: cat, serials: [serial] });
+      }
+      continue;
+    }
+
+    const unitsRaw = (cols[totalUnitsIdx] ?? "").trim();
     const units = Math.max(1, Math.floor(Number(unitsRaw)) || 1);
     const id = `${name.toLowerCase().replace(/\s+/g, "-")}-csv-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 9)}`;
     out.push({
@@ -187,104 +249,31 @@ function parseEquipmentImportCsv(text: string): EquipmentItem[] {
       category: cat,
       status: "Available",
       totalUnits: units,
+      serialNumber: "",
       frequency: 0,
     });
   }
+
+  if (hasUnitRowsFormat) {
+    grouped.forEach((entry, idx) => {
+      const id = `${entry.name.toLowerCase().replace(/\s+/g, "-")}-csv-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 9)}`;
+      out.push({
+        id,
+        name: entry.name,
+        addedOn: new Date(),
+        category: entry.category,
+        status: "Available",
+        totalUnits: entry.serials.length,
+        serialNumber: entry.serials[0] ?? "",
+        frequency: 0,
+      });
+    });
+  }
+
   return out;
 }
 
-const SEED_ITEMS: EquipmentItem[] = [
-  {
-    id: "treadmill",
-    name: "Treadmill",
-    addedOn: new Date("2026-12-25T11:15:00"),
-    category: "Cardio",
-    status: "Available",
-    totalUnits: 74,
-    frequency: 612,
-  },
-  {
-    id: "dumbbells",
-    name: "Dumbbells",
-    addedOn: new Date("2026-12-25T11:00:00"),
-    category: "Free weights",
-    status: "Available",
-    totalUnits: 64,
-    frequency: 548,
-  },
-  {
-    id: "barbell",
-    name: "Barbell",
-    addedOn: new Date("2026-12-23T10:45:00"),
-    category: "Free weights",
-    status: "Available",
-    totalUnits: 59,
-    frequency: 472,
-  },
-  {
-    id: "rowing",
-    name: "Rowing Machine",
-    addedOn: new Date("2026-12-23T10:30:00"),
-    category: "Cardio",
-    status: "Unavailable",
-    totalUnits: 67,
-    frequency: 451,
-  },
-  {
-    id: "stair",
-    name: "Stair Climber",
-    addedOn: new Date("2026-12-23T10:15:00"),
-    category: "Cardio",
-    status: "Available",
-    totalUnits: 55,
-    frequency: 404,
-  },
-  {
-    id: "cable",
-    name: "Cable Machine",
-    addedOn: new Date("2026-12-23T10:00:00"),
-    category: "Machine",
-    status: "Unavailable",
-    totalUnits: 50,
-    frequency: 403,
-  },
-  {
-    id: "bench",
-    name: "Adjustable Bench",
-    addedOn: new Date("2026-12-19T09:45:00"),
-    category: "Free weights",
-    status: "Available",
-    totalUnits: 47,
-    frequency: 301,
-  },
-  {
-    id: "assisted-pullup",
-    name: "Assisted Pull-Up",
-    addedOn: new Date("2026-12-18T09:30:00"),
-    category: "Machine",
-    status: "Unavailable",
-    totalUnits: 41,
-    frequency: 200,
-  },
-  {
-    id: "smith",
-    name: "Smith Machine",
-    addedOn: new Date("2026-12-17T09:15:00"),
-    category: "Machine",
-    status: "Available",
-    totalUnits: 39,
-    frequency: 189,
-  },
-  {
-    id: "kettlebell",
-    name: "Kettlebell",
-    addedOn: new Date("2026-12-16T09:00:00"),
-    category: "Free weights",
-    status: "Available",
-    totalUnits: 12,
-    frequency: 130,
-  },
-];
+const INITIAL_EQUIPMENT_ITEMS: EquipmentItem[] = [];
 
 /**
  * Equipment dashboard route (`/dashboard/equipment`).
@@ -295,7 +284,8 @@ const SEED_ITEMS: EquipmentItem[] = [
  * - Match the screenshot layout while avoiding hard-coded “only works for this data” behavior.
  */
 export function EquipmentPage() {
-  const [items, setItems] = useState<EquipmentItem[]>(SEED_ITEMS);
+  const api = useMemo(() => new Api(), []);
+  const [items, setItems] = useState<EquipmentItem[]>(INITIAL_EQUIPMENT_ITEMS);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"All" | EquipmentStatus>("All");
   const [category, setCategory] = useState<"All" | string>("All");
@@ -319,6 +309,7 @@ export function EquipmentPage() {
   const [editDraft, setEditDraft] = useState<AddEquipmentDraft>({
     imageFile: null,
     name: "",
+    serialNumber: "",
     category: "",
     notifyMember: false,
   });
@@ -337,13 +328,20 @@ export function EquipmentPage() {
   const [draft, setDraft] = useState<AddEquipmentDraft>({
     imageFile: null,
     name: "",
+    serialNumber: "",
     category: "",
     notifyMember: false,
   });
 
-  const canAdd = draft.name.trim().length > 0 && draft.category.trim().length > 0;
+  const canAdd =
+    draft.name.trim().length > 0 &&
+    draft.serialNumber.trim().length > 0 &&
+    draft.category.trim().length > 0;
   const canSaveEdit =
-    editingId !== null && editDraft.name.trim().length > 0 && editDraft.category.trim().length > 0;
+    editingId !== null &&
+    editDraft.name.trim().length > 0 &&
+    editDraft.serialNumber.trim().length > 0 &&
+    editDraft.category.trim().length > 0;
 
   const editImageUrl = useMemo(() => {
     if (!editDraft.imageFile) return null;
@@ -438,6 +436,45 @@ export function EquipmentPage() {
 
   const [checked, setChecked] = useState<Record<string, boolean>>({});
 
+  useEffect(() => {
+    let mounted = true;
+    const tenantId = localStorage.getItem("tenantId") || localStorage.getItem("tenant_id");
+    const token = localStorage.getItem("token") || localStorage.getItem("access_token");
+    if (!tenantId) return;
+    const endpoint = `/api/tenant/${encodeURIComponent(tenantId)}/equipment`;
+    console.log("[EquipmentPage] Request URL:", endpoint);
+
+    void api
+      .get<EquipmentListApiResponse>(endpoint, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      })
+      .then((response) => {
+        console.log("[EquipmentPage] API response:", response);
+        if (!mounted || !Array.isArray(response?.equipments)) return;
+        const mapped = response.equipments.map((equipment, idx) => ({
+          id: `${equipment.name.toLowerCase().replace(/\s+/g, "-")}-${idx}-${Date.now()}`,
+          name: equipment.name,
+          serialNumber: "",
+          addedOn: parseApiDateTime(equipment.date_created),
+          category: equipment.category,
+          status: mapApiStatus(equipment.status),
+          totalUnits: Number(equipment.total_units) || 0,
+          frequency: Number(equipment.frequency) || 0,
+        }));
+        setItems(mapped);
+        setPage(1);
+      })
+      .catch((error) => {
+        console.error("Failed to load equipment list:", error);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [api]);
+
   const toggleAll = (next: boolean) => {
     setChecked((prev) => {
       const copy = { ...prev };
@@ -526,6 +563,7 @@ export function EquipmentPage() {
                       const next: EquipmentItem = {
                         id: `${draft.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
                         name: draft.name.trim(),
+                        serialNumber: draft.serialNumber.trim(),
                         addedOn: new Date(),
                         category: draft.category,
                         status: "Available",
@@ -534,7 +572,13 @@ export function EquipmentPage() {
                       };
                       setItems((prev) => [next, ...prev]);
                       setAddModalOpen(false);
-                      setDraft({ imageFile: null, name: "", category: "", notifyMember: false });
+                      setDraft({
+                        imageFile: null,
+                        name: "",
+                        serialNumber: "",
+                        category: "",
+                        notifyMember: false,
+                      });
                       setPage(1);
                       setAddSuccessModalOpen(true);
                     }}
@@ -584,6 +628,19 @@ export function EquipmentPage() {
                   onChange={(e) => {
                     const next = e.currentTarget.value;
                     setDraft((d) => ({ ...d, name: next }));
+                  }}
+                />
+
+                <div style={{ height: 14 }} />
+
+                <div className={styles.fieldLabel}>SERIAL NUMBER</div>
+                <input
+                  className={styles.input}
+                  placeholder="Enter serial number"
+                  value={draft.serialNumber}
+                  onChange={(e) => {
+                    const next = e.currentTarget.value;
+                    setDraft((d) => ({ ...d, serialNumber: next }));
                   }}
                 />
 
@@ -665,7 +722,7 @@ export function EquipmentPage() {
                           const parsed = parseEquipmentImportCsv(text);
                           if (parsed.length === 0) {
                             setCsvImportError(
-                              "No valid equipment rows found. Use the template columns: Equipment, Category, Total units.",
+                              "No valid equipment rows found. Use columns: Serial Number, Product VA, Grouping.",
                             );
                             return;
                           }
@@ -716,7 +773,7 @@ export function EquipmentPage() {
 
                 <div className={styles.csvUploadHeading}>Upload your CSV file</div>
                 <p className={styles.csvUploadDesc}>
-                  Upload the CSV file with your equipment inventory below.
+                  Upload your CSV with columns: Serial Number, Product VA, Grouping.
                 </p>
 
                 <input
@@ -792,7 +849,13 @@ export function EquipmentPage() {
               onClose={() => {
                 setUpdateModalOpen(false);
                 setEditingId(null);
-                setEditDraft({ imageFile: null, name: "", category: "", notifyMember: false });
+                setEditDraft({
+                  imageFile: null,
+                  name: "",
+                  serialNumber: "",
+                  category: "",
+                  notifyMember: false,
+                });
               }}
               title="Update equipment"
               titleId="update-equipment-title"
@@ -827,6 +890,7 @@ export function EquipmentPage() {
                             ? {
                                 ...it,
                                 name: editDraft.name.trim(),
+                                serialNumber: editDraft.serialNumber.trim(),
                                 category: editDraft.category,
                               }
                             : it,
@@ -834,7 +898,13 @@ export function EquipmentPage() {
                       );
                       setUpdateModalOpen(false);
                       setEditingId(null);
-                      setEditDraft({ imageFile: null, name: "", category: "", notifyMember: false });
+                      setEditDraft({
+                        imageFile: null,
+                        name: "",
+                        serialNumber: "",
+                        category: "",
+                        notifyMember: false,
+                      });
                       setUpdateSuccessModalOpen(true);
                     }}
                   >
@@ -887,6 +957,19 @@ export function EquipmentPage() {
                   onChange={(e) => {
                     const next = e.currentTarget.value;
                     setEditDraft((d) => ({ ...d, name: next }));
+                  }}
+                />
+
+                <div style={{ height: 14 }} />
+
+                <div className={styles.fieldLabel}>SERIAL NUMBER</div>
+                <input
+                  className={styles.input}
+                  placeholder="Enter serial number"
+                  value={editDraft.serialNumber}
+                  onChange={(e) => {
+                    const next = e.currentTarget.value;
+                    setEditDraft((d) => ({ ...d, serialNumber: next }));
                   }}
                 />
 
@@ -1153,6 +1236,7 @@ export function EquipmentPage() {
                               setEditDraft({
                                 imageFile: null,
                                 name: r.name,
+                                serialNumber: r.serialNumber ?? "",
                                 category: r.category,
                                 notifyMember: false,
                               });

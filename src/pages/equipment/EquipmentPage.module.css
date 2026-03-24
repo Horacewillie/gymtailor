@@ -25,7 +25,7 @@
   margin: 0;
   font-family: "Loubag", Georgia, "Times New Roman", serif;
   font-size: 1.35rem;
-  font-weight: 700;
+  font-weight: 600;
   color: rgba(15, 24, 34, 0.88);
 }
 
@@ -40,13 +40,12 @@
 .addBtn {
   background: #38f7a1 !important;
   color: rgba(15, 24, 34, 0.92) !important;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace !important;
+  font-family: Onest, Inter, system-ui, sans-serif !important;
   font-weight: 600 !important;
   height: 34px !important;
   padding: 0 14px !important;
-  font-size: 0.58rem !important;
-  letter-spacing: 0.18em !important;
+  font-size: 0.6rem !important;
+  letter-spacing: 0.11em !important;
 }
 
 .addBtnIcon {
@@ -425,14 +424,14 @@
   font-size: 0.68rem;
   color: rgba(31, 39, 50, 0.62);
   font-family: Onest, Inter, system-ui, sans-serif;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .statValue {
   margin-top: 10px;
   font-family: "Loubag", Georgia, "Times New Roman", serif;
   font-size: 2.05rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   color: rgba(15, 24, 34, 0.92);
   line-height: 1;
@@ -450,17 +449,16 @@
   font-size: 0.72rem;
   color: rgba(15, 24, 34, 0.88);
   font-family: Onest, Inter, system-ui, sans-serif;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .exportBtn {
   border: 0;
   background: transparent;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-  font-weight: 700;
-  font-size: 0.58rem;
-  letter-spacing: 0.18em;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.59rem;
+  letter-spacing: 0.11em;
   color: rgba(15, 24, 34, 0.82);
   cursor: pointer;
   text-transform: uppercase;
@@ -510,7 +508,7 @@
   width: 100%;
   font-size: 0.62rem;
   font-family: Onest, Inter, system-ui, sans-serif;
-  font-weight: 500;
+  font-weight: 400;
   color: rgba(15, 24, 34, 0.82);
   background: transparent;
 }
@@ -530,7 +528,7 @@
   font-size: 0.6rem;
   color: rgba(31, 39, 50, 0.62);
   font-family: Onest, Inter, system-ui, sans-serif;
-  font-weight: 500;
+  font-weight: 400;
   outline: none;
 }
 
@@ -570,12 +568,16 @@
   text-align: left;
   padding: 10px 12px;
   background: rgba(31, 39, 50, 0.03);
-  color: rgba(31, 39, 50, 0.55);
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  font-size: 0.5rem;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
+  color: rgba(31, 39, 50, 0.62);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  font-size: 0.54rem;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  text-transform: uppercase;
+}
+
+.table thead th.rightAlign {
+  text-align: right;
 }
 
 .checkCell {
@@ -586,6 +588,7 @@
   padding: 10px 12px;
   border-top: 1px solid rgba(31, 39, 50, 0.08);
   color: rgba(15, 24, 34, 0.82);
+  font-weight: 400;
 }
 
 .rightAlign {
@@ -598,11 +601,10 @@
   height: 18px;
   padding: 0 8px;
   border-radius: 999px;
-  font-size: 0.5rem;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 0.52rem;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
