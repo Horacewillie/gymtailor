@@ -1197,9 +1197,10 @@ export function EquipmentPage() {
                           type="checkbox"
                           aria-label={`Select ${r.name}`}
                           checked={Boolean(checked[r.id])}
-                          onChange={(e) =>
-                            setChecked((prev) => ({ ...prev, [r.id]: e.currentTarget.checked }))
-                          }
+                          onChange={(e) => {
+                            const isChecked = e.currentTarget.checked;
+                            setChecked((prev) => ({ ...prev, [r.id]: isChecked }));
+                          }}
                         />
                       </td>
                       <td>
