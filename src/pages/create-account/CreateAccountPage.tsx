@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/button/Button";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
 import { useMemo, useState } from "react";
+import { useOnboarding } from "../../app/OnboardingContext";
 
 /**
  * Minimal progress indicator used across onboarding pages.
@@ -22,6 +23,8 @@ function StepDots(props: { current: number; total: number }) {
 
 export function CreateAccountPage() {
   const navigate = useNavigate();
+
+  const { setData } = useOnboarding();
 
   // Controlled inputs so we can gate the CTA and preserve typed values across renders.
   const [email, setEmail] = useState("");
@@ -118,7 +121,15 @@ export function CreateAccountPage() {
                   size="lg"
                   disabled={!canContinue}
                   // Next onboarding step.
-                  onClick={() => navigate("/onboarding/secure-account")}
+                  onClick={() => {
+                    const [first_name, ...lastNameParts] = fullName.trim().split(" ");
+                    setData({
+                      email,
+                      first_name: first_name || "",
+                      last_name: lastNameParts.join(" ") || "",
+                    });
+                    navigate("/onboarding/secure-account");
+                  }}
                 >
                   CONTINUE
                 </Button>

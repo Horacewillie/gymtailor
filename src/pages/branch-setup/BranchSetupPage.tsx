@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useOnboarding } from "../../app/OnboardingContext";
 import { useNavigate } from "react-router-dom";
 import styles from "./BranchSetupPage.module.css";
 import { Button } from "../../components/button/Button";
@@ -47,6 +48,8 @@ function ArrowLeft() {
 
 export function BranchSetupPage() {
   const navigate = useNavigate();
+
+  const { setData } = useOnboarding();
 
   // Start with one blank branch row; user can add as many as needed.
   const [branches, setBranches] = useState<Branch[]>([
@@ -152,7 +155,12 @@ export function BranchSetupPage() {
                   pill
                   size="lg"
                   disabled={!canContinue}
-                  onClick={() => navigate("/onboarding/add-equipment")}
+                  onClick={() => {
+                    setData({
+                      branches: branches.map((b) => ({ name: b.name, address: b.street })),
+                    });
+                    navigate("/onboarding/add-equipment");
+                  }}
                 >
                   SAVE AND CONTINUE
                 </Button>

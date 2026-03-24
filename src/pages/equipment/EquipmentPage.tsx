@@ -247,7 +247,7 @@ const SEED_ITEMS: EquipmentItem[] = [
  * - Match the screenshot layout while avoiding hard-coded “only works for this data” behavior.
  */
 export function EquipmentPage() {
-  const [items, setItems] = useState<EquipmentItem[]>(SEED_ITEMS);
+  const [items, setItems] = useState<EquipmentItem[]>([]);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"All" | EquipmentStatus>("All");
   const [category, setCategory] = useState<"All" | string>("All");
@@ -277,8 +277,76 @@ export function EquipmentPage() {
           setAddModalOpen(true);
         },
       },
-      { id: "csv", label: "Upload CSV for bulk import", onSelect: () => window.alert("Upload CSV") },
+      {
+        id: "csv",
+        label: "Upload CSV for bulk import",
+        onSelect: () => {
+          // Open file dialog for CSV upload
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.csv,text/csv';
+          input.onchange = async (e) => {
+            const file = input.files?.[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+              await fetch('/equipment/import', {
+                method: 'POST',
+                headers: {
+                  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: formData,
+              });
+              // After upload, reload equipment list
+              await reloadEquipment();
+            } catch (err) {
+              alert('Failed to import equipment.');
+            }
+          };
+          input.click();
+        },
+      },
     ] as const;
+  }, []);
+
+  // Get tenantId and token from localStorage
+  const tenantId = localStorage.getItem('tenantId');
+  const token = localStorage.getItem('token');
+
+  // Fetch equipment list from API
+  const reloadEquipment = async () => {
+    try {
+      const res = await fetch(`/tenant/${tenantId}/equipment`, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) throw new Error('Failed to fetch equipment');
+      const data = await res.json();
+      // Map API data to EquipmentItem[]
+      setItems(
+        Array.isArray(data)
+          ? data.map((e: any) => ({
+              id: e.id?.toString() ?? Math.random().toString(),
+              name: e.name,
+              addedOn: e.addedOn ? new Date(e.addedOn) : new Date(),
+              category: e.category ?? '',
+              status: e.status ?? 'Available',
+              totalUnits: e.totalUnits ?? 1,
+              frequency: e.frequency ?? 0,
+            }))
+          : []
+      );
+    } catch {
+      setItems([]);
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    reloadEquipment();
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
@@ -515,19 +583,34 @@ export function EquipmentPage() {
                       disabled={!canAdd}
                       onClick={() => {
                         if (!canAdd) return;
-                        const next: EquipmentItem = {
-                          id: `${draft.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
+                        // Build payload for /equipment POST
+                        const payload = {
                           name: draft.name.trim(),
-                          addedOn: new Date(),
                           category: draft.category,
-                          status: "Available",
-                          totalUnits: 1,
-                          frequency: 0,
+                          // Add more fields as needed
                         };
-                        setItems((prev) => [next, ...prev]);
-                        setAddModalOpen(false);
-                        setDraft({ imageFile: null, name: "", category: "", notifyMember: false });
-                        setPage(1);
+                        fetch('/equipment', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                            ...(tenantId ? { 'X-Tenant-Id': tenantId } : {}),
+                          },
+                          body: JSON.stringify(payload),
+                        })
+                          .then((res) => {
+                            if (!res.ok) throw new Error('Failed to add equipment');
+                            return res.json();
+                          })
+                          .then(() => {
+                            setAddModalOpen(false);
+                            setDraft({ imageFile: null, name: '', category: '', notifyMember: false });
+                            setPage(1);
+                            reloadEquipment();
+                          })
+                          .catch(() => {
+                            alert('Failed to add equipment.');
+                          });
                       }}
                     >
                       ADD EQUIPMENT

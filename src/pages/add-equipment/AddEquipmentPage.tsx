@@ -1,4 +1,6 @@
 import { useEffect, useId, useMemo, useState } from "react";
+import { useOnboarding } from "../../app/OnboardingContext";
+import Api from "../../api/Api";
 import { useNavigate } from "react-router-dom";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
 import { Button } from "../../components/button/Button";
@@ -65,9 +67,17 @@ function CsvGlyph() {
 }
 
 export function AddEquipmentPage() {
+    // const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const imageInputId = useId();
   const csvInputId = useId();
+
+  const { data, reset } = useOnboarding();
+  const api = useMemo(() => new Api(), []);
+  // For demo: hardcoded invitationId and signature/url, adapt as needed
+  const invitationId = 20;
+  const invitationUrl = "http:\/\/localhost:8080\/api\/invitation\/20\/view?expires=1774337920&signature=887954891885f299d8e44d163cadcdd16ecb68567428bdbe42afdf1c1236f7f9";
+  const signature = "887954891885f299d8e44d163cadcdd16ecb68567428bdbe42afdf1c1236f7f9";
 
   // Two entry modes per design: manual item entry vs CSV bulk import.
   const [mode, setMode] = useState<Mode>("manual");
@@ -101,6 +111,7 @@ export function AddEquipmentPage() {
 
   return (
     <div className={styles.page}>
+
       <AuthHeader variant="dashboard" userInitial="J" />
 
       <main className={styles.main}>
@@ -312,21 +323,77 @@ export function AddEquipmentPage() {
                   fullWidth
                   pill
                   size="lg"
-                  disabled={!canComplete}
-                  onClick={() => {
-                    // Defensive guard: clicking a disabled-looking button shouldn't navigate.
+                  onClick={async () => {
                     if (!canComplete) return;
-                    navigate("/onboarding/loading");
+                    const password = "@MighTy#009";
+                    const payload = {
+                      url: invitationUrl,
+                      signature,
+                      id: invitationId,
+                      first_name: data.first_name || "",
+                      last_name: data.last_name || "",
+                      role: "admin",
+                      password,
+                      email: data.email,
+                      password_confirmation: password,
+                      tenant_name: data.tenant_name,
+                      tenant_email: data.tenant_email,
+                      primary_location: [
+                        typeof data.primary_location === "string"
+                          ? data.primary_location
+                          : data.primary_location?.name || "",
+                        data.primary_location?.city,
+                        data.primary_location?.state,
+                        data.primary_location?.country,
+                        data.primary_location?.postal_code
+                      ]
+                        .filter(Boolean)
+                        .join(", "),
+                      branches: data.branches || [],
+                      equipments: [
+                        {
+                          name: equipmentName,
+                          category,
+                          unit: 5,
+                          status: status === "Available" ? "active" : status.toLowerCase(),
+                        },
+                      ],
+                    };
+                    try {
+                      // Accept invitation (uses /api path)
+                      const response: any = await api.post(`/api/invitation/${invitationId}/accept`, payload);
+                      console.log(response)
+                      // Store tenant_id from accept response
+                      if (response && response.tenant_id) {
+                        localStorage.setItem('tenantId', response.tenant_id);
+                      }
+                      // Login user (login is NOT under /api, so use Api class with full endpoint)
+                      const loginData = await api.post<any>(
+                        '/api/login',
+                        {
+                          email: data.email,
+                          password,
+                        }
+                      );
+                       console.log(loginData)
+                      // Persist access_token as token
+                      if (loginData && loginData.access_token) {
+                        localStorage.setItem('token', loginData.access_token);
+                      }
+                      reset();
+                      navigate("/onboarding/loading");
+                    } catch (err) {
+                      console.error("API error:", err);
+                    }
                   }}
                 >
                   COMPLETE SET UP
                 </Button>
+                {/* Optional bypass: user can proceed to the dashboard and finish setup later. */}
+                <button type="button" className={styles.doLater} onClick={() => navigate("/dashboard")}> 
+                  DO THIS LATER
+                </button>
               </div>
-
-              {/* Optional bypass: user can proceed to the dashboard and finish setup later. */}
-              <button type="button" className={styles.doLater} onClick={() => navigate("/dashboard")}>
-                DO THIS LATER
-              </button>
             </section>
           </div>
         </section>

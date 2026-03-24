@@ -3,14 +3,37 @@ import { useNavigate } from "react-router-dom";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
 import styles from "./OnboardingLoadingPage.module.css";
 
+import Api from "../../api/Api";
+
 export function OnboardingLoadingPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Intentional short delay: allows the onboarding "completion" animation
-    // to play before landing on the dashboard.
-    const id = window.setTimeout(() => navigate("/dashboard", { replace: true }), 2200);
-    return () => window.clearTimeout(id);
+    let isMounted = true;
+    const api = new Api();
+    const timer = setTimeout(async () => {
+      let dashboardData = undefined;
+      try {
+      
+        const token = localStorage.getItem('token');
+        console.log("Token in localStorage:", token);
+        dashboardData = await api.get("/api/dashboard", {
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          }
+        });
+      } catch (err) {
+        // Ignore error, just proceed
+      } finally {
+        if (isMounted) {
+          navigate("/dashboard", { replace: true, state: { dashboardData } });
+        }
+      }
+    }, 2200);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [navigate]);
 
   return (
@@ -31,4 +54,3 @@ export function OnboardingLoadingPage() {
     </div>
   );
 }
-

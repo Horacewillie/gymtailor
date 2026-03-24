@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useState } from "react";
+import { useOnboarding } from "../../app/OnboardingContext";
 import { useNavigate } from "react-router-dom";
 import styles from "./GymSetupPage.module.css";
 import { Button } from "../../components/button/Button";
@@ -42,6 +43,8 @@ function StepDots(props: { current: number; total: number }) {
 export function GymSetupPage() {
   const navigate = useNavigate();
   const fileInputId = useId();
+
+  const { setData } = useOnboarding();
 
   const [values, setValues] = useState<GymSetupValues>({
     gymName: "",
@@ -257,7 +260,20 @@ export function GymSetupPage() {
                   size="lg"
                   className={styles.continueBtn}
                   disabled={!canContinue}
-                  onClick={() => navigate("/onboarding/branch-setup")}
+                  onClick={() => {
+                    setData({
+                      tenant_name: values.gymName,
+                      tenant_email: values.gymContactEmail,
+                      primary_location: {
+                        name: values.streetAddress,
+                        city: values.city,
+                        state: values.state,
+                        country: values.country,
+                        postal_code: values.postalCode,
+                      },
+                    });
+                    navigate("/onboarding/branch-setup");
+                  }}
                 >
                   SAVE AND CONTINUE
                 </Button>

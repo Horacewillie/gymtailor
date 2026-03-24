@@ -1,4 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import Api from "../../api/Api";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Button } from "../../components/button/Button";
 import { DashboardShell } from "../../components/dashboard-shell/DashboardShell";
 import styles from "./OwnerDashboardPage.module.css";
@@ -14,20 +17,43 @@ const TIME_OPTIONS: Array<{ value: TimeKey; label: string }> = [
   { value: "ytd", label: "YTD" },
 ];
 
-// Dashboard table is static for now (UI scaffold).
-// Wiring to live data can replace this shape later without changing markup structure.
-const TABLE_ROWS = [
-  { rank: 1, equipment: "Treadmill", members: 188, usageRate: "74%", frequency: 612, trend: +9 },
-  { rank: 2, equipment: "Dumbbells", members: 162, usageRate: "64%", frequency: 548, trend: +14 },
-  { rank: 3, equipment: "Barbel", members: 149, usageRate: "59%", frequency: 472, trend: +4 },
-  { rank: 4, equipment: "Rowing Machine", members: 171, usageRate: "67%", frequency: 451, trend: +11 },
-  { rank: 5, equipment: "Stair Climber", members: 121, usageRate: "55%", frequency: 404, trend: +2 },
-  { rank: 6, equipment: "Cable Machine", members: 118, usageRate: "50%", frequency: 403, trend: +7 },
-  { rank: 7, equipment: "Adjustable Bench", members: 112, usageRate: "47%", frequency: 301, trend: +15 },
-  { rank: 8, equipment: "Medicine Ball", members: 89, usageRate: "41%", frequency: 200, trend: +15 },
-  { rank: 9, equipment: "Free Weights", members: 85, usageRate: "39%", frequency: 189, trend: +14 },
-  { rank: 10, equipment: "Kettlebell", members: 74, usageRate: "12%", frequency: 130, trend: -25 },
-];
+
+// Helper to map API equipment to table row format
+type EquipmentApi = {
+  id: number;
+  name: string;
+  serial_number: string;
+  members_used: number[];
+  usage_rate: number;
+  frequency: number;
+  trend: Array<{ user_id: number; last_used_at: string }>;
+};
+
+type TableRow = {
+  rank: number;
+  equipment: string;
+  members: number;
+  usageRate: string;
+  frequency: number | string;
+  trend: number;
+};
+
+function mapEquipmentToRow(equip: EquipmentApi, idx: number): TableRow {
+  return {
+    rank: idx + 1,
+    equipment: equip.name,
+    members: Array.isArray(equip.members_used) ? equip.members_used.length : 0,
+    usageRate: equip.usage_rate ? `${equip.usage_rate}%` : "-",
+    frequency: equip.frequency ?? "-",
+    trend: Array.isArray(equip.trend) && equip.trend.length > 0
+      ? (() => {
+          // Calculate trend as difference in usage (example: last vs previous)
+          // Here, just show +N for new users in trend array
+          return equip.trend.length;
+        })()
+      : 0,
+  };
+}
 
 function MiniLegendDot(props: { color: string }) {
   return <span className={styles.legendDot} style={{ background: props.color }} />;
@@ -137,10 +163,73 @@ function SessionsChart() {
 }
 
 export function OwnerDashboardPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [dashboardData, setDashboardData] = useState<any>(location.state?.dashboardData || null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fallback: fetch from API if not present in state
+  useEffect(() => {
+    if (!dashboardData) {
+      setLoading(true);
+      const api = new Api();
+      const token = localStorage.getItem('token');
+      api.get<any>("/api/dashboard", {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        }
+      })
+        .then((data) => {
+          console.log('dashboardData:', data);
+          setDashboardData(data);
+          setError(null);
+        })
+        .catch(() => {
+          setError("Could not load dashboard data.");
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [dashboardData]);
+
+  // console.log('dashboardData:', dashboardData);
+  const tableRows = Array.isArray(dashboardData?.equipments)
+    ? dashboardData.equipments.map(mapEquipmentToRow)
+    : [];
+
+  // Fallbacks for member count and utilization
+  const memberCount = typeof dashboardData?.member_count === "number" ? dashboardData.member_count : 0;
+  const equipmentUtilization = typeof dashboardData?.equipment_utilization === "number"
+    ? dashboardData.equipment_utilization.toFixed(2)
+    : "0.00";
   // UI-only state for time toggles and active nav styling.
   const [time, setTime] = useState<TimeKey>("7d");
 
   const timeLabel = useMemo(() => TIME_OPTIONS.find((t) => t.value === time)?.label ?? "7D", [time]);
+
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <DashboardShell>
+          <main className={styles.main}>
+            <div>Loading dashboard...</div>
+          </main>
+        </DashboardShell>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.page}>
+        <DashboardShell>
+          <main className={styles.main}>
+            <div style={{ color: 'red' }}>{error}</div>
+          </main>
+        </DashboardShell>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
@@ -165,7 +254,12 @@ export function OwnerDashboardPage() {
                     Upload a CSV to import everything at once, or add items manually.
                   </div>
                 </div>
-                <Button className={styles.darkBtn} pill size="md">
+                <Button
+                  className={styles.darkBtn}
+                  pill
+                  size="md"
+                  onClick={() => navigate("/dashboard/equipment", { state: { openAdd: true } })}
+                >
                   ADD EQUIPMENT <IconChevronDown className={styles.chevDownIcon} />
                 </Button>
               </div>
@@ -215,13 +309,7 @@ export function OwnerDashboardPage() {
                         <IconInfo />
                       </span>
                     </div>
-                    <div className={styles.bigNum}>1,834</div>
-                    <div className={styles.pills}>
-                      <div className={styles.pillGray}>
-                        Active: <b>1,824</b>
-                      </div>
-                      <div className={styles.pillRed}>Defaulting: 10</div>
-                    </div>
+                    <div className={styles.bigNum}>{memberCount}</div>
                   </div>
 
                   <div className={styles.statCard}>
@@ -232,8 +320,7 @@ export function OwnerDashboardPage() {
                       </span>
                     </div>
                     <div className={styles.utilRow}>
-                      <div className={styles.bigNum}>78.46%</div>
-                      <div className={styles.up}>↑ 3.56%</div>
+                      <div className={styles.bigNum}>{equipmentUtilization}%</div>
                     </div>
                   </div>
                 </div>
@@ -280,7 +367,7 @@ export function OwnerDashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {TABLE_ROWS.map((r) => (
+                    {tableRows.map((r: TableRow) => (
                       <tr key={r.rank}>
                         <td>{r.rank}</td>
                         <td>{r.equipment}</td>

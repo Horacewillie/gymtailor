@@ -361,7 +361,7 @@
 }
 
 .doLater {
-  margin-top: 12px;
+  margin-top: 18px;
   width: 100%;
   border: 0;
   background: transparent;
@@ -373,6 +373,10 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   cursor: pointer;
+  display: block;
+  text-align: center;
+  grid-column: 1 / span 2;
+  padding: 12px 0 0 0;
 }
 
 .doLater:hover {
