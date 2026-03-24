@@ -118,6 +118,18 @@ type EquipmentListApiResponse = {
   equipments: EquipmentListApiItem[];
 };
 
+type CreateEquipmentApiResponse = {
+  id?: string | number;
+  equipment_id?: string | number;
+  name?: string;
+  date_created?: string;
+  category?: string;
+  status?: string;
+  total_units?: number;
+  frequency?: number;
+  serial_number?: string;
+};
+
 function formatAddedOn(d: Date) {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const day = String(d.getDate()).padStart(2, "0");
@@ -570,29 +582,56 @@ export function EquipmentPage() {
                     fullWidth
                     size="sm"
                     disabled={!canAdd}
-                    onClick={() => {
+                    onClick={async () => {
                       if (!canAdd) return;
-                      const next: EquipmentItem = {
-                        id: `${draft.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
-                        name: draft.name.trim(),
-                        serialNumber: draft.serialNumber.trim(),
-                        addedOn: new Date(),
-                        category: draft.category,
-                        status: "Available",
-                        totalUnits: 1,
-                        frequency: 0,
-                      };
-                      setItems((prev) => [next, ...prev]);
-                      setAddModalOpen(false);
-                      setDraft({
-                        imageFile: null,
-                        name: "",
-                        serialNumber: "",
-                        category: "",
-                        notifyMember: false,
-                      });
-                      setPage(1);
-                      setAddSuccessModalOpen(true);
+                      const tenantId = localStorage.getItem("tenantId") || localStorage.getItem("tenant_id");
+                      const token = localStorage.getItem("token") || localStorage.getItem("access_token");
+                      if (!tenantId) {
+                        console.error("Cannot add equipment: missing tenant id in storage.");
+                        return;
+                      }
+                      try {
+                        const payload = {
+                          tenant_id: Number(tenantId) || tenantId,
+                          name: draft.name.trim(),
+                          category: draft.category,
+                          unit: 5,
+                          status: "active",
+                          serial_number: draft.serialNumber.trim(),
+                        };
+                        const created = await api.post<CreateEquipmentApiResponse>("/api/equipment", payload, {
+                          headers: {
+                            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                          },
+                        });
+
+                        const next: EquipmentItem = {
+                          id:
+                            getApiEquipmentId(created as EquipmentListApiItem) ??
+                            `${payload.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
+                          name: created.name?.trim() || payload.name,
+                          serialNumber: created.serial_number?.trim() || payload.serial_number,
+                          addedOn: created.date_created ? parseApiDateTime(created.date_created) : new Date(),
+                          category: created.category?.trim() || payload.category,
+                          status: mapApiStatus(created.status || "available"),
+                          totalUnits: Number(created.total_units) || payload.unit,
+                          frequency: Number(created.frequency) || 0,
+                        };
+
+                        setItems((prev) => [next, ...prev]);
+                        setAddModalOpen(false);
+                        setDraft({
+                          imageFile: null,
+                          name: "",
+                          serialNumber: "",
+                          category: "",
+                          notifyMember: false,
+                        });
+                        setPage(1);
+                        setAddSuccessModalOpen(true);
+                      } catch (error) {
+                        console.error("Failed to add equipment:", error);
+                      }
                     }}
                   >
                     ADD EQUIPMENT
