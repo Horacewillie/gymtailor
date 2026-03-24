@@ -38,6 +38,21 @@ export default class Api {
     return response.json();
   }
 
+  async postFormData<T>(endpoint: string, data: FormData, options: RequestInit = {}): Promise<T> {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      ...options,
+      method: 'POST',
+      headers: {
+        ...(options.headers || {}),
+      },
+      body: data,
+    });
+    if (!response.ok) {
+      throw new Error(`POST ${endpoint} failed: ${response.status}`);
+    }
+    return response.json();
+  }
+
   async delete<T = void>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,

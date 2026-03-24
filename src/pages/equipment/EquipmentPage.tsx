@@ -161,7 +161,16 @@ function parseApiDateTime(value: string): Date {
 }
 
 function mapApiStatus(status: string): EquipmentStatus {
-  return status.toLowerCase() === "unavailable" ? "Unavailable" : "Available";
+  const normalized = status.trim().toLowerCase().replace(/\s+/g, "_");
+  const unavailableStates = new Set([
+    "unavailable",
+    "inactive",
+    "disabled",
+    "out_of_service",
+    "out-of-service",
+    "maintenance",
+  ]);
+  return unavailableStates.has(normalized) ? "Unavailable" : "Available";
 }
 
 function getApiEquipmentId(item: EquipmentListApiItem): string | null {
@@ -789,14 +798,72 @@ export function EquipmentPage() {
                             );
                             return;
                           }
+                          const tenantId = localStorage.getItem("tenantId") || localStorage.getItem("tenant_id");
+                          const token = localStorage.getItem("token") || localStorage.getItem("access_token");
+                          if (!tenantId) {
+                            setCsvImportError("Missing tenant id.");
+                            return;
+                          }
+
+                          const endpoint = "/api/equipment/import";
+                          const formData = new FormData();
+                          formData.append("tenant_id", String(tenantId));
+                          formData.append("file", csvImportFile);
+
+                          console.log("[EquipmentPage] CSV import payload:", {
+                            endpoint,
+                            tenant_id: String(tenantId),
+                            file: {
+                              name: csvImportFile.name,
+                              size: csvImportFile.size,
+                              type: csvImportFile.type || "text/csv",
+                            },
+                          });
+
+                          const importResponse = await api.postFormData<any>(endpoint, formData, {
+                            headers: {
+                              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                            },
+                          });
+                          console.log("[EquipmentPage] CSV import response:", importResponse);
+
+                          const listResponse = await api.get<EquipmentListApiResponse>(
+                            `/api/tenant/${encodeURIComponent(String(tenantId))}/equipment`,
+                            {
+                              headers: {
+                                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                              },
+                            },
+                          );
+                          console.log("[EquipmentPage] Equipment list after import:", listResponse);
+
+                          if (Array.isArray(listResponse?.equipments)) {
+                            const mapped = listResponse.equipments.map((equipment, idx) => {
+                              const apiEquipmentId = getApiEquipmentId(equipment);
+                              return {
+                                id:
+                                  apiEquipmentId ??
+                                  `${equipment.name.toLowerCase().replace(/\s+/g, "-")}-${idx}-${Date.now()}`,
+                                name: equipment.name,
+                                serialNumber: "",
+                                addedOn: parseApiDateTime(equipment.date_created),
+                                category: equipment.category,
+                                status: mapApiStatus(equipment.status),
+                                totalUnits: Number(equipment.total_units) || 0,
+                                frequency: Number(equipment.frequency) || 0,
+                              };
+                            });
+                            setItems(mapped);
+                          }
+
                           setCsvImportError(null);
-                          setItems((prev) => [...parsed, ...prev]);
                           setImportCsvModalOpen(false);
                           setCsvImportFile(null);
                           setPage(1);
                           setAddSuccessModalOpen(true);
-                        } catch {
-                          setCsvImportError("Could not read this file. Try a UTF-8 CSV export.");
+                        } catch (error) {
+                          console.error("CSV import failed:", error);
+                          setCsvImportError("Could not import CSV. Please try again.");
                         }
                       })();
                     }}
