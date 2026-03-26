@@ -58,9 +58,9 @@ export function CreateAccountPage() {
               dotClassName={styles.dot}
             />
             <h1 className={styles.title}>
-              Accept
+              Create owner
               <br />
-              invitation.
+              account.
             </h1>
             <p className={styles.subtitle}>
               This account gives you access to
