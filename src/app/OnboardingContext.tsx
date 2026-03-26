@@ -27,13 +27,12 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   });
 
   const setData = (newData: Partial<OnboardingData>) => {
-    setDataState((prev) => {
-      const updated = { ...prev, ...newData };
-      try {
-        localStorage.setItem("onboardingData", JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
+    const updated = { ...data, ...newData };
+    try {
+      // Persist immediately so route guards that read localStorage can allow next-step navigation right away.
+      localStorage.setItem("onboardingData", JSON.stringify(updated));
+    } catch {}
+    setDataState(updated);
   };
 
   const reset = () => {
