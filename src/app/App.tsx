@@ -11,6 +11,8 @@ import { SecureAccountPage } from "../pages/secure-account/SecureAccountPage";
 import { OnboardingLoadingPage } from "../pages/onboarding-loading/OnboardingLoadingPage";
 import { EquipmentPage } from "../pages/equipment/EquipmentPage";
 import { MagicLoginPage } from "../pages/magic-login/MagicLoginPage";
+import { MagicLoginCallbackPage } from "../pages/magic-login-callback/MagicLoginCallbackPage";
+import { MultiFactorPage } from "../pages/multi-factor/MultiFactorPage";
 
 /**
  * App-level error boundary used during UI build-out.
@@ -107,6 +109,9 @@ export function App() {
           <Route path="/onboarding/add-equipment" element={<AddEquipmentPage />} />
           <Route path="/onboarding/loading" element={<OnboardingLoadingPage />} />
           <Route path="/onboarding/magic-login" element={<MagicLoginPage />} />
+          <Route path="/magic-login-callback" element={<MagicLoginCallbackPage />} />
+          <Route path="/onboarding/magic-login-callback" element={<MagicLoginCallbackPage />} />
+          <Route path="/onboarding/multi-factor" element={<MultiFactorPage />} />
         </Routes>
       </AppErrorBoundary>
     </div>
