@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiClient } from "../../api/Api";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
@@ -37,6 +37,7 @@ export function MagicLoginPage() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProceeding, setIsProceeding] = useState(false);
+  const otpInputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const canContinue = email.trim().length > 0;
   const canProceed = true;
@@ -126,6 +127,9 @@ export function MagicLoginPage() {
                       </span>
                     ) : null}
                     <input
+                      ref={(el) => {
+                        otpInputRefs.current[index] = el;
+                      }}
                       className={styles.otpInput}
                       inputMode="numeric"
                       maxLength={1}
@@ -138,6 +142,29 @@ export function MagicLoginPage() {
                           updated[index] = next;
                           return updated;
                         });
+                        if (next && index < otpInputRefs.current.length - 1) {
+                          otpInputRefs.current[index + 1]?.focus();
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
+                          otpInputRefs.current[index - 1]?.focus();
+                        }
+                      }}
+                      onPaste={(e) => {
+                        const pasted = e.clipboardData.getData("text").replace(/\D/g, "");
+                        if (!pasted) return;
+                        e.preventDefault();
+                        setOtpDigits((prev) => {
+                          const updated = [...prev];
+                          for (let i = index; i < 6; i += 1) {
+                            updated[i] = pasted[i - index] ?? updated[i];
+                            if (!pasted[i - index]) break;
+                          }
+                          return updated;
+                        });
+                        const lastIndex = Math.min(index + pasted.length - 1, 5);
+                        otpInputRefs.current[lastIndex]?.focus();
                       }}
                     />
                   </div>
