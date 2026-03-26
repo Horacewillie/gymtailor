@@ -6,6 +6,7 @@ import { BranchSetupPage } from "../pages/branch-setup/BranchSetupPage";
 import { AddEquipmentPage } from "../pages/add-equipment/AddEquipmentPage";
 import { GymSetupPage } from "../pages/gym-setup/GymSetupPage";
 import { OwnerDashboardPage } from "../pages/dashboard/OwnerDashboardPage";
+import { DashboardPlaceholderPage } from "../pages/dashboard/DashboardPlaceholderPage";
 import { SecureAccountPage } from "../pages/secure-account/SecureAccountPage";
 import { OnboardingLoadingPage } from "../pages/onboarding-loading/OnboardingLoadingPage";
 import { EquipmentPage } from "../pages/equipment/EquipmentPage";
@@ -69,6 +70,33 @@ export function App() {
           {/* Post-onboarding destination. */}
           <Route path="/dashboard" element={<OwnerDashboardPage />} />
           <Route path="/dashboard/equipment" element={<EquipmentPage />} />
+          <Route
+            path="/dashboard/members"
+            element={
+              <DashboardPlaceholderPage
+                title="Members"
+                description="Members management is being prepared and will be available soon."
+              />
+            }
+          />
+          <Route
+            path="/dashboard/report"
+            element={
+              <DashboardPlaceholderPage
+                title="Report"
+                description="Reporting tools are being prepared and will be available soon."
+              />
+            }
+          />
+          <Route
+            path="/dashboard/branding"
+            element={
+              <DashboardPlaceholderPage
+                title="Branding"
+                description="Brand customization tools are being prepared and will be available soon."
+              />
+            }
+          />
 
           {/* Onboarding flow (owner setup). */}
           <Route path="/onboarding/create-account" element={<CreateAccountPage />} />

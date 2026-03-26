@@ -4,47 +4,12 @@ import { useNavigate } from "react-router-dom";
 import styles from "./BranchSetupPage.module.css";
 import { Button } from "../../components/button/Button";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
+import { ArrowLeftIcon } from "../../components/icons/ArrowLeftIcon";
+import { StepDots } from "../../components/onboarding/StepDots";
+import { clampSpaces } from "../../utils/text";
 
 type Branch = { name: string; street: string };
 
-/**
- * Normalizes user input without being overly aggressive:
- * - collapse runs of spaces
- * - keep leading whitespace minimal (trimStart) so typing stays predictable
- */
-function clampSpaces(value: string) {
-  return value.replace(/\s+/g, " ").trimStart();
-}
-
-/**
- * Visual-only onboarding step indicator (kept consistent with other pages).
- * We keep it `aria-hidden` and communicate step context through headings/content.
- */
-function StepDots(props: { current: number; total: number }) {
-  return (
-    <div className={styles.stepDots} aria-hidden="true">
-      {Array.from({ length: props.total }).map((_, idx) => {
-        const isActive = idx === props.current - 1;
-        return <span key={idx} className={isActive ? styles.dotActive : styles.dot} />;
-      })}
-    </div>
-  );
-}
-
-/**
- * Back icon used in the footer back button.
- * Inline SVG keeps the design pixel-consistent without an icon dependency.
- */
-function ArrowLeft() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M14.7 5.3a1 1 0 0 1 0 1.4L10.41 11H20a1 1 0 1 1 0 2h-9.59l4.3 4.3a1 1 0 1 1-1.42 1.4l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 1.41 0Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
 
 export function BranchSetupPage() {
   const navigate = useNavigate();
@@ -68,7 +33,13 @@ export function BranchSetupPage() {
       <main className={styles.main}>
         <section className={styles.shell}>
           <div className={styles.left}>
-            <StepDots current={2} total={3} />
+            <StepDots
+              current={2}
+              total={3}
+              containerClassName={styles.stepDots}
+              activeDotClassName={styles.dotActive}
+              dotClassName={styles.dot}
+            />
             <h1 className={styles.title}>
               Set up your
               <br />
@@ -146,7 +117,7 @@ export function BranchSetupPage() {
                   aria-label="Back"
                   onClick={() => navigate("/onboarding/gym-setup")}
                 >
-                  <ArrowLeft />
+                  <ArrowLeftIcon />
                 </button>
 
                 <Button

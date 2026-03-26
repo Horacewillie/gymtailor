@@ -1,9 +1,9 @@
 import { useMemo, useState, useEffect } from "react";
-import Api from "../../api/Api";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Button } from "../../components/button/Button";
 import { DashboardShell } from "../../components/dashboard-shell/DashboardShell";
+import { getDashboardData, type DashboardResponse } from "../../services/dashboardService";
 import styles from "./OwnerDashboardPage.module.css";
 
 type TimeKey = "7d" | "1m" | "3m" | "6m" | "1y" | "ytd";
@@ -172,7 +172,9 @@ function SessionsChart() {
 export function OwnerDashboardPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [dashboardData, setDashboardData] = useState<any>(location.state?.dashboardData || null);
+  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(
+    location.state?.dashboardData || null,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -180,15 +182,8 @@ export function OwnerDashboardPage() {
   useEffect(() => {
     if (!dashboardData) {
       setLoading(true);
-      const api = new Api();
-      const token = localStorage.getItem('token');
-      api.get<any>("/api/dashboard", {
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        }
-      })
+      getDashboardData()
         .then((data) => {
-          console.log('dashboardData:', data);
           setDashboardData(data);
           setError(null);
         })
@@ -199,7 +194,6 @@ export function OwnerDashboardPage() {
     }
   }, [dashboardData]);
 
-  // console.log('dashboardData:', dashboardData);
   const tableRows = Array.isArray(dashboardData?.equipments)
     ? dashboardData.equipments.map(mapEquipmentToRow)
     : [];

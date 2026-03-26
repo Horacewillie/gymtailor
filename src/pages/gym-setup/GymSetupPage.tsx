@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import styles from "./GymSetupPage.module.css";
 import { Button } from "../../components/button/Button";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
+import { StepDots } from "../../components/onboarding/StepDots";
+import { clampSpaces } from "../../utils/text";
 
 type GymSetupValues = {
   gymName: string;
@@ -16,29 +18,6 @@ type GymSetupValues = {
   logoFile: File | null;
 };
 
-/**
- * Keep user input readable while they type:
- * - collapse repeated spaces inside the string
- * - preserve leading space typing behavior minimally (trimStart)
- */
-function clampSpaces(value: string) {
-  return value.replace(/\s+/g, " ").trimStart();
-}
-
-/**
- * Visual-only onboarding step indicator (kept consistent with other pages).
- * We keep it `aria-hidden` and communicate step context through headings/content.
- */
-function StepDots(props: { current: number; total: number }) {
-  return (
-    <div className={styles.stepDots} aria-hidden="true">
-      {Array.from({ length: props.total }).map((_, idx) => {
-        const isActive = idx === props.current - 1;
-        return <span key={idx} className={isActive ? styles.dotActive : styles.dot} />;
-      })}
-    </div>
-  );
-}
 
 export function GymSetupPage() {
   const navigate = useNavigate();
@@ -90,7 +69,13 @@ export function GymSetupPage() {
       <main className={styles.main}>
         <section className={styles.shell}>
           <div className={styles.left}>
-            <StepDots current={1} total={3} />
+            <StepDots
+              current={1}
+              total={3}
+              containerClassName={styles.stepDots}
+              activeDotClassName={styles.dotActive}
+              dotClassName={styles.dot}
+            />
             <h1 className={styles.title}>
               Set up your
               <br />

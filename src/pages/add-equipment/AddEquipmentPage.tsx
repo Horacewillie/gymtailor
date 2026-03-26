@@ -1,42 +1,16 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { useOnboarding } from "../../app/OnboardingContext";
-import Api from "../../api/Api";
 import { useNavigate } from "react-router-dom";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
 import { Button } from "../../components/button/Button";
+import { apiClient, API_BASE_URL } from "../../api/Api";
+import { ArrowLeftIcon } from "../../components/icons/ArrowLeftIcon";
+import { StepDots } from "../../components/onboarding/StepDots";
+import { saveTenantId } from "../../lib/session";
 import styles from "./AddEquipmentPage.module.css";
 
 type Mode = "manual" | "csv";
 
-/**
- * Visual-only onboarding step indicator (kept consistent with other pages).
- * We keep it `aria-hidden` and communicate step context through headings/content.
- */
-function StepDots(props: { current: number; total: number }) {
-  return (
-    <div className={styles.stepDots} aria-hidden="true">
-      {Array.from({ length: props.total }).map((_, idx) => {
-        const isActive = idx === props.current - 1;
-        return <span key={idx} className={isActive ? styles.dotActive : styles.dot} />;
-      })}
-    </div>
-  );
-}
-
-/**
- * Back icon used in the footer back button.
- * Inline SVG keeps the design pixel-consistent without an icon dependency.
- */
-function ArrowLeft() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M14.7 5.3a1 1 0 0 1 0 1.4L10.41 11H20a1 1 0 1 1 0 2h-9.59l4.3 4.3a1 1 0 1 1-1.42 1.4l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 1.41 0Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
 
 /** Small image glyph used in the upload dropzone. */
 function ImageGlyph() {
@@ -66,14 +40,37 @@ function CsvGlyph() {
   );
 }
 
+function getCookieValue(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie
+    .split("; ")
+    .find((entry) => entry.startsWith(`${name}=`));
+  if (!match) return null;
+  const rawValue = match.slice(name.length + 1);
+  return decodeURIComponent(rawValue);
+}
+
+function getTenantIdFromAuthenticationStatus(data: any): string | number | null {
+  if (!data || typeof data !== "object") return null;
+  if (data.tenant_id !== undefined && data.tenant_id !== null && String(data.tenant_id).trim() !== "") {
+    return data.tenant_id;
+  }
+  if (data.tenant?.id !== undefined && data.tenant?.id !== null && String(data.tenant.id).trim() !== "") {
+    return data.tenant.id;
+  }
+  if (data.user?.tenant_id !== undefined && data.user?.tenant_id !== null && String(data.user.tenant_id).trim() !== "") {
+    return data.user.tenant_id;
+  }
+  return null;
+}
+
 export function AddEquipmentPage() {
-    // const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const imageInputId = useId();
   const csvInputId = useId();
 
   const { data, reset } = useOnboarding();
-  const api = useMemo(() => new Api(), []);
+  const api = useMemo(() => apiClient, []);
   // For demo: hardcoded invitationId and signature/url, adapt as needed
   const invitationId = 20;
   const invitationUrl = "http:\/\/localhost:8080\/api\/invitation\/20\/view?expires=1774337920&signature=887954891885f299d8e44d163cadcdd16ecb68567428bdbe42afdf1c1236f7f9";
@@ -117,7 +114,13 @@ export function AddEquipmentPage() {
       <main className={styles.main}>
         <section className={styles.shell}>
           <div className={styles.left}>
-            <StepDots current={3} total={3} />
+            <StepDots
+              current={3}
+              total={3}
+              containerClassName={styles.stepDots}
+              activeDotClassName={styles.dotActive}
+              dotClassName={styles.dot}
+            />
             <h1 className={styles.title}>
               Set up your
               <br />
@@ -315,7 +318,7 @@ export function AddEquipmentPage() {
                   aria-label="Back"
                   onClick={() => navigate("/onboarding/branch-setup")}
                 >
-                  <ArrowLeft />
+                  <ArrowLeftIcon />
                 </button>
 
                 <Button
@@ -325,7 +328,6 @@ export function AddEquipmentPage() {
                   size="lg"
                   onClick={async () => {
                     if (!canComplete) return;
-                    const password = "@MighTy#009";
                     const payload = {
                       url: invitationUrl,
                       signature,
@@ -333,9 +335,7 @@ export function AddEquipmentPage() {
                       first_name: data.first_name || "",
                       last_name: data.last_name || "",
                       role: "admin",
-                      password,
                       email: data.email,
-                      password_confirmation: password,
                       tenant_name: data.tenant_name,
                       tenant_email: data.tenant_email,
                       primary_location: [
@@ -361,25 +361,35 @@ export function AddEquipmentPage() {
                     };
                     try {
                       // Accept invitation (uses /api path)
-                      const response: any = await api.post(`/api/invitation/${invitationId}/accept`, payload);
-                      console.log(response)
-                      // Store tenant_id from accept response
-                      if (response && response.tenant_id) {
-                        localStorage.setItem('tenantId', response.tenant_id);
-                      }
-                      // Login user (login is NOT under /api, so use Api class with full endpoint)
-                      const loginData = await api.post<any>(
-                        '/api/login',
-                        {
+                      await api.post(`/api/invitation/${invitationId}/accept`, payload);
+
+                      // Sanctum flow: fetch CSRF cookie, then login with X-XSRF-TOKEN + session cookies.
+                      await api.csrfCookie("/sanctum/csrf-cookie");
+                      const csrfToken = getCookieValue("XSRF-TOKEN");
+                      const loginResponse = await fetch(`${API_BASE_URL}/login`, {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                          Accept: "application/json",
+                          "Content-Type": "application/json",
+                          ...(csrfToken ? { "X-XSRF-TOKEN": csrfToken } : {}),
+                        },
+                        body: JSON.stringify({
                           email: data.email,
-                          password,
-                        }
-                      );
-                       console.log(loginData)
-                      // Persist access_token as token
-                      if (loginData && loginData.access_token) {
-                        localStorage.setItem('token', loginData.access_token);
+                        }),
+                      });
+                      if (!loginResponse.ok) {
+                        throw new Error(`Login failed: ${loginResponse.status}`);
                       }
+
+                      // After login, get authenticated context and persist tenant id from there.
+                      const authStatus = await api.get<any>("/api/authentication-status");
+                      const tenantId = getTenantIdFromAuthenticationStatus(authStatus);
+                      if (tenantId === null) {
+                        throw new Error("Authentication status response did not include tenant id.");
+                      }
+                      saveTenantId(tenantId);
+
                       reset();
                       navigate("/onboarding/loading");
                     } catch (err) {

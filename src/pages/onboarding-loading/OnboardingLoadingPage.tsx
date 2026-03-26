@@ -2,27 +2,18 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
 import styles from "./OnboardingLoadingPage.module.css";
-
-import Api from "../../api/Api";
+import { getDashboardData } from "../../services/dashboardService";
 
 export function OnboardingLoadingPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
     let isMounted = true;
-    const api = new Api();
     const timer = setTimeout(async () => {
       let dashboardData = undefined;
       try {
-      
-        const token = localStorage.getItem('token');
-        console.log("Token in localStorage:", token);
-        dashboardData = await api.get("/api/dashboard", {
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          }
-        });
-      } catch (err) {
+        dashboardData = await getDashboardData();
+      } catch {
         // Ignore error, just proceed
       } finally {
         if (isMounted) {

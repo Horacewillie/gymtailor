@@ -2,24 +2,9 @@ import styles from "./CreateAccountPage.module.css";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/button/Button";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
+import { StepDots } from "../../components/onboarding/StepDots";
 import { useMemo, useState } from "react";
 import { useOnboarding } from "../../app/OnboardingContext";
-
-/**
- * Minimal progress indicator used across onboarding pages.
- * It is intentionally "visual only" (aria-hidden) because the surrounding headings already
- * communicate step context to screen readers.
- */
-function StepDots(props: { current: number; total: number }) {
-  return (
-    <div className={styles.stepDots} aria-hidden="true">
-      {Array.from({ length: props.total }).map((_, idx) => {
-        const isActive = idx === props.current - 1;
-        return <span key={idx} className={isActive ? styles.dotActive : styles.dot} />;
-      })}
-    </div>
-  );
-}
 
 export function CreateAccountPage() {
   const navigate = useNavigate();
@@ -43,7 +28,13 @@ export function CreateAccountPage() {
       <main className={styles.main}>
         <section className={styles.shell}>
           <div className={styles.left}>
-            <StepDots current={1} total={3} />
+            <StepDots
+              current={1}
+              total={3}
+              containerClassName={styles.stepDots}
+              activeDotClassName={styles.dotActive}
+              dotClassName={styles.dot}
+            />
             <h1 className={styles.title}>
               Create owner
               <br />
