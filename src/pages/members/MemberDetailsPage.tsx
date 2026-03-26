@@ -11,6 +11,11 @@ import {
   WeightRecordChart,
 } from "../../components/member-performance-charts/MemberPerformanceCharts";
 import { MOCK_MEMBERS } from "./MembersPage";
+import imgBarbellBenchPress from "../../assets/BarbellBenchPress.png";
+import imgDeadlift from "../../assets/Deadlift.png";
+import imgBicepCurl from "../../assets/BicepCurl.png";
+import imgDumbbellFlyess from "../../assets/DumbbellFlyess.png";
+import imgDumbellShoulderPress from "../../assets/DumbellShoulderPress.png";
 import styles from "./MemberDetailsPage.module.css";
 
 function IconChevronLeft() {
@@ -83,11 +88,11 @@ function IconInfoCircle() {
 }
 
 const TOP_EXERCISES = [
-  { name: "Barbell Bench Press", detail: "50 kg in 4 sets" },
-  { name: "Back Squat", detail: "80 kg in 5 sets" },
-  { name: "Romanian Deadlift", detail: "60 kg in 4 sets" },
-  { name: "Lat Pulldown", detail: "45 kg in 4 sets" },
-  { name: "Cable Row", detail: "40 kg in 4 sets" },
+  { name: "Barbell Bench Press", detail: "50 kg in 4 sets", image: imgBarbellBenchPress },
+  { name: "Back Squat", detail: "80 kg in 5 sets", image: imgDumbellShoulderPress },
+  { name: "Romanian Deadlift", detail: "60 kg in 4 sets", image: imgDeadlift },
+  { name: "Lat Pulldown", detail: "45 kg in 4 sets", image: imgDumbbellFlyess },
+  { name: "Cable Row", detail: "40 kg in 4 sets", image: imgBicepCurl },
 ] as const;
 
 const TOP_EQUIPMENT = [
@@ -557,7 +562,15 @@ export function MemberDetailsPage() {
                     <ul className={styles.perfRankList}>
                       {TOP_EXERCISES.map((row) => (
                         <li key={row.name} className={styles.perfRankItem}>
-                          <div className={styles.perfThumb} aria-hidden="true" />
+                          <div className={styles.perfThumb}>
+                            <img
+                              src={row.image}
+                              alt=""
+                              className={styles.perfThumbImg}
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          </div>
                           <div className={styles.perfRankText}>
                             <div className={styles.perfRankName}>{row.name}</div>
                             <div className={styles.perfRankDetail}>{row.detail}</div>
