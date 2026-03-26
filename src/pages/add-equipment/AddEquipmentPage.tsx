@@ -95,6 +95,58 @@ export function AddEquipmentPage() {
         Number(quantity) > 0
       : Boolean(csvFile);
 
+  const acceptInvitationAndContinue = async (includeEquipments: boolean) => {
+    if (!invitationId || !invitationUrl || !signature) {
+      console.error("Cannot complete setup: missing invitation context.");
+      return;
+    }
+
+    const payload = {
+      url: invitationUrl,
+      signature,
+      id: invitationId,
+      first_name: data.first_name || "",
+      last_name: data.last_name || "",
+      role: "admin",
+      email: data.email,
+      tenant_name: data.tenant_name,
+      tenant_email: data.tenant_email,
+      primary_location: [
+        typeof data.primary_location === "string"
+          ? data.primary_location
+          : data.primary_location?.name || "",
+        data.primary_location?.city,
+        data.primary_location?.state,
+        data.primary_location?.country,
+        data.primary_location?.postal_code
+      ]
+        .filter(Boolean)
+        .join(", "),
+      branches: data.branches || [],
+      ...(includeEquipments
+        ? {
+            equipments: [
+              {
+                name: equipmentName,
+                category,
+                unit: 5,
+                status: "active",
+              },
+            ],
+          }
+        : {}),
+    };
+
+    try {
+      await api.post(`/api/invitation/${invitationId}/accept`, payload);
+      navigate("/onboarding/loading", {
+        state: { email: data.email ?? "" },
+      });
+    } catch (err) {
+      console.error("API error:", err);
+    }
+  };
+
   return (
     <div className={styles.page}>
 
@@ -317,57 +369,19 @@ export function AddEquipmentPage() {
                   size="lg"
                   onClick={async () => {
                     if (!canComplete) return;
-                    if (!invitationId || !invitationUrl || !signature) {
-                      console.error("Cannot complete setup: missing invitation context.");
-                      return;
-                    }
-                    const payload = {
-                      url: invitationUrl,
-                      signature,
-                      id: invitationId,
-                      first_name: data.first_name || "",
-                      last_name: data.last_name || "",
-                      role: "admin",
-                      email: data.email,
-                      tenant_name: data.tenant_name,
-                      tenant_email: data.tenant_email,
-                      primary_location: [
-                        typeof data.primary_location === "string"
-                          ? data.primary_location
-                          : data.primary_location?.name || "",
-                        data.primary_location?.city,
-                        data.primary_location?.state,
-                        data.primary_location?.country,
-                        data.primary_location?.postal_code
-                      ]
-                        .filter(Boolean)
-                        .join(", "),
-                      branches: data.branches || [],
-                      equipments: [
-                        {
-                          name: equipmentName,
-                          category,
-                          unit: 5,
-                          status: "active",
-                        },
-                      ],
-                    };
-                    try {
-                      // Accept invitation (uses /api path)
-                      await api.post(`/api/invitation/${invitationId}/accept`, payload);
-
-                      navigate("/onboarding/loading", {
-                        state: { email: data.email ?? "" },
-                      });
-                    } catch (err) {
-                      console.error("API error:", err);
-                    }
+                    await acceptInvitationAndContinue(true);
                   }}
                 >
                   COMPLETE SET UP
                 </Button>
                 {/* Optional bypass: user can proceed to the dashboard and finish setup later. */}
-                <button type="button" className={styles.doLater} onClick={() => navigate("/dashboard")}> 
+                <button
+                  type="button"
+                  className={styles.doLater}
+                  onClick={() => {
+                    void acceptInvitationAndContinue(false);
+                  }}
+                >
                   DO THIS LATER
                 </button>
               </div>
