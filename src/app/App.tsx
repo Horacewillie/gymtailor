@@ -112,6 +112,7 @@ export function App() {
           {/* Default entry for unauthenticated users. */}
           <Route path="/" element={<Navigate to="/onboarding/magic-login" replace />} />
           <Route path="/accept-invitation/invitation/:invitationId/view" element={<CreateAccountPage />} />
+          <Route path="/invitation/:invitationId/view" element={<CreateAccountPage />} />
           {/* Post-onboarding destination. */}
           <Route path="/dashboard" element={<OwnerDashboardPage />} />
           <Route path="/dashboard/equipment" element={<EquipmentPage />} />
