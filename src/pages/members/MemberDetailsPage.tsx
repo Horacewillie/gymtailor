@@ -4,6 +4,12 @@ import { DashboardShell } from "../../components/dashboard-shell/DashboardShell"
 import { Button } from "../../components/button/Button";
 import { Modal } from "../../components/modal/Modal";
 import { SuccessModal } from "../../components/success-modal/SuccessModal";
+import {
+  PeakHoursChart,
+  ProductivityTrendChart,
+  SessionsOverTimeChart,
+  WeightRecordChart,
+} from "../../components/member-performance-charts/MemberPerformanceCharts";
 import { MOCK_MEMBERS } from "./MembersPage";
 import styles from "./MemberDetailsPage.module.css";
 
@@ -64,6 +70,78 @@ function IconCalendar() {
   );
 }
 
+const PERF_TIME_KEYS = ["7D", "1M", "3M", "6M", "1Y", "YTD"] as const;
+type PerfTimeKey = (typeof PERF_TIME_KEYS)[number];
+
+function IconInfoCircle() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="none">
+      <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.25" />
+      <path d="M12 16.5v-6M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+const TOP_EXERCISES = [
+  { name: "Barbell Bench Press", detail: "50 kg in 4 sets" },
+  { name: "Back Squat", detail: "80 kg in 5 sets" },
+  { name: "Romanian Deadlift", detail: "60 kg in 4 sets" },
+  { name: "Lat Pulldown", detail: "45 kg in 4 sets" },
+  { name: "Cable Row", detail: "40 kg in 4 sets" },
+] as const;
+
+const TOP_EQUIPMENT = [
+  { name: "Adjustable Dumbbells", detail: "Used in 18 sessions" },
+  { name: "Battle Ropes", detail: "Used in 14 sessions" },
+  { name: "Smith Machine", detail: "Used in 12 sessions" },
+  { name: "Leg Press", detail: "Used in 10 sessions" },
+] as const;
+
+const SESSION_MONTH_OPTIONS = [
+  { value: "2026-12", label: "December 2026" },
+  { value: "2026-11", label: "November 2026" },
+  { value: "2026-10", label: "October 2026" },
+] as const;
+
+type SessionExercise = {
+  workout: string;
+  set: string;
+  rep: string;
+  kg: string;
+};
+
+type WorkoutSession = {
+  id: string;
+  title: string;
+  when: string;
+  exercises?: readonly SessionExercise[];
+};
+
+const SESSION_WORKOUTS: readonly WorkoutSession[] = [
+  {
+    id: "s1",
+    title: "Chest & Biceps",
+    when: "Mon, Dec 1 • 8:20 AM",
+    exercises: [
+      { workout: "Barbell Bench Press", set: "13", rep: "x12", kg: "10" },
+      { workout: "Dumbbell Bench Press", set: "10", rep: "x12", kg: "10" },
+      { workout: "Incline Dumbbell Press", set: "8", rep: "x10", kg: "10" },
+      { workout: "Chest Fly", set: "12", rep: "x12", kg: "8" },
+      { workout: "Cable Chest Fly", set: "9", rep: "x10", kg: "5" },
+    ],
+  },
+  { id: "s2", title: "Back & Shoulders", when: "Tue, Dec 2 • 7:15 AM" },
+  { id: "s3", title: "Leg Day", when: "Wed, Dec 3 • 6:45 AM" },
+  { id: "s4", title: "Cardio & Abs", when: "Thu, Dec 4 • 5:30 PM" },
+  { id: "s5", title: "Full Body Workout", when: "Fri, Dec 5 • 8:00 AM" },
+  { id: "s6", title: "Yoga & Flexibility", when: "Sat, Dec 6 • 10:00 AM" },
+  { id: "s7", title: "Rest Day", when: "Sun, Dec 7 • —" },
+  { id: "s8", title: "Chest & Triceps", when: "Mon, Dec 8 • 8:20 AM" },
+  { id: "s9", title: "Legs & Core", when: "Tue, Dec 9 • 7:00 AM" },
+  { id: "s10", title: "Cardio Intervals", when: "Wed, Dec 10 • 6:30 PM" },
+  { id: "s11", title: "Body Pump", when: "Thu, Dec 11 • 6:00 PM" },
+];
+
 export function MemberDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -78,6 +156,9 @@ export function MemberDetailsPage() {
   const [editingDetails, setEditingDetails] = useState(false);
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
   const [isRemoveSuccessOpen, setIsRemoveSuccessOpen] = useState(false);
+  const [perfTime, setPerfTime] = useState<PerfTimeKey>("7D");
+  const [sessionMonth, setSessionMonth] = useState<string>(SESSION_MONTH_OPTIONS[0]!.value);
+  const [openSessionId, setOpenSessionId] = useState<string>("s1");
   const [editForm, setEditForm] = useState({
     name: "",
     email: "",
@@ -362,6 +443,265 @@ export function MemberDetailsPage() {
                   </div>
                 </div>
 
+              </div>
+            )}
+
+            {activeTab === "PERFORMANCE" && (
+              <div className={styles.performanceSection}>
+                <div className={styles.perfTimeTabs} role="tablist" aria-label="Performance period">
+                  {PERF_TIME_KEYS.map((key) => (
+                    <button
+                      key={key}
+                      type="button"
+                      role="tab"
+                      aria-selected={perfTime === key}
+                      className={[
+                        styles.perfTimeTab,
+                        perfTime === key ? styles.perfTimeTabActive : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      onClick={() => setPerfTime(key)}
+                    >
+                      {key}
+                    </button>
+                  ))}
+                </div>
+
+                <div className={styles.perfStatGrid} aria-label="Performance summary">
+                  <div className={styles.perfStatCard}>
+                    <div className={styles.perfStatLabel}>Sessions completed</div>
+                    <div className={styles.perfStatValue}>12</div>
+                  </div>
+                  <div className={styles.perfStatCard}>
+                    <div className={styles.perfStatLabel}>Consistency streak</div>
+                    <div className={styles.perfStatValue}>5 days</div>
+                  </div>
+                  <div className={styles.perfStatCard}>
+                    <div className={styles.perfStatLabel}>Workout fit score</div>
+                    <div className={styles.perfStatValue}>4.3 / 5</div>
+                  </div>
+                </div>
+
+                <div className={styles.perfChartsRow}>
+                  <div className={styles.perfChartCard}>
+                    <div className={styles.perfChartCardHead}>
+                      <div className={styles.perfChartTitleRow}>
+                        <h3 className={styles.perfChartTitle}>Productivity Trend</h3>
+                        <button type="button" className={styles.perfChartInfoBtn} aria-label="About productivity trend">
+                          <IconInfoCircle />
+                        </button>
+                      </div>
+                      <p className={styles.perfChartSub}>Last 7 days</p>
+                    </div>
+                    <div className={styles.perfChartValueRow}>
+                      <span className={styles.perfHeroValue}>2hr:45m:32s</span>
+                    </div>
+                    <p className={styles.perfMetricSubline}>
+                      <span className={styles.perfMetricSublineLabel}>Workout Time: </span>
+                      <span className={styles.perfDelta}>+65 mins</span>
+                    </p>
+                    <ProductivityTrendChart />
+                  </div>
+                  <div className={styles.perfChartCard}>
+                    <div className={styles.perfChartCardHead}>
+                      <div className={styles.perfChartTitleRow}>
+                        <h3 className={styles.perfChartTitle}>Weight record</h3>
+                        <button type="button" className={styles.perfChartInfoBtn} aria-label="About weight record">
+                          <IconInfoCircle />
+                        </button>
+                      </div>
+                      <p className={styles.perfChartSub}>Last 7 days</p>
+                    </div>
+                    <div className={styles.perfChartValueRow}>
+                      <span className={styles.perfHeroValue}>76lbs</span>
+                    </div>
+                    <p className={styles.perfMetricSubline}>
+                      <span className={styles.perfMetricSublineLabel}>Current Weight: </span>
+                      <span className={styles.perfDelta}>+12lbs</span>
+                    </p>
+                    <WeightRecordChart />
+                  </div>
+                </div>
+
+                <div className={styles.perfChartsRow}>
+                  <div className={styles.perfChartCard}>
+                    <div className={styles.perfChartCardHead}>
+                      <div className={styles.perfChartTitleRow}>
+                        <h3 className={styles.perfChartTitle}>Sessions over time</h3>
+                        <button type="button" className={styles.perfChartInfoBtn} aria-label="About sessions over time">
+                          <IconInfoCircle />
+                        </button>
+                      </div>
+                      <p className={styles.perfChartSub}>Last 7 days</p>
+                    </div>
+                    <SessionsOverTimeChart />
+                  </div>
+                  <div className={styles.perfChartCard}>
+                    <div className={styles.perfChartCardHead}>
+                      <div className={styles.perfChartTitleRow}>
+                        <h3 className={styles.perfChartTitle}>Peak hours</h3>
+                        <button type="button" className={styles.perfChartInfoBtn} aria-label="About peak hours">
+                          <IconInfoCircle />
+                        </button>
+                      </div>
+                      <p className={styles.perfChartSub}>Last 7 days</p>
+                    </div>
+                    <PeakHoursChart />
+                  </div>
+                </div>
+
+                <div className={styles.perfChartsRow}>
+                  <div className={styles.perfChartCard}>
+                    <h3 className={styles.perfChartTitle}>Top exercises</h3>
+                    <ul className={styles.perfRankList}>
+                      {TOP_EXERCISES.map((row) => (
+                        <li key={row.name} className={styles.perfRankItem}>
+                          <div className={styles.perfThumb} aria-hidden="true" />
+                          <div className={styles.perfRankText}>
+                            <div className={styles.perfRankName}>{row.name}</div>
+                            <div className={styles.perfRankDetail}>{row.detail}</div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className={styles.perfChartCard}>
+                    <h3 className={styles.perfChartTitle}>Top equipment</h3>
+                    <ul className={styles.perfRankList}>
+                      {TOP_EQUIPMENT.map((row) => (
+                        <li key={row.name} className={styles.perfRankItem}>
+                          <div className={styles.perfThumb} aria-hidden="true" />
+                          <div className={styles.perfRankText}>
+                            <div className={styles.perfRankName}>{row.name}</div>
+                            <div className={styles.perfRankDetail}>{row.detail}</div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "SESSION" && (
+              <div className={styles.sessionSection}>
+                <div className={styles.sessionMonthRow}>
+                  <select
+                    id="session-month-select"
+                    className={styles.sessionMonthSelect}
+                    value={sessionMonth}
+                    onChange={(e) => setSessionMonth(e.target.value)}
+                    aria-label="Session month"
+                  >
+                    {SESSION_MONTH_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.perfStatGrid} aria-label="Session summary">
+                  <div className={styles.perfStatCard}>
+                    <div className={styles.sessionStatHead}>
+                      <span className={styles.perfStatLabel}>Total workouts</span>
+                      <button
+                        type="button"
+                        className={styles.sessionStatInfoBtn}
+                        aria-label="About total workouts"
+                      >
+                        <IconInfoCircle />
+                      </button>
+                    </div>
+                    <div className={styles.perfStatValue}>8</div>
+                  </div>
+                  <div className={styles.perfStatCard}>
+                    <div className={styles.sessionStatHead}>
+                      <span className={styles.perfStatLabel}>Completion rate</span>
+                      <button
+                        type="button"
+                        className={styles.sessionStatInfoBtn}
+                        aria-label="About completion rate"
+                      >
+                        <IconInfoCircle />
+                      </button>
+                    </div>
+                    <div className={styles.perfStatValue}>80%</div>
+                  </div>
+                  <div className={styles.perfStatCard}>
+                    <div className={styles.sessionStatHead}>
+                      <span className={styles.perfStatLabel}>Total session time</span>
+                      <button
+                        type="button"
+                        className={styles.sessionStatInfoBtn}
+                        aria-label="About total session time"
+                      >
+                        <IconInfoCircle />
+                      </button>
+                    </div>
+                    <div className={`${styles.perfStatValue} ${styles.sessionStatValueTight}`}>
+                      30 hr 16 mins
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.sessionAccordion} role="list">
+                  {SESSION_WORKOUTS.map((s) => {
+                    const isOpen = openSessionId === s.id;
+                    const hasTable = Boolean(s.exercises?.length);
+                    return (
+                      <div key={s.id} className={styles.sessionAccordionItem} role="listitem">
+                        <button
+                          type="button"
+                          className={styles.sessionAccordionTrigger}
+                          aria-expanded={isOpen}
+                          onClick={() =>
+                            setOpenSessionId((prev) => (prev === s.id ? "" : s.id))
+                          }
+                        >
+                          <span className={styles.sessionAccordionLeft}>
+                            <IconChevronDown isOpen={isOpen} className={styles.sessionAccordionChevron} />
+                            <span className={styles.sessionAccordionTitle}>{s.title}</span>
+                          </span>
+                          <span className={styles.sessionAccordionWhen}>{s.when}</span>
+                        </button>
+                        {isOpen ? (
+                          hasTable ? (
+                            <div className={styles.sessionAccordionPanel}>
+                              <table className={styles.sessionTable}>
+                                <thead>
+                                  <tr>
+                                    <th scope="col">WORKOUT</th>
+                                    <th scope="col">SET</th>
+                                    <th scope="col">REP</th>
+                                    <th scope="col">KG</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {s.exercises!.map((row) => (
+                                    <tr key={row.workout}>
+                                      <td>{row.workout}</td>
+                                      <td>{row.set}</td>
+                                      <td>{row.rep}</td>
+                                      <td>{row.kg}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          ) : (
+                            <div className={styles.sessionAccordionPanel}>
+                              <p className={styles.sessionNoDetail}>
+                                No exercise breakdown for this session.
+                              </p>
+                            </div>
+                          )
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
             

@@ -214,6 +214,415 @@
   background: #BE123C !important;
 }
 
+/* Performance tab */
+.performanceSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Time range pills — Figma: separate light-grey pills; active #0E121B + white bold */
+.perfTimeTabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.perfTimeTab {
+  border: 0;
+  cursor: pointer;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  background: #e8eaed;
+  color: #525866;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.perfTimeTab:hover:not(.perfTimeTabActive) {
+  background: #dfe2e7;
+  color: #3d4450;
+}
+
+.perfTimeTabActive {
+  background: #0e121b;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.perfStatGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 768px) {
+  .perfStatGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.perfStatCard {
+  background: #fff;
+  border: 1px solid rgba(31, 39, 50, 0.08);
+  border-radius: 16px;
+  padding: 16px 18px 18px;
+  box-shadow: 0 2px 16px rgba(17, 25, 37, 0.04);
+  min-width: 0;
+}
+
+.perfStatLabel {
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(31, 39, 50, 0.65);
+  letter-spacing: 0.02em;
+}
+
+.perfStatValue,
+.perfHeroValue {
+  font-family: "Loubag", Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 36px;
+  line-height: 1.15;
+  color: #0e121b;
+}
+
+.perfStatValue {
+  margin-top: 10px;
+  font-size: 40px;
+}
+
+.perfChartsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .perfChartsRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.perfChartCard {
+  background: #fff;
+  border: 1px solid rgba(31, 39, 50, 0.08);
+  border-radius: 16px;
+  padding: 16px 16px 14px;
+  box-shadow: 0 2px 16px rgba(17, 25, 37, 0.04);
+  min-width: 0;
+}
+
+.perfChartCardHead {
+  margin-bottom: 10px;
+}
+
+.perfChartTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.perfChartTitle {
+  margin: 0;
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(15, 24, 34, 0.9);
+}
+
+/* List-only cards (Top exercises / equipment) — title is first child */
+.perfChartCard > .perfChartTitle:first-child {
+  margin-bottom: 10px;
+}
+
+.perfChartInfoBtn {
+  display: inline-grid;
+  place-items: center;
+  padding: 2px;
+  border: 0;
+  background: transparent;
+  color: rgba(31, 39, 50, 0.35);
+  cursor: pointer;
+  border-radius: 6px;
+  line-height: 0;
+}
+
+.perfChartInfoBtn:hover {
+  color: rgba(31, 39, 50, 0.55);
+}
+
+.perfChartSub {
+  margin: 6px 0 0;
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: rgba(31, 39, 50, 0.45);
+}
+
+.perfChartValueRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.perfMetricSubline {
+  margin: 0 0 10px;
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.perfMetricSublineLabel {
+  color: rgba(31, 39, 50, 0.65);
+}
+
+.perfDelta {
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #15803d;
+}
+
+.perfRankList {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.perfRankItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.perfThumb {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e8f4ef 0%, #cfe8dd 50%, #b8dcc8 100%);
+  border: 1px solid rgba(31, 39, 50, 0.06);
+}
+
+.perfRankText {
+  min-width: 0;
+  flex: 1;
+}
+
+.perfRankName {
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0f1822;
+}
+
+.perfRankDetail {
+  margin-top: 2px;
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.72rem;
+  color: rgba(31, 39, 50, 0.55);
+}
+
+/* Session tab */
+.sessionSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sessionMonthRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.sessionMonthSelect {
+  height: 40px;
+  min-width: 200px;
+  padding: 0 36px 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(31, 39, 50, 0.14);
+  background: #fff;
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0e121b;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%23525866' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  box-shadow: 0 1px 3px rgba(17, 25, 37, 0.06);
+}
+
+.sessionMonthSelect:focus {
+  outline: none;
+  border-color: rgba(56, 247, 161, 0.65);
+  box-shadow: 0 0 0 3px rgba(56, 247, 161, 0.2);
+}
+
+.sessionStatHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sessionStatInfoBtn {
+  display: inline-grid;
+  place-items: center;
+  padding: 2px;
+  border: 0;
+  background: transparent;
+  color: rgba(31, 39, 50, 0.35);
+  cursor: pointer;
+  border-radius: 6px;
+  line-height: 0;
+  flex-shrink: 0;
+}
+
+.sessionStatInfoBtn:hover {
+  color: rgba(31, 39, 50, 0.55);
+}
+
+.sessionStatValueTight {
+  line-height: 1.15;
+  word-break: break-word;
+}
+
+.sessionAccordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: #fff;
+  border: 1px solid rgba(31, 39, 50, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(17, 25, 37, 0.04);
+}
+
+.sessionAccordionItem {
+  border-bottom: 1px solid rgba(31, 39, 50, 0.08);
+}
+
+.sessionAccordionItem:last-child {
+  border-bottom: none;
+}
+
+.sessionAccordionTrigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 0;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.sessionAccordionTrigger:hover {
+  background: rgba(31, 39, 50, 0.02);
+}
+
+.sessionAccordionLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sessionAccordionChevron {
+  flex-shrink: 0;
+  color: rgba(31, 39, 50, 0.55);
+}
+
+.sessionAccordionTitle {
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0e121b;
+}
+
+.sessionAccordionWhen {
+  flex-shrink: 0;
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(31, 39, 50, 0.55);
+}
+
+.sessionAccordionPanel {
+  padding: 0 18px 18px 46px;
+  border-top: 1px solid rgba(31, 39, 50, 0.06);
+  background: #fafcfb;
+  overflow-x: auto;
+}
+
+.sessionTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.78rem;
+}
+
+.sessionTable thead th {
+  text-align: left;
+  padding: 10px 12px 10px 0;
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(31, 39, 50, 0.55);
+  border-bottom: 1px solid rgba(31, 39, 50, 0.1);
+}
+
+.sessionTable tbody td {
+  padding: 12px 12px 12px 0;
+  color: #0e121b;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(31, 39, 50, 0.06);
+}
+
+.sessionTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.sessionTable tbody tr:nth-child(even) {
+  background: rgba(31, 39, 50, 0.03);
+}
+
+.sessionTable tbody tr:nth-child(even) td {
+  background: transparent;
+}
+
+.sessionNoDetail {
+  margin: 0;
+  padding: 8px 0 4px;
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.78rem;
+  color: rgba(31, 39, 50, 0.5);
+}
+
 /* Content Cards */
 .contentSections {
   display: flex;
