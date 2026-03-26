@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { DashboardShell } from "../../components/dashboard-shell/DashboardShell";
 import { Button } from "../../components/button/Button";
 import { Modal } from "../../components/modal/Modal";
+import { SuccessModal } from "../../components/success-modal/SuccessModal";
 import { MOCK_MEMBERS } from "./MembersPage";
 import styles from "./MemberDetailsPage.module.css";
 
@@ -65,6 +66,7 @@ function IconCalendar() {
 
 export function MemberDetailsPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   
   // Tab state
   const [activeTab, setActiveTab] = useState<"PROFILE" | "PERFORMANCE" | "SESSION">("PROFILE");
@@ -75,6 +77,7 @@ export function MemberDetailsPage() {
 
   const [editingDetails, setEditingDetails] = useState(false);
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+  const [isRemoveSuccessOpen, setIsRemoveSuccessOpen] = useState(false);
   const [editForm, setEditForm] = useState({
     name: "",
     email: "",
@@ -377,7 +380,13 @@ export function MemberDetailsPage() {
             <Button variant="secondary" className={styles.dangerModalBtn} onClick={() => setIsRemoveModalOpen(false)}>
               CANCEL
             </Button>
-            <Button className={`${styles.dangerModalBtn} ${styles.dangerModalConfirmRed}`}>
+            <Button
+              className={`${styles.dangerModalBtn} ${styles.dangerModalConfirmRed}`}
+              onClick={() => {
+                setIsRemoveModalOpen(false);
+                setIsRemoveSuccessOpen(true);
+              }}
+            >
               YES, REMOVE
             </Button>
           </div>
@@ -387,6 +396,23 @@ export function MemberDetailsPage() {
           Are you sure you want remove <strong>"{member.name}"</strong> from your member? This will remove them from i-Fitness and revoke access to Gym Tailor through your gym.
         </p>
       </Modal>
+
+      <SuccessModal
+        open={isRemoveSuccessOpen}
+        onClose={() => {
+          setIsRemoveSuccessOpen(false);
+          navigate("/dashboard/members");
+        }}
+        titleId="member-removed-success"
+        line1="Member successfully"
+        line2="removed"
+        primaryLabel="DISMISS"
+        primaryLayout="full"
+        onPrimary={() => {
+          setIsRemoveSuccessOpen(false);
+          navigate("/dashboard/members");
+        }}
+      />
     </div>
   );
 }
