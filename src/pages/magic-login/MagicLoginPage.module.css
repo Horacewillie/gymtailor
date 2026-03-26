@@ -14,6 +14,7 @@
 .intro {
   width: min(360px, 100%);
   margin-bottom: -4px;
+  height: 0px;
 }
 
 .card {
