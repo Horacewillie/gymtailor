@@ -46,25 +46,31 @@ export function MagicLoginPage() {
       <AuthHeader variant="dashboard" userInitial="J" />
 
       <main className={styles.main}>
+        {stage === "email" ? (
+          <div className={styles.intro}>
+            <h1 className={styles.title}>Welcome back!</h1>
+            <p className={styles.subtitle}>
+              Enter your register email address to access your Gym Tailor account.
+            </p>
+          </div>
+        ) : null}
+
         <section className={styles.card} aria-label="Magic login">
           {stage === "email" ? (
             <>
-              <h1 className={styles.title}>Welcome back!</h1>
-              <p className={styles.subtitle}>
-                Enter your register email address to access your Gym Tailor account.
-              </p>
-
-              <label className={styles.label} htmlFor="magic-login-email">
-                EMAIL ADDRESS
-              </label>
-              <input
-                id="magic-login-email"
-                className={styles.input}
-                value={email}
-                onChange={(e) => setEmail(e.currentTarget.value)}
-                placeholder="name@email.com"
-                autoComplete="email"
-              />
+              <div className={styles.fieldWrap}>
+                <label className={styles.label} htmlFor="magic-login-email">
+                  EMAIL ADDRESS
+                </label>
+                <input
+                  id="magic-login-email"
+                  className={styles.input}
+                  value={email}
+                  onChange={(e) => setEmail(e.currentTarget.value)}
+                  placeholder="name@email.com"
+                  autoComplete="email"
+                />
+              </div>
 
               {error ? (
                 <p className={styles.error} role="alert">
