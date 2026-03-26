@@ -89,13 +89,29 @@
 
 .otpRow {
   margin-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(6, 40px);
+  display: flex;
   justify-content: center;
+  align-items: center;
   gap: 8px;
 }
 
+.otpItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.otpDivider {
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(31, 39, 50, 0.62);
+  line-height: 1;
+}
+
 .otpInput {
+  width: 40px;
   height: 36px;
   border: 1px solid rgba(31, 39, 50, 0.2);
   border-radius: 10px;
