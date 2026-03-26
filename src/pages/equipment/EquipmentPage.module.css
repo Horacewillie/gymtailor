@@ -1,0 +1,753 @@
+.page {
+  min-height: 100vh;
+  background: #fff;
+  color: #1f2732;
+}
+
+.main {
+  padding: 18px 0 56px;
+}
+
+.container {
+  width: min(1120px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-top: 10px;
+}
+
+.h1 {
+  margin: 0;
+  font-family: "Loubag", Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: rgba(15, 24, 34, 0.88);
+}
+
+.sub {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: #525866;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 400;
+}
+
+.addBtn {
+  background: #38f7a1 !important;
+  color: rgba(15, 24, 34, 0.92) !important;
+  font-family: Onest, Inter, system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  height: 34px !important;
+  padding: 0 14px !important;
+  font-size: 0.6rem !important;
+  letter-spacing: 0.11em !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.addBtnIcon {
+  margin-left: 8px;
+  color: rgba(15, 24, 34, 0.55);
+}
+
+.addMenuWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.addMenu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 210px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(31, 39, 50, 0.08);
+  box-shadow:
+    0 22px 60px rgba(17, 25, 37, 0.18),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  padding: 4px 4px;
+  z-index: 20;
+}
+
+.addMenuItem {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 0.74rem;
+  line-height: 1.15;
+  color: rgba(15, 24, 34, 0.9);
+  cursor: pointer;
+}
+
+.addMenuItem:hover {
+  background: rgba(31, 39, 50, 0.04);
+}
+
+.addMenuItem:focus-visible {
+  outline: 2px solid rgba(56, 247, 161, 0.75);
+  outline-offset: 2px;
+}
+
+.fieldLabel {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  font-size: 0.54rem;
+  letter-spacing: 0.19em;
+  color: rgba(31, 39, 50, 0.6);
+  font-weight: 800;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
+.dropzone {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px dashed rgba(31, 39, 50, 0.28);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 14px 14px;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 4px;
+  cursor: pointer;
+}
+
+.dropIcon {
+  grid-row: 1 / span 2;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: rgba(31, 39, 50, 0.65);
+  background: rgba(31, 39, 50, 0.06);
+}
+
+.dropText {
+  font-size: 0.72rem;
+  color: rgba(15, 24, 34, 0.82);
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 500;
+}
+
+.dropLink {
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.dropHint {
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 0.6rem;
+  color: rgba(31, 39, 50, 0.55);
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.noteRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 16px;
+  color: rgba(31, 39, 50, 0.65);
+  font-size: 0.62rem;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 400;
+}
+
+.noteIcon {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(31, 39, 50, 0.22);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.65rem;
+  color: rgba(31, 39, 50, 0.55);
+}
+
+/* Import equipment from CSV modal — compact card, matches import mockup */
+.csvTemplateBox {
+  border-radius: 8px;
+  background: rgba(230, 240, 250, 0.55);
+  border: 1px solid rgba(31, 39, 50, 0.06);
+  padding: 12px 12px;
+  margin-bottom: 12px;
+}
+
+.csvTemplateHeading {
+  margin: 0 0 6px;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: rgba(15, 24, 34, 0.92);
+}
+
+.csvTemplateDesc {
+  margin: 0;
+  font-size: 0.64rem;
+  line-height: 1.38;
+  color: rgba(31, 39, 50, 0.78);
+  font-family: Onest, Inter, system-ui, sans-serif;
+}
+
+.csvTemplateBtnRow {
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Full-width outline; type = Modal `.body button` (Geist Mono 600 / 16px) + #0E121B */
+.csvTemplateDownloadBtn {
+  width: 100% !important;
+  min-height: 44px !important;
+  height: auto !important;
+  padding: 10px 14px !important;
+  border-color: rgba(15, 24, 34, 0.35) !important;
+  background: #fff !important;
+  color: #0e121b !important;
+}
+
+.csvUploadHeading {
+  margin: 0 0 6px;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: rgba(15, 24, 34, 0.9);
+}
+
+.csvUploadDesc {
+  margin: 0 0 8px;
+  font-size: 0.64rem;
+  line-height: 1.38;
+  color: rgba(31, 39, 50, 0.72);
+  font-family: Onest, Inter, system-ui, sans-serif;
+}
+
+/* Tighter dropzone inside compact import modal */
+.csvImportDropzone {
+  padding: 10px 10px !important;
+  border-radius: 10px !important;
+  column-gap: 10px !important;
+  row-gap: 2px !important;
+  grid-template-columns: 28px 1fr !important;
+}
+
+.csvImportDropzone .dropText {
+  font-size: 0.68rem;
+}
+
+.csvImportDropzone .dropHint {
+  font-size: 0.56rem;
+}
+
+.csvDropBadge {
+  grid-row: 1 / span 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.45rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: rgba(31, 39, 50, 0.72);
+  background: rgba(31, 39, 50, 0.06);
+  border: 1px solid rgba(31, 39, 50, 0.12);
+  align-self: start;
+}
+
+.csvSelectedFile {
+  margin-top: 8px;
+  font-size: 0.62rem;
+  color: rgba(31, 39, 50, 0.65);
+  font-family: Onest, Inter, system-ui, sans-serif;
+}
+
+.csvImportError {
+  margin-top: 8px;
+  font-size: 0.62rem;
+  color: #b42318;
+  font-family: Onest, Inter, system-ui, sans-serif;
+}
+
+.input,
+.select {
+  width: 100%;
+  height: 40px;
+  border: 1px solid rgba(31, 39, 50, 0.22);
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 0.78rem;
+  color: rgba(31, 39, 50, 0.85);
+  outline: none;
+  background: rgba(255, 255, 255, 0.9);
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 500;
+}
+
+.input::placeholder {
+  color: rgba(31, 39, 50, 0.4);
+}
+
+.input:focus,
+.select:focus {
+  border-color: rgba(56, 247, 161, 0.9);
+  box-shadow: 0 0 0 3px rgba(56, 247, 161, 0.18);
+}
+
+.checkRow {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 500;
+  color: rgba(15, 24, 34, 0.86);
+}
+
+.checkRow input {
+  width: 16px;
+  height: 16px;
+  border-radius: 6px;
+  accent-color: #31b26c;
+}
+
+.imagePreviewWrap {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(31, 39, 50, 0.08);
+  background: rgba(31, 39, 50, 0.06);
+  max-height: 180px;
+}
+
+.imagePreview {
+  width: 100%;
+  height: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Update modal — SAVE CHANGES (dark); label type = Modal `.footer button` */
+.modalSaveBtn {
+  background: rgba(15, 24, 34, 0.92) !important;
+  color: #ffffff !important;
+}
+
+.modalSaveBtn:disabled {
+  opacity: 0.45;
+}
+
+/* Remove equipment confirmation — reuses Modal + footerAlign end */
+.removeModalTitle {
+  font-family: "Loubag", Georgia, "Times New Roman", serif !important;
+  font-weight: 700 !important;
+  font-size: 1.02rem !important;
+  letter-spacing: -0.02em !important;
+  color: rgba(15, 24, 34, 0.9) !important;
+}
+
+.removeModalBody {
+  margin: 0;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: rgba(31, 39, 50, 0.88);
+}
+
+.removeModalBody strong {
+  font-weight: 700;
+  color: rgba(15, 24, 34, 0.95);
+}
+
+.removeModalCancelBtn {
+  width: auto !important;
+  min-width: 0 !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(31, 39, 50, 0.18) !important;
+  color: rgba(15, 24, 34, 0.9) !important;
+  box-shadow: none !important;
+}
+
+.removeModalConfirmBtn {
+  width: auto !important;
+  min-width: 0 !important;
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border: 0 !important;
+}
+
+.removeModalConfirmBtn:hover {
+  filter: brightness(0.97);
+}
+
+.stats {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  position: relative;
+  place-items: center;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(31, 39, 50, 0.06);
+  border-radius: 16px;
+  padding: 14px 14px 14px 24px;
+  box-shadow: 0 18px 40px rgba(17, 25, 37, 0.06);
+  width: 360px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  gap: 4px;
+}
+
+.statLabel {
+  font-size: 18px;
+  color: black;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 600;
+}
+
+.statValue {
+  font-family: "Loubag", Georgia, "Times New Roman", serif;
+  font-size: 60px;
+  font-weight: 500;
+  letter-spacing: 1.5%;
+  color: black;
+}
+
+.sectionRow {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 1120px;
+}
+
+.sectionTitle {
+  font-size: 0.72rem;
+  color: rgba(15, 24, 34, 0.88);
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 600;
+}
+
+.exportBtn {
+  border: 0;
+  background: transparent;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.59rem;
+  letter-spacing: 0.11em;
+  color: rgba(15, 24, 34, 0.82);
+  cursor: pointer;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tableCard {
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(31, 39, 50, 0.06);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(17, 25, 37, 0.06);
+  width: 1120px;
+}
+
+.toolbar {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(31, 39, 50, 0.08);
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(31, 39, 50, 0.18);
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.searchIcon {
+  width: 12px;
+  height: 12px;
+  color: rgba(31, 39, 50, 0.45);
+}
+
+.searchInput {
+  border: 0;
+  outline: none;
+  width: 100%;
+  font-size: 0.62rem;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 400;
+  color: rgba(15, 24, 34, 0.82);
+  background: transparent;
+}
+
+.filters {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.filterSelect {
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(31, 39, 50, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0 12px;
+  font-size: 0.6rem;
+  color: rgba(31, 39, 50, 0.62);
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 400;
+  outline: none;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.62rem;
+}
+
+.equipmentNameBtn {
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition:
+    text-decoration-color 0.15s ease,
+    color 0.15s ease;
+}
+
+/* Added On column (3rd cell, after checkbox + equipment name). */
+.table tbody td:nth-child(3) {
+  font-weight: 600;
+  color: rgba(15, 24, 34, 0.88);
+}
+
+.equipmentNameBtn:hover {
+  text-decoration-color: rgba(56, 247, 161, 0.85);
+  color: rgba(15, 24, 34, 0.95);
+}
+
+.equipmentNameBtn:focus-visible {
+  outline: 2px solid rgba(56, 247, 161, 0.75);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.table thead th {
+  text-align: left;
+  padding: 10px 12px;
+  background: rgba(31, 39, 50, 0.03);
+  color: rgba(31, 39, 50, 0.62);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  font-size: 0.54rem;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  text-transform: uppercase;
+}
+
+.table thead th.rightAlign {
+  text-align: right;
+}
+
+.checkCell {
+  width: 30px;
+}
+
+/* Keep numeric columns visually locked so headers align with values. */
+.table thead th:nth-child(6),
+.table tbody td:nth-child(6),
+.table thead th:nth-child(7),
+.table tbody td:nth-child(7) {
+  width: 96px;
+  text-align: right;
+  padding-right: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Actions column gets a stable width so frequency column doesn't drift. */
+.table thead th:nth-child(8),
+.table tbody td:nth-child(8) {
+  width: 86px;
+}
+
+.table tbody td {
+  padding: 10px 12px;
+  border-top: 1px solid rgba(31, 39, 50, 0.08);
+  color: rgba(15, 24, 34, 0.82);
+  font-weight: 400;
+}
+
+.rightAlign {
+  text-align: right;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 0.52rem;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.statusAvailable {
+  background: rgba(56, 247, 161, 0.22);
+  color: rgba(15, 24, 34, 0.85);
+}
+
+.statusUnavailable {
+  background: rgba(31, 39, 50, 0.08);
+  color: rgba(31, 39, 50, 0.62);
+}
+
+.actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.iconBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid rgba(31, 39, 50, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: rgba(31, 39, 50, 0.7);
+}
+
+.iconBtnDanger {
+  color: rgba(230, 57, 70, 0.95);
+  border-color: rgba(230, 57, 70, 0.18);
+}
+
+.pagination {
+  padding: 10px 12px;
+  border-top: 1px solid rgba(31, 39, 50, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: rgba(31, 39, 50, 0.62);
+  font-size: 0.58rem;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 500;
+}
+
+.rowsSelect {
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid rgba(31, 39, 50, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0 8px;
+  font-size: 0.58rem;
+  color: rgba(31, 39, 50, 0.7);
+  outline: none;
+}
+
+.pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pageBtn,
+.pageBtnActive {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1px solid rgba(31, 39, 50, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(31, 39, 50, 0.72);
+  font-size: 0.58rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 6px;
+}
+
+.pageBtnActive {
+  background: rgba(31, 39, 50, 0.08);
+  border-color: rgba(31, 39, 50, 0.16);
+  color: rgba(15, 24, 34, 0.88);
+}
+
+@media (max-width: 980px) {
+  .container {
+    width: min(1000px, calc(100% - 32px));
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}

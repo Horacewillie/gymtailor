@@ -1,0 +1,76 @@
+.button {
+  border: 0;
+  border-radius: 12px;
+  padding: 0 18px;
+  height: 40px;
+  font: inherit;
+  font-weight: 800;
+  color: rgba(15, 24, 34, 0.9);
+  background: transparent;
+  cursor: pointer;
+  transition: filter 0.14s ease, background-color 0.14s ease, color 0.14s ease;
+  user-select: none;
+}
+
+.button:hover {
+  filter: brightness(0.98);
+}
+
+.primary {
+  background: #38f7a1;
+}
+
+.secondary {
+  background: rgba(31, 39, 50, 0.08);
+  color: rgba(31, 39, 50, 0.88);
+}
+
+.ghost {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(56, 247, 161, 0.55);
+  color: rgba(15, 24, 34, 0.86);
+}
+
+.sm {
+  height: 34px;
+  padding: 0 14px;
+  font-size: 0.58rem;
+}
+
+.md {
+  height: 40px;
+  padding: 0 18px;
+  font-size: 0.6rem;
+}
+
+.lg {
+  height: 44px;
+  padding: 0 26px;
+  font-size: 0.62rem;
+}
+
+.pill {
+  border-radius: 999px;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.trackingWide {
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.trackingTight {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.disabled,
+.button:disabled {
+  background: rgba(31, 39, 50, 0.16);
+  color: rgba(31, 39, 50, 0.45);
+  cursor: not-allowed;
+  filter: none;
+}
