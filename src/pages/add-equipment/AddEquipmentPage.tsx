@@ -47,9 +47,9 @@ export function AddEquipmentPage() {
   const { data } = useOnboarding();
   const api = useMemo(() => apiClient, []);
   // For demo: hardcoded invitationId and signature/url, adapt as needed
-  const invitationId = 20;
-  const invitationUrl = "http:\/\/localhost:8080\/api\/invitation\/20\/view?expires=1774337920&signature=887954891885f299d8e44d163cadcdd16ecb68567428bdbe42afdf1c1236f7f9";
-  const signature = "887954891885f299d8e44d163cadcdd16ecb68567428bdbe42afdf1c1236f7f9";
+  const invitationId = 1;
+  const invitationUrl = "http:\/\/localhost:8080\/api\/invitation\/1\/view?expires=1774525088&signature=ae102029c4775213abbd9570a9def2731b09b6e1b63a08eae980d44367f935da";
+  const signature = "ae102029c4775213abbd9570a9def2731b09b6e1b63a08eae980d44367f935da";
 
   // Two entry modes per design: manual item entry vs CSV bulk import.
   const [mode, setMode] = useState<Mode>("manual");
