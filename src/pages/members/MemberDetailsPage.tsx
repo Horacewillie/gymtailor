@@ -89,10 +89,10 @@ function IconInfoCircle() {
 
 const TOP_EXERCISES = [
   { name: "Barbell Bench Press", detail: "50 kg in 4 sets", image: imgBarbellBenchPress },
-  { name: "Back Squat", detail: "80 kg in 5 sets", image: imgDumbellShoulderPress },
-  { name: "Romanian Deadlift", detail: "60 kg in 4 sets", image: imgDeadlift },
-  { name: "Lat Pulldown", detail: "45 kg in 4 sets", image: imgDumbbellFlyess },
-  { name: "Cable Row", detail: "40 kg in 4 sets", image: imgBicepCurl },
+  { name: "Bicep Curl", detail: "35 kg in 4 sets", image: imgBicepCurl },
+  { name: "Deadlift", detail: "80kg in 2 sets", image: imgDeadlift },
+  { name: "Dumbbell Flyes", detail: "10 kg in 3 sets", image: imgDumbbellFlyess },
+  { name: "Dumbbell Shoulder Press", detail: "24 kg in 3 sets", image: imgDumbellShoulderPress },
 ] as const;
 
 const TOP_EQUIPMENT = [
@@ -557,12 +557,12 @@ export function MemberDetailsPage() {
                 </div>
 
                 <div className={styles.perfChartsRow}>
-                  <div className={styles.perfChartCard}>
+                  <div className={`${styles.perfChartCard} ${styles.topExercisesCard}`}>
                     <h3 className={styles.perfChartTitle}>Top exercises</h3>
-                    <ul className={styles.perfRankList}>
+                    <ul className={`${styles.perfRankList} ${styles.topExercisesList}`}>
                       {TOP_EXERCISES.map((row) => (
-                        <li key={row.name} className={styles.perfRankItem}>
-                          <div className={styles.perfThumb}>
+                        <li key={row.name} className={`${styles.perfRankItem} ${styles.topExercisesItem}`}>
+                          <div className={`${styles.perfThumb} ${styles.topExerciseThumb}`}>
                             <img
                               src={row.image}
                               alt=""
@@ -572,8 +572,8 @@ export function MemberDetailsPage() {
                             />
                           </div>
                           <div className={styles.perfRankText}>
-                            <div className={styles.perfRankName}>{row.name}</div>
-                            <div className={styles.perfRankDetail}>{row.detail}</div>
+                            <div className={styles.topExerciseName}>{row.name}</div>
+                            <div className={styles.topExerciseStats}>{row.detail}</div>
                           </div>
                         </li>
                       ))}

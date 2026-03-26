@@ -448,6 +448,53 @@
   color: rgba(31, 39, 50, 0.55);
 }
 
+/* Top exercises — list + dashed dividers (matches design reference) */
+.topExercisesCard {
+  padding-bottom: 18px;
+}
+
+.topExercisesList {
+  margin: 10px 0 0;
+  gap: 0;
+}
+
+.topExercisesItem {
+  align-items: flex-start;
+  padding: 14px 0;
+  border-top: 1px dashed rgba(31, 39, 50, 0.18);
+}
+
+.topExercisesItem:first-child {
+  border-top: none;
+  padding-top: 4px;
+}
+
+.perfThumb.topExerciseThumb {
+  width: 72px;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.topExerciseName {
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #0e121b;
+  line-height: 1.25;
+}
+
+.topExerciseStats {
+  margin-top: 4px;
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: rgba(31, 39, 50, 0.48);
+  line-height: 1.35;
+}
+
 /* Session tab */
 .sessionSection {
   display: flex;
