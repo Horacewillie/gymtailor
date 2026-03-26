@@ -145,29 +145,7 @@ function SessionsChart() {
         ))}
       </g>
 
-      {/* lines */}
-      <g
-        clipPath="url(#clip)"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path
-          d="M28 166 L110 110 L192 112 L274 110 L356 86 L438 56 L502 38"
-          stroke="#0f8f64"
-          strokeWidth="3"
-        />
-        <path
-          d="M28 176 L110 164 L192 170 L274 168 L356 174 L438 176 L502 178"
-          stroke="#f97316"
-          strokeWidth="3"
-        />
-        <path
-          d="M28 184 L110 176 L192 172 L274 162 L356 148 L438 136 L502 128"
-          stroke="rgba(31,39,50,0.22)"
-          strokeWidth="3"
-        />
-      </g>
+      {/* lines intentionally removed: will render when data is available */}
 
       {/* x labels */}
       <g
