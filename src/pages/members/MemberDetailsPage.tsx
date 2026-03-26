@@ -16,6 +16,10 @@ import imgDeadlift from "../../assets/Deadlift.png";
 import imgBicepCurl from "../../assets/BicepCurl.png";
 import imgDumbbellFlyess from "../../assets/DumbbellFlyess.png";
 import imgDumbellShoulderPress from "../../assets/DumbellShoulderPress.png";
+import imgAdjustableDumbbells from "../../assets/AdjustableDumbbells.png";
+import imgBattleRopes from "../../assets/BattleRopes.png";
+import imgCableMachine from "../../assets/CableMachine.png";
+import imgChestFlyMachine from "../../assets/ChestFlyMachine.png";
 import styles from "./MemberDetailsPage.module.css";
 
 function IconChevronLeft() {
@@ -90,16 +94,16 @@ function IconInfoCircle() {
 const TOP_EXERCISES = [
   { name: "Barbell Bench Press", detail: "50 kg in 4 sets", image: imgBarbellBenchPress },
   { name: "Bicep Curl", detail: "35 kg in 4 sets", image: imgBicepCurl },
-  { name: "Deadlift", detail: "80kg in 2 sets", image: imgDeadlift },
+  { name: "Deadlift", detail: "80 kg in 2 sets", image: imgDeadlift },
   { name: "Dumbbell Flyes", detail: "10 kg in 3 sets", image: imgDumbbellFlyess },
   { name: "Dumbbell Shoulder Press", detail: "24 kg in 3 sets", image: imgDumbellShoulderPress },
 ] as const;
 
 const TOP_EQUIPMENT = [
-  { name: "Adjustable Dumbbells", detail: "Used in 18 sessions" },
-  { name: "Battle Ropes", detail: "Used in 14 sessions" },
-  { name: "Smith Machine", detail: "Used in 12 sessions" },
-  { name: "Leg Press", detail: "Used in 10 sessions" },
+  { name: "Adjustable Dumbbells", detail: "50 kg in 4 sets", image: imgAdjustableDumbbells },
+  { name: "Battle Ropes", detail: "35 kg in 4 sets", image: imgBattleRopes },
+  { name: "Cable Machine", detail: "80 kg in 2 sets", image: imgCableMachine },
+  { name: "Chest Fly Machine", detail: "10 kg in 3 sets", image: imgChestFlyMachine },
 ] as const;
 
 const SESSION_MONTH_OPTIONS = [
@@ -556,42 +560,54 @@ export function MemberDetailsPage() {
                   </div>
                 </div>
 
-                <div className={styles.perfChartsRow}>
-                  <div className={`${styles.perfChartCard} ${styles.topExercisesCard}`}>
-                    <h3 className={styles.perfChartTitle}>Top exercises</h3>
-                    <ul className={`${styles.perfRankList} ${styles.topExercisesList}`}>
-                      {TOP_EXERCISES.map((row) => (
-                        <li key={row.name} className={`${styles.perfRankItem} ${styles.topExercisesItem}`}>
-                          <div className={`${styles.perfThumb} ${styles.topExerciseThumb}`}>
-                            <img
-                              src={row.image}
-                              alt=""
-                              className={styles.perfThumbImg}
-                              loading="lazy"
-                              decoding="async"
-                            />
-                          </div>
-                          <div className={styles.perfRankText}>
-                            <div className={styles.topExerciseName}>{row.name}</div>
-                            <div className={styles.topExerciseStats}>{row.detail}</div>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                <div className={`${styles.perfChartsRow} ${styles.topListsRow}`}>
+                  <div className={styles.topListsCol}>
+                    <h3 className={styles.topListsHeading}>Top exercises</h3>
+                    <div className={`${styles.perfChartCard} ${styles.topExercisesCard}`}>
+                      <ul className={`${styles.perfRankList} ${styles.topExercisesList}`}>
+                        {TOP_EXERCISES.map((row) => (
+                          <li key={row.name} className={`${styles.perfRankItem} ${styles.topExercisesItem}`}>
+                            <div className={`${styles.perfThumb} ${styles.topExerciseThumb}`}>
+                              <img
+                                src={row.image}
+                                alt=""
+                                className={styles.perfThumbImg}
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            </div>
+                            <div className={styles.perfRankText}>
+                              <div className={styles.topExerciseName}>{row.name}</div>
+                              <div className={styles.topExerciseStats}>{row.detail}</div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <div className={styles.perfChartCard}>
-                    <h3 className={styles.perfChartTitle}>Top equipment</h3>
-                    <ul className={styles.perfRankList}>
-                      {TOP_EQUIPMENT.map((row) => (
-                        <li key={row.name} className={styles.perfRankItem}>
-                          <div className={styles.perfThumb} aria-hidden="true" />
-                          <div className={styles.perfRankText}>
-                            <div className={styles.perfRankName}>{row.name}</div>
-                            <div className={styles.perfRankDetail}>{row.detail}</div>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className={styles.topListsCol}>
+                    <h3 className={styles.topListsHeading}>Top equipment</h3>
+                    <div className={`${styles.perfChartCard} ${styles.topExercisesCard} ${styles.topEquipmentCard}`}>
+                      <ul className={`${styles.perfRankList} ${styles.topExercisesList}`}>
+                        {TOP_EQUIPMENT.map((row) => (
+                          <li key={row.name} className={`${styles.perfRankItem} ${styles.topExercisesItem}`}>
+                            <div className={`${styles.perfThumb} ${styles.topExerciseThumb}`}>
+                              <img
+                                src={row.image}
+                                alt=""
+                                className={styles.perfThumbImg}
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            </div>
+                            <div className={styles.perfRankText}>
+                              <div className={styles.topExerciseName}>{row.name}</div>
+                              <div className={styles.topExerciseStats}>{row.detail}</div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>

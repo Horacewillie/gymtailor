@@ -304,6 +304,29 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+  align-items: start;
+}
+
+/* Breathing room above Top exercises / Top equipment (below chart row) */
+.topListsRow {
+  padding-top: 16px;
+}
+
+/* Headings sit on page background; white cards stack below (Figma) */
+.topListsCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.topListsHeading {
+  margin: 0 0 10px;
+  font-family: Onest, Inter, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0e121b;
+  line-height: 1.3;
 }
 
 @media (max-width: 900px) {
@@ -339,9 +362,23 @@
   color: rgba(15, 24, 34, 0.9);
 }
 
-/* List-only cards (Top exercises / equipment) — title is first child */
-.perfChartCard > .perfChartTitle:first-child {
-  margin-bottom: 10px;
+/* Top exercises + Top equipment — inner padding */
+.topExercisesCard {
+  padding: 20px 22px 18px;
+}
+
+/* Top equipment: small bottom inset so last row clears the card edge */
+.topExercisesCard.topEquipmentCard {
+  padding: 20px 22px 12px;
+}
+
+.topEquipmentCard .topExercisesList {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.topEquipmentCard .topExercisesItem:last-child {
+  padding-bottom: 0;
 }
 
 .perfChartInfoBtn {
@@ -449,17 +486,14 @@
 }
 
 /* Top exercises — list + dashed dividers (matches design reference) */
-.topExercisesCard {
-  padding-bottom: 18px;
-}
-
 .topExercisesList {
-  margin: 10px 0 0;
+  margin: 0;
   gap: 0;
 }
 
 .topExercisesItem {
-  align-items: flex-start;
+  align-items: center;
+  gap: 16px;
   padding: 14px 0;
   border-top: 1px dashed rgba(31, 39, 50, 0.18);
 }
@@ -474,7 +508,7 @@
   height: auto;
   min-height: 0;
   aspect-ratio: 4 / 3;
-  border-radius: 10px;
+  border-radius: 8px;
   flex-shrink: 0;
 }
 

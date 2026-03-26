@@ -135,85 +135,102 @@ export function WeightRecordChart() {
 }
 
 const sessionsData = [
-  { day: "Dec 1", completed: 26, startedDash: 0, startedSolid: null as number | null },
-  { day: "Dec 2", completed: 32, startedDash: 0, startedSolid: null },
-  { day: "Dec 3", completed: 38, startedDash: 0, startedSolid: null },
-  { day: "Dec 4", completed: 52, startedDash: null, startedSolid: 18 },
-  { day: "Dec 5", completed: 65, startedDash: null, startedSolid: 28 },
-  { day: "Dec 6", completed: 82, startedDash: null, startedSolid: 42 },
-  { day: "Dec 7", completed: 96, startedDash: null, startedSolid: 58 },
+  { day: "DEC 1", completed: 25, startedDash: 0, startedSolid: null as number | null },
+  { day: "DEC 2", completed: 38, startedDash: 0, startedSolid: null },
+  { day: "DEC 3", completed: 44, startedDash: 0, startedSolid: null },
+  { day: "DEC 4", completed: 58, startedDash: null, startedSolid: 12 },
+  { day: "DEC 5", completed: 72, startedDash: null, startedSolid: 14 },
+  { day: "DEC 6", completed: 88, startedDash: null, startedSolid: 16 },
+  { day: "DEC 7", completed: 98, startedDash: null, startedSolid: 18 },
 ];
 
 function SessionsLegend() {
   return (
-    <div style={{ display: "flex", gap: 16, alignItems: "center", paddingTop: 8 }}>
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, color: "#525866" }}>
-        <span style={{ width: 8, height: 8, borderRadius: "50%", background: TEAL }} />
+    <div className={styles.sessionsLegend} aria-hidden="true">
+      <span className={styles.legendItem}>
+        <span className={styles.legendDotTeal} />
         Completed
       </span>
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, color: "#525866" }}>
-        <span style={{ width: 10, height: 3, borderRadius: 2, background: ORANGE }} />
+      <span className={styles.legendItem}>
+        <span className={styles.legendDotOrange} />
         Started
       </span>
     </div>
   );
 }
 
+const sessionsAxisTick = { fill: "#94a3b8", fontSize: 10 };
+
 /** Completed: solid teal upward. Started: dashed at 0 Dec 1–3, solid orange Dec 4–7. */
 export function SessionsOverTimeChart() {
   return (
-    <div className={styles.chartBoxTall}>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={sessionsData} margin={{ top: 16, right: 12, left: -18, bottom: 4 }}>
-          <CartesianGrid {...gridProps} />
-          <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 10 }} />
-          <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 10 }} width={32} />
-          <Tooltip
-            content={({ active, label, payload }) => {
-              if (!active || !payload?.length) return null;
-              const completed = payload.find((p) => p.dataKey === "completed")?.value;
-              const dash = payload.find((p) => p.dataKey === "startedDash")?.value;
-              const solid = payload.find((p) => p.dataKey === "startedSolid")?.value;
-              const started = solid ?? dash ?? "—";
-              return (
-                <div className={styles.tooltip}>
-                  <div className={styles.tooltipLabel}>{label}</div>
-                  <div className={styles.tooltipSub}>Completed: {completed}</div>
-                  <div className={styles.tooltipSub}>Started: {started}</div>
-                </div>
-              );
-            }}
-          />
-          <Line
-            type="monotone"
-            dataKey="completed"
-            name="Completed"
-            stroke={TEAL}
-            strokeWidth={2.5}
-            dot={false}
-            activeDot={{ r: 4 }}
-          />
-          <Line
-            type="linear"
-            dataKey="startedDash"
-            name="Started"
-            stroke={ORANGE}
-            strokeWidth={2.5}
-            strokeDasharray="5 5"
-            dot={false}
-            connectNulls={false}
-          />
-          <Line
-            type="monotone"
-            dataKey="startedSolid"
-            name="Started"
-            stroke={ORANGE}
-            strokeWidth={2.5}
-            dot={false}
-            connectNulls
-          />
-        </LineChart>
-      </ResponsiveContainer>
+    <div className={styles.chartBoxSessions}>
+      <div className={styles.chartArea}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={sessionsData} margin={{ top: 10, right: 10, left: 6, bottom: 6 }}>
+            <CartesianGrid {...gridProps} />
+            <XAxis
+              dataKey="day"
+              axisLine={false}
+              tickLine={false}
+              tick={sessionsAxisTick}
+              interval={0}
+            />
+            <YAxis
+              domain={[0, 100]}
+              ticks={[0, 25, 50, 75, 100]}
+              axisLine={false}
+              tickLine={false}
+              tick={sessionsAxisTick}
+              width={36}
+            />
+            <Tooltip
+              content={({ active, label, payload }) => {
+                if (!active || !payload?.length) return null;
+                const completed = payload.find((p) => p.dataKey === "completed")?.value;
+                const dash = payload.find((p) => p.dataKey === "startedDash")?.value;
+                const solid = payload.find((p) => p.dataKey === "startedSolid")?.value;
+                const started = solid ?? dash ?? "—";
+                return (
+                  <div className={styles.tooltip}>
+                    <div className={styles.tooltipLabel}>{label}</div>
+                    <div className={styles.tooltipSub}>Completed: {completed}</div>
+                    <div className={styles.tooltipSub}>Started: {started}</div>
+                  </div>
+                );
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="completed"
+              name="Completed"
+              stroke={TEAL}
+              strokeWidth={2.5}
+              dot={false}
+              activeDot={{ r: 4 }}
+            />
+            <Line
+              type="linear"
+              dataKey="startedDash"
+              name="Started"
+              stroke={ORANGE}
+              strokeWidth={2.5}
+              strokeDasharray="5 5"
+              dot={false}
+              connectNulls={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="startedSolid"
+              name="Started"
+              stroke={ORANGE}
+              strokeWidth={2.5}
+              dot={false}
+              connectNulls
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
       <SessionsLegend />
     </div>
   );
