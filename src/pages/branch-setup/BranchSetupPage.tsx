@@ -127,8 +127,20 @@ export function BranchSetupPage() {
                   size="lg"
                   disabled={!canContinue}
                   onClick={() => {
+                    const normalizedBranches = branches.map((b) => ({ name: b.name, address: b.street }));
+                    try {
+                      const existingRaw = localStorage.getItem("onboardingData");
+                      const existing = existingRaw ? JSON.parse(existingRaw) : {};
+                      localStorage.setItem(
+                        "onboardingData",
+                        JSON.stringify({
+                          ...(existing && typeof existing === "object" ? existing : {}),
+                          branches: normalizedBranches,
+                        }),
+                      );
+                    } catch {}
                     setData({
-                      branches: branches.map((b) => ({ name: b.name, address: b.street })),
+                      branches: normalizedBranches,
                     });
                     navigate("/onboarding/add-equipment");
                   }}
