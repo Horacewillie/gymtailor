@@ -9,7 +9,7 @@
 }
 
 .container {
-  width: min(1000px, calc(100% - 48px));
+  width: min(1120px, calc(100% - 48px));
   margin: 0 auto;
 }
 
@@ -46,6 +46,10 @@
   padding: 0 14px !important;
   font-size: 0.6rem !important;
   letter-spacing: 0.11em !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .addBtnIcon {
@@ -106,7 +110,8 @@
   letter-spacing: 0.19em;
   color: rgba(31, 39, 50, 0.6);
   font-weight: 800;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
 }
 
@@ -268,7 +273,8 @@
   border-radius: 8px;
   display: grid;
   place-items: center;
-  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
   font-size: 0.45rem;
   font-weight: 800;
@@ -410,31 +416,38 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 14px;
+  position: relative;
+  place-items: center;
 }
 
 .statCard {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(31, 39, 50, 0.06);
   border-radius: 16px;
-  padding: 14px 14px;
+  padding: 14px 14px 14px 24px;
   box-shadow: 0 18px 40px rgba(17, 25, 37, 0.06);
+  width: 360px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  gap: 4px;
 }
 
 .statLabel {
-  font-size: 0.68rem;
-  color: rgba(31, 39, 50, 0.62);
+  font-size: 18px;
+  color: black;
   font-family: Onest, Inter, system-ui, sans-serif;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .statValue {
-  margin-top: 10px;
   font-family: "Loubag", Georgia, "Times New Roman", serif;
-  font-size: 2.05rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: rgba(15, 24, 34, 0.92);
-  line-height: 1;
+  font-size: 60px;
+  font-weight: 500;
+  letter-spacing: 1.5%;
+  color: black;
 }
 
 .sectionRow {
@@ -443,6 +456,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  width: 1120px;
 }
 
 .sectionTitle {
@@ -474,6 +488,7 @@
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 18px 40px rgba(17, 25, 37, 0.06);
+  width: 1120px;
 }
 
 .toolbar {
@@ -551,7 +566,9 @@
   text-align: left;
   text-decoration: underline;
   text-decoration-color: transparent;
-  transition: text-decoration-color 0.15s ease, color 0.15s ease;
+  transition:
+    text-decoration-color 0.15s ease,
+    color 0.15s ease;
 }
 
 /* Added On column (3rd cell, after checkbox + equipment name). */
