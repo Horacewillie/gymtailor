@@ -1,13 +1,16 @@
 import styles from "./CreateAccountPage.module.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/button/Button";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
 import { StepDots } from "../../components/onboarding/StepDots";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useOnboarding } from "../../app/OnboardingContext";
+import { API_BASE_URL } from "../../api/Api";
 
 export function CreateAccountPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { invitationId: invitationIdParam } = useParams<{ invitationId?: string }>();
 
   const { setData } = useOnboarding();
 
@@ -20,6 +23,25 @@ export function CreateAccountPage() {
     // Simple required-field gating. Keep validation light until backend rules are defined.
     return email.trim().length > 0 && fullName.trim().length > 0 && agreed;
   }, [email, fullName, agreed]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const signature = params.get("signature")?.trim() ?? "";
+    const expires = params.get("expires")?.trim() ?? "";
+    const invitationIdFromQuery = params.get("invitation_id")?.trim() ?? params.get("id")?.trim() ?? "";
+    const invitationId = (invitationIdParam ?? invitationIdFromQuery).trim();
+
+    if (!invitationId || !signature || !expires) return;
+
+    const canonicalInvitationUrl = `${API_BASE_URL}/api/invitation/${encodeURIComponent(
+      invitationId,
+    )}/view?expires=${encodeURIComponent(expires)}&signature=${encodeURIComponent(signature)}`;
+
+    localStorage.setItem("pendingInvitationId", invitationId);
+    localStorage.setItem("pendingInvitationSignature", signature);
+    localStorage.setItem("pendingInvitationExpires", expires);
+    localStorage.setItem("pendingInvitationUrl", canonicalInvitationUrl);
+  }, [invitationIdParam, location.search]);
 
   return (
     <div className={styles.page}>
@@ -36,9 +58,9 @@ export function CreateAccountPage() {
               dotClassName={styles.dot}
             />
             <h1 className={styles.title}>
-              Create owner
+              Accept
               <br />
-              account.
+              invitation.
             </h1>
             <p className={styles.subtitle}>
               This account gives you access to

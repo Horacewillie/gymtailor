@@ -14,6 +14,47 @@ import { MagicLoginPage } from "../pages/magic-login/MagicLoginPage";
 import { MagicLoginCallbackPage } from "../pages/magic-login-callback/MagicLoginCallbackPage";
 import { MultiFactorPage } from "../pages/multi-factor/MultiFactorPage";
 
+type OnboardingSnapshot = {
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  tenant_name?: string;
+  tenant_email?: string;
+  branches?: Array<{ name?: string; address?: string }>;
+  [key: string]: any;
+};
+
+function readOnboardingSnapshot(): OnboardingSnapshot {
+  try {
+    const raw = localStorage.getItem("onboardingData");
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function hasCreateAccountProgress(): boolean {
+  const data = readOnboardingSnapshot();
+  return Boolean(data.email?.trim() && data.first_name?.trim());
+}
+
+function hasGymSetupProgress(): boolean {
+  const data = readOnboardingSnapshot();
+  return Boolean(data.tenant_name?.trim() && data.tenant_email?.trim());
+}
+
+function hasBranchSetupProgress(): boolean {
+  const data = readOnboardingSnapshot();
+  return Boolean(Array.isArray(data.branches) && data.branches.length > 0);
+}
+
+function OnboardingGate(props: { allow: boolean; fallbackTo: string; children: React.ReactElement }) {
+  if (!props.allow) return <Navigate to={props.fallbackTo} replace />;
+  return props.children;
+}
+
 /**
  * App-level error boundary used during UI build-out.
  *
@@ -68,8 +109,9 @@ export function App() {
     <div className={styles.appShell}>
       <AppErrorBoundary>
         <Routes>
-          {/* Default entry: start onboarding flow. */}
-          <Route path="/" element={<Navigate to="/onboarding/create-account" replace />} />
+          {/* Default entry for unauthenticated users. */}
+          <Route path="/" element={<Navigate to="/onboarding/magic-login" replace />} />
+          <Route path="/accept-invitation/invitation/:invitationId/view" element={<CreateAccountPage />} />
           {/* Post-onboarding destination. */}
           <Route path="/dashboard" element={<OwnerDashboardPage />} />
           <Route path="/dashboard/equipment" element={<EquipmentPage />} />
@@ -103,11 +145,46 @@ export function App() {
 
           {/* Onboarding flow (owner setup). */}
           <Route path="/onboarding/create-account" element={<CreateAccountPage />} />
-          <Route path="/onboarding/secure-account" element={<SecureAccountPage />} />
-          <Route path="/onboarding/gym-setup" element={<GymSetupPage />} />
-          <Route path="/onboarding/branch-setup" element={<BranchSetupPage />} />
-          <Route path="/onboarding/add-equipment" element={<AddEquipmentPage />} />
-          <Route path="/onboarding/loading" element={<OnboardingLoadingPage />} />
+          <Route
+            path="/onboarding/secure-account"
+            element={
+              <OnboardingGate allow={hasCreateAccountProgress()} fallbackTo="/onboarding/create-account">
+                <SecureAccountPage />
+              </OnboardingGate>
+            }
+          />
+          <Route
+            path="/onboarding/gym-setup"
+            element={
+              <OnboardingGate allow={hasCreateAccountProgress()} fallbackTo="/onboarding/create-account">
+                <GymSetupPage />
+              </OnboardingGate>
+            }
+          />
+          <Route
+            path="/onboarding/branch-setup"
+            element={
+              <OnboardingGate allow={hasGymSetupProgress()} fallbackTo="/onboarding/gym-setup">
+                <BranchSetupPage />
+              </OnboardingGate>
+            }
+          />
+          <Route
+            path="/onboarding/add-equipment"
+            element={
+              <OnboardingGate allow={hasBranchSetupProgress()} fallbackTo="/onboarding/branch-setup">
+                <AddEquipmentPage />
+              </OnboardingGate>
+            }
+          />
+          <Route
+            path="/onboarding/loading"
+            element={
+              <OnboardingGate allow={hasBranchSetupProgress()} fallbackTo="/onboarding/create-account">
+                <OnboardingLoadingPage />
+              </OnboardingGate>
+            }
+          />
           <Route path="/onboarding/magic-login" element={<MagicLoginPage />} />
           <Route path="/magic-login-callback" element={<MagicLoginCallbackPage />} />
           <Route path="/onboarding/magic-login-callback" element={<MagicLoginCallbackPage />} />

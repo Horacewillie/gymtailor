@@ -10,6 +10,20 @@ import styles from "./AddEquipmentPage.module.css";
 
 type Mode = "manual" | "csv";
 
+type PendingInvitation = {
+  id: number | null;
+  url: string;
+  signature: string;
+};
+
+function readPendingInvitation(): PendingInvitation {
+  const rawId = localStorage.getItem("pendingInvitationId")?.trim() ?? "";
+  const id = rawId && /^\d+$/.test(rawId) ? Number(rawId) : null;
+  const url = localStorage.getItem("pendingInvitationUrl")?.trim() ?? "";
+  const signature = localStorage.getItem("pendingInvitationSignature")?.trim() ?? "";
+  return { id, url, signature };
+}
+
 
 /** Small image glyph used in the upload dropzone. */
 function ImageGlyph() {
@@ -46,10 +60,10 @@ export function AddEquipmentPage() {
 
   const { data } = useOnboarding();
   const api = useMemo(() => apiClient, []);
-  // For demo: hardcoded invitationId and signature/url, adapt as needed
-  const invitationId = 2;
-  const invitationUrl = "http:\/\/localhost:8080\/api\/invitation\/2\/view?expires=1774527670&signature=c489265a89306388e6be24513c3ba77e8a0baf4c2246d2c35d933190d4c99ca1";
-  const signature = "c489265a89306388e6be24513c3ba77e8a0baf4c2246d2c35d933190d4c99ca1";
+  const pendingInvitation = useMemo(() => readPendingInvitation(), []);
+  const invitationId = pendingInvitation.id;
+  const invitationUrl = pendingInvitation.url;
+  const signature = pendingInvitation.signature;
 
   // Two entry modes per design: manual item entry vs CSV bulk import.
   const [mode, setMode] = useState<Mode>("manual");
@@ -303,6 +317,10 @@ export function AddEquipmentPage() {
                   size="lg"
                   onClick={async () => {
                     if (!canComplete) return;
+                    if (!invitationId || !invitationUrl || !signature) {
+                      console.error("Cannot complete setup: missing invitation context.");
+                      return;
+                    }
                     const payload = {
                       url: invitationUrl,
                       signature,
