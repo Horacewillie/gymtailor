@@ -1,0 +1,125 @@
+.page {
+  min-height: 100vh;
+  background: #fff;
+  color: #1f2732;
+}
+
+.main {
+  min-height: calc(100vh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 44px 24px 48px;
+}
+
+.card {
+  width: min(560px, 100%);
+  background: #ffffff;
+  border: 1px solid rgba(31, 39, 50, 0.08);
+  border-radius: 18px;
+  padding: 34px 34px 28px;
+  box-shadow: 0 24px 56px rgba(17, 25, 37, 0.06);
+}
+
+.title {
+  margin: 0;
+  text-align: center;
+  font-family: "Loubag", Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-size: clamp(2rem, 3.2vw, 2.7rem);
+  line-height: 0.95;
+  color: rgba(15, 24, 34, 0.9);
+}
+
+.subtitle {
+  margin: 12px auto 18px;
+  max-width: 420px;
+  text-align: center;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: rgba(31, 39, 50, 0.6);
+}
+
+.label {
+  display: block;
+  margin-top: 8px;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  color: rgba(31, 39, 50, 0.72);
+}
+
+.input {
+  margin-top: 8px;
+  width: 100%;
+  height: 40px;
+  border: 1px solid rgba(31, 39, 50, 0.2);
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0 14px;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.76rem;
+  color: rgba(15, 24, 34, 0.88);
+  outline: none;
+}
+
+.input::placeholder {
+  color: rgba(31, 39, 50, 0.42);
+}
+
+.input:focus {
+  border-color: rgba(56, 247, 161, 0.85);
+  box-shadow: 0 0 0 3px rgba(56, 247, 161, 0.16);
+}
+
+.otpRow {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(6, 40px);
+  justify-content: center;
+  gap: 8px;
+}
+
+.otpInput {
+  height: 36px;
+  border: 1px solid rgba(31, 39, 50, 0.2);
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: center;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.8rem;
+  color: rgba(15, 24, 34, 0.9);
+  outline: none;
+}
+
+.otpInput:focus {
+  border-color: rgba(56, 247, 161, 0.85);
+  box-shadow: 0 0 0 3px rgba(56, 247, 161, 0.16);
+}
+
+.error {
+  margin: 10px 0 0;
+  text-align: center;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.66rem;
+  color: #b42318;
+}
+
+.ctaWrap {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.cta {
+  width: min(320px, 100%) !important;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 26px 18px 22px;
+  }
+}

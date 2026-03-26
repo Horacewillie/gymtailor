@@ -3,10 +3,9 @@ import { useOnboarding } from "../../app/OnboardingContext";
 import { useNavigate } from "react-router-dom";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
 import { Button } from "../../components/button/Button";
-import { apiClient, API_BASE_URL } from "../../api/Api";
+import { apiClient } from "../../api/Api";
 import { ArrowLeftIcon } from "../../components/icons/ArrowLeftIcon";
 import { StepDots } from "../../components/onboarding/StepDots";
-import { saveTenantId } from "../../lib/session";
 import styles from "./AddEquipmentPage.module.css";
 
 type Mode = "manual" | "csv";
@@ -40,36 +39,12 @@ function CsvGlyph() {
   );
 }
 
-function getCookieValue(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie
-    .split("; ")
-    .find((entry) => entry.startsWith(`${name}=`));
-  if (!match) return null;
-  const rawValue = match.slice(name.length + 1);
-  return decodeURIComponent(rawValue);
-}
-
-function getTenantIdFromAuthenticationStatus(data: any): string | number | null {
-  if (!data || typeof data !== "object") return null;
-  if (data.tenant_id !== undefined && data.tenant_id !== null && String(data.tenant_id).trim() !== "") {
-    return data.tenant_id;
-  }
-  if (data.tenant?.id !== undefined && data.tenant?.id !== null && String(data.tenant.id).trim() !== "") {
-    return data.tenant.id;
-  }
-  if (data.user?.tenant_id !== undefined && data.user?.tenant_id !== null && String(data.user.tenant_id).trim() !== "") {
-    return data.user.tenant_id;
-  }
-  return null;
-}
-
 export function AddEquipmentPage() {
   const navigate = useNavigate();
   const imageInputId = useId();
   const csvInputId = useId();
 
-  const { data, reset } = useOnboarding();
+  const { data } = useOnboarding();
   const api = useMemo(() => apiClient, []);
   // For demo: hardcoded invitationId and signature/url, adapt as needed
   const invitationId = 1;
@@ -363,35 +338,9 @@ export function AddEquipmentPage() {
                       // Accept invitation (uses /api path)
                       await api.post(`/api/invitation/${invitationId}/accept`, payload);
 
-                      // Sanctum flow: fetch CSRF cookie, then login with X-XSRF-TOKEN + session cookies.
-                      await api.csrfCookie("/sanctum/csrf-cookie");
-                      const csrfToken = getCookieValue("XSRF-TOKEN");
-                      const loginResponse = await fetch(`${API_BASE_URL}/login`, {
-                        method: "POST",
-                        credentials: "include",
-                        headers: {
-                          Accept: "application/json",
-                          "Content-Type": "application/json",
-                          ...(csrfToken ? { "X-XSRF-TOKEN": csrfToken } : {}),
-                        },
-                        body: JSON.stringify({
-                          email: data.email,
-                        }),
+                      navigate("/onboarding/loading", {
+                        state: { email: data.email ?? "" },
                       });
-                      if (!loginResponse.ok) {
-                        throw new Error(`Login failed: ${loginResponse.status}`);
-                      }
-
-                      // After login, get authenticated context and persist tenant id from there.
-                      const authStatus = await api.get<any>("/api/authentication-status");
-                      const tenantId = getTenantIdFromAuthenticationStatus(authStatus);
-                      if (tenantId === null) {
-                        throw new Error("Authentication status response did not include tenant id.");
-                      }
-                      saveTenantId(tenantId);
-
-                      reset();
-                      navigate("/onboarding/loading");
                     } catch (err) {
                       console.error("API error:", err);
                     }

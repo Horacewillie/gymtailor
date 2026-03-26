@@ -10,6 +10,7 @@ import { DashboardPlaceholderPage } from "../pages/dashboard/DashboardPlaceholde
 import { SecureAccountPage } from "../pages/secure-account/SecureAccountPage";
 import { OnboardingLoadingPage } from "../pages/onboarding-loading/OnboardingLoadingPage";
 import { EquipmentPage } from "../pages/equipment/EquipmentPage";
+import { MagicLoginPage } from "../pages/magic-login/MagicLoginPage";
 
 /**
  * App-level error boundary used during UI build-out.
@@ -105,6 +106,7 @@ export function App() {
           <Route path="/onboarding/branch-setup" element={<BranchSetupPage />} />
           <Route path="/onboarding/add-equipment" element={<AddEquipmentPage />} />
           <Route path="/onboarding/loading" element={<OnboardingLoadingPage />} />
+          <Route path="/onboarding/magic-login" element={<MagicLoginPage />} />
         </Routes>
       </AppErrorBoundary>
     </div>

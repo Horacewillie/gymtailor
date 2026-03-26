@@ -1,31 +1,29 @@
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
 import styles from "./OnboardingLoadingPage.module.css";
-import { getDashboardData } from "../../services/dashboardService";
 
 export function OnboardingLoadingPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const emailFromState = (location.state as { email?: string } | null)?.email ?? "";
 
   useEffect(() => {
     let isMounted = true;
-    const timer = setTimeout(async () => {
-      let dashboardData = undefined;
-      try {
-        dashboardData = await getDashboardData();
-      } catch {
-        // Ignore error, just proceed
-      } finally {
-        if (isMounted) {
-          navigate("/dashboard", { replace: true, state: { dashboardData } });
-        }
+    const timer = setTimeout(() => {
+      if (isMounted) {
+        navigate("/onboarding/magic-login", {
+          replace: true,
+          state: { email: emailFromState },
+        });
       }
     }, 2200);
     return () => {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [navigate]);
+  }, [emailFromState, navigate]);
 
   return (
     <div className={styles.page}>
