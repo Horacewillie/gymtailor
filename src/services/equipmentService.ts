@@ -87,6 +87,6 @@ export async function getEquipmentUnits(equipmentId: string): Promise<EquipmentU
     serialNumber: String(row?.serial_number ?? row?.serial ?? row?.serial_no ?? ""),
     status: String(row?.status ?? ""),
     lastUpdated: String(row?.last_updated ?? row?.updated_at ?? row?.date_created ?? ""),
-    updatedBy: String(row?.updated_by ?? row?.updated_by_name ?? row?.added_by ?? ""),
+    updatedBy: String(row?.added_by_name ?? ""),
   }));
 }
