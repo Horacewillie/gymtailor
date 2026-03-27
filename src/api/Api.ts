@@ -47,7 +47,6 @@ export default class Api {
       headers: {
         Accept: 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/json',
         ...(options.headers || {}),
       },
     });
