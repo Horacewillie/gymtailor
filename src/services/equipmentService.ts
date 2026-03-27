@@ -53,7 +53,7 @@ export async function createEquipmentUnit(payload: {
   status: string;
 }): Promise<unknown> {
   return apiClient.post(
-    `/api/${encodeURIComponent(payload.equipmentId)}/units`,
+    `/api/equipment/${encodeURIComponent(payload.equipmentId)}/units`,
     {
       serial_number: payload.serial_number,
       status: payload.status,
