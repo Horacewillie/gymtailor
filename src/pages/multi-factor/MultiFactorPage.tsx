@@ -45,6 +45,7 @@ export function MultiFactorPage() {
 
   useEffect(() => {
     if (tokenFromState.trim().length > 0) {
+      console.log("[MultiFactor] Using twoFactorToken from route state.");
       setResolvedTwoFactorToken(tokenFromState);
       setIsResolvingToken(false);
       return;
@@ -52,6 +53,9 @@ export function MultiFactorPage() {
 
     const query = location.search.startsWith("?") ? location.search.slice(1) : location.search;
     if (!query) {
+      console.warn("[MultiFactor] Missing query params on magic-login route.", {
+        frontendRoute: `${window.location.pathname}${window.location.search}`,
+      });
       navigate("/onboarding/request-magic-link", {
         replace: true,
         state: { error: "Missing magic link parameters. Please request a new email link." },
@@ -62,14 +66,26 @@ export function MultiFactorPage() {
     let isMounted = true;
     setIsResolvingToken(true);
     void (async () => {
+      const endpoint = `/api/magic-login?${query}`;
+      console.log("[MultiFactor] Verifying magic login link...", {
+        frontendRoute: `${window.location.pathname}${window.location.search}`,
+        backendEndpoint: endpoint,
+        params: Object.fromEntries(new URLSearchParams(query).entries()),
+      });
       try {
-        const response = await api.get<MagicLoginQueryResponse>(`/api/magic-login?${query}`);
+        const response = await api.get<MagicLoginQueryResponse>(endpoint);
+        console.log("[MultiFactor] Magic link verification response:", response);
         const token = response?.two_factor?.trim();
         if (!token) throw new Error("Missing two_factor token.");
         if (!isMounted) return;
+        console.log("[MultiFactor] two_factor token resolved.");
         setResolvedTwoFactorToken(token);
-      } catch {
+      } catch (error) {
         if (!isMounted) return;
+        console.error("[MultiFactor] Magic link verification failed.", {
+          backendEndpoint: endpoint,
+          error,
+        });
         navigate("/onboarding/request-magic-link", {
           replace: true,
           state: { error: "Could not verify magic link. Please request a new email link." },
