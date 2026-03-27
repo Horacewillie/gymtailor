@@ -363,7 +363,7 @@
   cursor: pointer;
   font-family: "Geist Mono", ui-monospace, monospace;
   font-weight: 700;
-  font-size: 0.55rem;
+  font-size: 0.62rem;
   letter-spacing: 0.14em;
   color: rgba(15, 24, 34, 0.82);
   display: inline-flex;
@@ -372,14 +372,19 @@
   text-transform: uppercase;
 }
 
+.exportLink svg {
+  width: 16px;
+  height: 16px;
+}
+
 .addUnitBtn {
   background: #38f7a1 !important;
   color: rgba(15, 24, 34, 0.92) !important;
   font-family: "Geist Mono", ui-monospace, monospace !important;
   font-weight: 600 !important;
-  font-size: 0.55rem !important;
+  font-size: 0.62rem !important;
   letter-spacing: 0.12em !important;
-  height: 34px !important;
+  height: 38px !important;
 }
 
 .unitsToolbar {
