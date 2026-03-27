@@ -556,6 +556,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.62rem;
+  font-style: italic;
 }
 
 .equipmentNameBtn {
@@ -565,7 +566,7 @@
   margin: 0;
   font: inherit;
   font-size: inherit;
-  font-weight: 600;
+  font-weight: 700;
   color: inherit;
   cursor: pointer;
   text-align: left;
@@ -598,7 +599,7 @@
   padding: 10px 12px;
   background: rgba(31, 39, 50, 0.03);
   color: rgba(31, 39, 50, 0.62);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.09em;
   font-size: 0.54rem;
   font-family: Onest, Inter, system-ui, sans-serif;
@@ -634,7 +635,7 @@
   padding: 10px 12px;
   border-top: 1px solid rgba(31, 39, 50, 0.08);
   color: rgba(15, 24, 34, 0.82);
-  font-weight: 400;
+  font-weight: 600;
 }
 
 .rightAlign {

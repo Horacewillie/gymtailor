@@ -319,7 +319,8 @@ export function EquipmentPage() {
   return (
     <div className={styles.page}>
       <DashboardShell>
-        <main className={styles.main}>
+        {!decodedEquipmentId ? (
+          <main className={styles.main}>
           <section className={styles.container}>
             <div className={styles.headerRow}>
               <div>
@@ -1281,8 +1282,118 @@ export function EquipmentPage() {
               </div>
             </section>
           </section>
-        </main>
+          </main>
+        ) : null}
       </DashboardShell>
+
+      {decodedEquipmentId ? (
+        <Modal
+          open={addUnitModalOpen}
+          onClose={() => setAddUnitModalOpen(false)}
+          title="Add equipment unit"
+          titleId="add-equipment-unit-title"
+          titleClassName={styles.addUnitModalTitle}
+          size="sm"
+          footer={
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                pill
+                fullWidth
+                size="lg"
+                onClick={() => setAddUnitModalOpen(false)}
+              >
+                CANCEL
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                pill
+                fullWidth
+                size="sm"
+                disabled={!canAddUnit || isAddingUnit}
+                onClick={() => {
+                  if (!canAddUnit || isAddingUnit) return;
+                  void (async () => {
+                    setIsAddingUnit(true);
+                    try {
+                      await createEquipmentUnit({
+                        equipmentId: addUnitDraft.equipmentId,
+                        serial_number: addUnitDraft.serialNumber.trim(),
+                        status: addUnitDraft.status,
+                      });
+                      setItems((prev) =>
+                        prev.map((item) =>
+                          item.id === addUnitDraft.equipmentId
+                            ? {
+                                ...item,
+                                totalUnits: item.totalUnits + 1,
+                              }
+                            : item,
+                        ),
+                      );
+                      setAddUnitModalOpen(false);
+                      setAddUnitDraft((prev) => ({
+                        ...prev,
+                        serialNumber: "",
+                        status: "",
+                      }));
+                    } catch (error) {
+                      console.error("Failed to add equipment unit:", error);
+                    } finally {
+                      setIsAddingUnit(false);
+                    }
+                  })();
+                }}
+              >
+                {isAddingUnit ? "ADDING..." : "ADD UNIT"}
+              </Button>
+            </>
+          }
+        >
+          <>
+            <div className={styles.fieldLabel}>EQUIPMENT NAME</div>
+            <input
+              className={styles.input}
+              value={addUnitDraft.equipmentName}
+              readOnly
+              aria-readonly="true"
+            />
+
+            <div style={{ height: 14 }} />
+
+            <div className={styles.fieldLabel}>SERIAL NUMBER</div>
+            <input
+              className={styles.input}
+              placeholder="Enter serial number"
+              value={addUnitDraft.serialNumber}
+              onChange={(e) => {
+                const next = e.currentTarget.value;
+                setAddUnitDraft((prev) => ({ ...prev, serialNumber: next }));
+              }}
+            />
+
+            <div style={{ height: 14 }} />
+
+            <div className={styles.fieldLabel}>STATUS</div>
+            <select
+              className={styles.select}
+              value={addUnitDraft.status}
+              onChange={(e) => {
+                const next = e.currentTarget.value as AddEquipmentUnitDraft["status"];
+                setAddUnitDraft((prev) => ({ ...prev, status: next }));
+              }}
+            >
+              <option value="" disabled>
+                Status
+              </option>
+              <option value="Available">Available</option>
+              <option value="Unavailable">Unavailable</option>
+            </select>
+          </>
+        </Modal>
+      ) : null}
 
       {equipmentDetailItem ? (
         <EquipmentDetailPanel
