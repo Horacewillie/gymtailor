@@ -86,22 +86,22 @@ function IconChevronRight() {
   );
 }
 
-/** Curved return arrow — design asset; stroke uses `currentColor`. */
+/** Standard curved back arrow for the return action. */
 function IconReturnArrow(props: { className?: string }) {
   return (
     <svg
       className={props.className}
-      width="28"
-      height="15"
-      viewBox="0 0 28 15"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
       <path
-        d="M26.5 13.4994C26.4999 11.1261 25.796 8.80618 24.4775 6.83289C23.1589 4.85961 21.2848 3.32162 19.0921 2.41342C16.8995 1.50521 14.4868 1.26758 12.1591 1.73055C9.83137 2.19353 7.69323 3.33633 6.015 5.01444L1.5 9.49944"
+        d="M10 19l-7-7 7-7M3 12h10a8 8 0 0 1 8 8"
         stroke="currentColor"
-        strokeWidth="3"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
