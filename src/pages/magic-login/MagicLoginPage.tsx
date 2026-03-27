@@ -87,8 +87,8 @@ export function MagicLoginPage() {
 
           <div className={styles.inlineHint}>
             Already got the email link?{" "}
-            <button type="button" className={styles.inlineLink} onClick={() => navigate("/magic-login-callback")}>
-              Open callback page
+            <button type="button" className={styles.inlineLink} onClick={() => navigate("/magic-login")}>
+              Open magic link route
             </button>
           </div>
         </section>

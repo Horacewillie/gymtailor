@@ -11,7 +11,6 @@ import { SecureAccountPage } from "../pages/secure-account/SecureAccountPage";
 import { OnboardingLoadingPage } from "../pages/onboarding-loading/OnboardingLoadingPage";
 import { EquipmentPage } from "../pages/equipment/EquipmentPage";
 import { MagicLoginPage } from "../pages/magic-login/MagicLoginPage";
-import { MagicLoginCallbackPage } from "../pages/magic-login-callback/MagicLoginCallbackPage";
 import { MultiFactorPage } from "../pages/multi-factor/MultiFactorPage";
 
 /**
@@ -69,7 +68,7 @@ export function App() {
       <AppErrorBoundary>
         <Routes>
           {/* Default entry for unauthenticated users. */}
-          <Route path="/" element={<Navigate to="/onboarding/magic-login" replace />} />
+          <Route path="/" element={<Navigate to="/onboarding/request-magic-link" replace />} />
           <Route path="/invitation/:invitationId/view" element={<CreateAccountPage />} />
           {/* Post-onboarding destination. */}
           <Route path="/dashboard" element={<OwnerDashboardPage />} />
@@ -109,8 +108,9 @@ export function App() {
           <Route path="/onboarding/branch-setup" element={<BranchSetupPage />} />
           <Route path="/onboarding/add-equipment" element={<AddEquipmentPage />} />
           <Route path="/onboarding/loading" element={<OnboardingLoadingPage />} />
-          <Route path="/onboarding/magic-login" element={<MagicLoginPage />} />
-          <Route path="/magic-login" element={<MagicLoginCallbackPage />} />
+          <Route path="/onboarding/request-magic-link" element={<MagicLoginPage />} />
+          <Route path="/onboarding/magic-login" element={<Navigate to="/onboarding/request-magic-link" replace />} />
+          <Route path="/magic-login" element={<MultiFactorPage />} />
           <Route path="/onboarding/multi-factor" element={<MultiFactorPage />} />
         </Routes>
       </AppErrorBoundary>

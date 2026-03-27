@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiClient } from "../../api/Api";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
@@ -6,6 +6,10 @@ import { Button } from "../../components/button/Button";
 import { saveTenantId } from "../../lib/session";
 import { getDashboardData } from "../../services/dashboardService";
 import styles from "./MultiFactorPage.module.css";
+
+type MagicLoginQueryResponse = {
+  two_factor?: string;
+};
 
 function getTenantIdFromAuthenticationStatus(data: any): string | number | null {
   if (!data || typeof data !== "object") return null;
@@ -25,7 +29,11 @@ export function MultiFactorPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const api = useMemo(() => apiClient, []);
-  const twoFactorToken = (location.state as { twoFactorToken?: string } | null)?.twoFactorToken ?? "";
+  const tokenFromState = (location.state as { twoFactorToken?: string } | null)?.twoFactorToken ?? "";
+  const [resolvedTwoFactorToken, setResolvedTwoFactorToken] = useState(tokenFromState);
+  const [isResolvingToken, setIsResolvingToken] = useState(
+    tokenFromState.trim().length === 0 && location.search.trim().length > 0,
+  );
   const otpInputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(6).fill(""));
@@ -33,7 +41,48 @@ export function MultiFactorPage() {
   const [isProceeding, setIsProceeding] = useState(false);
 
   const otpCode = otpDigits.join("");
-  const canProceed = otpCode.length === 6 && twoFactorToken.trim().length > 0;
+  const canProceed = otpCode.length === 6 && resolvedTwoFactorToken.trim().length > 0 && !isResolvingToken;
+
+  useEffect(() => {
+    if (tokenFromState.trim().length > 0) {
+      setResolvedTwoFactorToken(tokenFromState);
+      setIsResolvingToken(false);
+      return;
+    }
+
+    const query = location.search.startsWith("?") ? location.search.slice(1) : location.search;
+    if (!query) {
+      navigate("/onboarding/request-magic-link", {
+        replace: true,
+        state: { error: "Missing magic link parameters. Please request a new email link." },
+      });
+      return;
+    }
+
+    let isMounted = true;
+    setIsResolvingToken(true);
+    void (async () => {
+      try {
+        const response = await api.get<MagicLoginQueryResponse>(`/api/magic-login?${query}`);
+        const token = response?.two_factor?.trim();
+        if (!token) throw new Error("Missing two_factor token.");
+        if (!isMounted) return;
+        setResolvedTwoFactorToken(token);
+      } catch {
+        if (!isMounted) return;
+        navigate("/onboarding/request-magic-link", {
+          replace: true,
+          state: { error: "Could not verify magic link. Please request a new email link." },
+        });
+      } finally {
+        if (isMounted) setIsResolvingToken(false);
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [api, location.search, navigate, tokenFromState]);
 
   return (
     <div className={styles.page}>
@@ -122,7 +171,7 @@ export function MultiFactorPage() {
                   try {
                     await api.csrfCookie("/sanctum/csrf-cookie");
                     await api.post("/api/multi-factor", {
-                      token: twoFactorToken,
+                      token: resolvedTwoFactorToken,
                       otp: otpCode,
                     });
 

@@ -13,7 +13,7 @@ export function OnboardingLoadingPage() {
     let isMounted = true;
     const timer = setTimeout(() => {
       if (isMounted) {
-        navigate("/onboarding/magic-login", {
+        navigate("/onboarding/request-magic-link", {
           replace: true,
           state: { email: emailFromState },
         });
