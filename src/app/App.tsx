@@ -73,6 +73,7 @@ export function App() {
           {/* Post-onboarding destination. */}
           <Route path="/dashboard" element={<OwnerDashboardPage />} />
           <Route path="/dashboard/equipment" element={<EquipmentPage />} />
+          <Route path="/dashboard/equipment/:equipmentId" element={<EquipmentPage />} />
           <Route
             path="/dashboard/members"
             element={

@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/button/Button";
 import { Modal } from "../../components/modal/Modal";
 import { SuccessModal } from "../../components/success-modal/SuccessModal";
@@ -139,6 +140,8 @@ const INITIAL_EQUIPMENT_ITEMS: EquipmentItem[] = [];
  * - Match the screenshot layout while avoiding hard-coded “only works for this data” behavior.
  */
 export function EquipmentPage() {
+  const navigate = useNavigate();
+  const { equipmentId } = useParams<{ equipmentId?: string }>();
   const [items, setItems] = useState<EquipmentItem[]>(INITIAL_EQUIPMENT_ITEMS);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"All" | EquipmentStatus>("All");
@@ -180,10 +183,6 @@ export function EquipmentPage() {
   /** Row pending removal — confirmation modal open when set. */
   const [removeTarget, setRemoveTarget] = useState<{ id: string; name: string } | null>(null);
   const [removeSuccessModalOpen, setRemoveSuccessModalOpen] = useState(false);
-
-  /** Equipment detail overlay (slides in over list; nav stays visible). */
-  const [equipmentDetailId, setEquipmentDetailId] = useState<string | null>(null);
-  const [equipmentDetailOpen, setEquipmentDetailOpen] = useState(false);
 
   const addFileInputId = useId();
   const [draft, setDraft] = useState<AddEquipmentDraft>({
@@ -233,22 +232,11 @@ export function EquipmentPage() {
     ] as const;
   }, []);
 
+  const decodedEquipmentId = equipmentId ? decodeURIComponent(equipmentId) : null;
   const equipmentDetailItem = useMemo(
-    () => (equipmentDetailId ? items.find((i) => i.id === equipmentDetailId) ?? null : null),
-    [items, equipmentDetailId],
+    () => (decodedEquipmentId ? items.find((i) => i.id === decodedEquipmentId) ?? null : null),
+    [items, decodedEquipmentId],
   );
-
-  useEffect(() => {
-    if (!equipmentDetailId) {
-      setEquipmentDetailOpen(false);
-      return;
-    }
-    setEquipmentDetailOpen(false);
-    const id = requestAnimationFrame(() => {
-      requestAnimationFrame(() => setEquipmentDetailOpen(true));
-    });
-    return () => cancelAnimationFrame(id);
-  }, [equipmentDetailId]);
 
   useEffect(() => {
     if (!addMenuOpen) return;
@@ -1187,7 +1175,7 @@ export function EquipmentPage() {
                         <button
                           type="button"
                           className={styles.equipmentNameBtn}
-                          onClick={() => setEquipmentDetailId(r.id)}
+                          onClick={() => navigate(`/dashboard/equipment/${encodeURIComponent(r.id)}`)}
                         >
                           {r.name}
                         </button>
@@ -1299,8 +1287,8 @@ export function EquipmentPage() {
       {equipmentDetailItem ? (
         <EquipmentDetailPanel
           item={equipmentDetailItem}
-          open={equipmentDetailOpen}
-          onBack={() => setEquipmentDetailOpen(false)}
+          open={Boolean(decodedEquipmentId)}
+          onBack={() => navigate("/dashboard/equipment")}
           onAddUnit={() => {
             setAddUnitDraft({
               equipmentId: equipmentDetailItem.id,
@@ -1310,7 +1298,7 @@ export function EquipmentPage() {
             });
             setAddUnitModalOpen(true);
           }}
-          onExitAnimationEnd={() => setEquipmentDetailId(null)}
+          onExitAnimationEnd={() => {}}
         />
       ) : null}
     </div>

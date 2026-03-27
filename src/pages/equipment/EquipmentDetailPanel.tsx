@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "../../components/button/Button";
+import { getEquipmentUnits, type EquipmentUnit } from "../../services/equipmentService";
 import equipmentPageStyles from "./EquipmentPage.module.css";
 import styles from "./EquipmentDetailPanel.module.css";
 
@@ -109,54 +110,34 @@ function IconReturnArrow(props: { className?: string }) {
   );
 }
 
-function shortPrefix(name: string): string {
-  const w = name.replace(/[^a-zA-Z]/g, "");
-  if (w.length >= 2) return w.slice(0, 2).toUpperCase();
-  return name.slice(0, 2).toUpperCase();
+function normalizeUnitStatus(status: string): UnitStatus {
+  const normalized = status.trim().toLowerCase().replace(/[_-]+/g, " ");
+  if (
+    normalized.includes("out of service") ||
+    normalized.includes("unavailable") ||
+    normalized.includes("inactive")
+  ) {
+    return "OUT OF SERVICE";
+  }
+  return "AVAILABLE";
 }
 
-const LAST_UPDATED_SAMPLES = [
-  "25 Dec 2026 • 11:15 AM",
-  "24 Dec 2026 • 4:30 PM",
-  "23 Dec 2026 • 9:00 AM",
-  "22 Dec 2026 • 2:45 PM",
-  "21 Dec 2026 • 8:20 AM",
-  "20 Dec 2026 • 6:10 PM",
-  "19 Dec 2026 • 12:00 PM",
-  "18 Dec 2026 • 3:33 PM",
-  "17 Dec 2026 • 10:05 AM",
-  "16 Dec 2026 • 5:50 PM",
-] as const;
-
-function serialForIndex(i: number): string {
-  const a = 847 + ((i * 31) % 200);
-  const b = 8932 + ((i * 17) % 100);
-  const suffix = ["KJ", "LM", "ZX", "QP", "RN", "TW"][i % 6];
-  return `${a}-${b}${suffix}`;
+function formatUnitDateTime(value: string): string {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value || "—";
+  const date = parsed.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  const time = parsed.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  return `${date} • ${time}`;
 }
 
-function buildUnitRows(
-  item: EquipmentDetailSource,
-  page: number,
-  pageSize: number,
-): UnitRow[] {
-  const prefix = shortPrefix(item.name);
-  const total = item.totalUnits;
-  if (total <= 0) return [];
-  const start = (page - 1) * pageSize;
-  const count = Math.min(pageSize, Math.max(0, total - start));
-
-  return Array.from({ length: count }, (_, j) => {
-    const idx = start + j;
-    const status: UnitStatus = idx % 9 === 1 || idx % 11 === 4 ? "OUT OF SERVICE" : "AVAILABLE";
-    return {
-      unitId: `${prefix}-${String(idx + 1).padStart(3, "0")}`,
-      serial: serialForIndex(idx),
-      status,
-      lastUpdated: LAST_UPDATED_SAMPLES[idx % LAST_UPDATED_SAMPLES.length],
-      updatedBy: "samuel@ifitness.com",
-    };
-  });
+function mapApiUnitToRow(unit: EquipmentUnit): UnitRow {
+  return {
+    unitId: unit.unitId || "—",
+    serial: unit.serialNumber || "—",
+    status: normalizeUnitStatus(unit.status),
+    lastUpdated: formatUnitDateTime(unit.lastUpdated),
+    updatedBy: unit.updatedBy || "—",
+  };
 }
 
 /** Page numbers + ellipsis for table footer (matches design reference). */
@@ -204,22 +185,26 @@ type EquipmentDetailPanelProps = {
  * Slides in from bottom-right; list remains mounted underneath.
  */
 export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnimationEnd }: EquipmentDetailPanelProps) {
-  const outOfService = Math.min(2, Math.max(0, Math.floor(item.totalUnits * 0.03)));
-  const available = Math.max(0, item.totalUnits - outOfService);
+  const [units, setUnits] = useState<UnitRow[]>([]);
+  const [unitsLoading, setUnitsLoading] = useState(false);
+  const outOfService = units.filter((u) => u.status === "OUT OF SERVICE").length;
+  const available = Math.max(0, units.length - outOfService);
   const usageRate = Math.min(99, 42 + (item.frequency % 40));
   const uniqueMembers = Math.min(999, Math.round(item.totalUnits * 1.28 + item.frequency * 0.02));
   const downtimeHours = 0;
   const [unitsPage, setUnitsPage] = useState(1);
   const [unitsPageSize, setUnitsPageSize] = useState(10);
-  const totalPages = Math.max(1, Math.ceil(Math.max(0, item.totalUnits) / unitsPageSize));
+  const totalUnits = units.length;
+  const totalPages = Math.max(1, Math.ceil(Math.max(0, totalUnits) / unitsPageSize));
   const pageClamped = Math.min(unitsPage, totalPages);
-  const unitRows = useMemo(
-    () => buildUnitRows(item, pageClamped, unitsPageSize),
-    [item, pageClamped, unitsPageSize],
-  );
+  const unitRows = useMemo(() => {
+    const start = (pageClamped - 1) * unitsPageSize;
+    const end = start + unitsPageSize;
+    return units.slice(start, end);
+  }, [units, pageClamped, unitsPageSize]);
   const pageList = useMemo(() => buildPageList(totalPages, pageClamped), [totalPages, pageClamped]);
-  const rangeStart = item.totalUnits === 0 ? 0 : (pageClamped - 1) * unitsPageSize + 1;
-  const rangeEnd = Math.min(pageClamped * unitsPageSize, item.totalUnits);
+  const rangeStart = totalUnits === 0 ? 0 : (pageClamped - 1) * unitsPageSize + 1;
+  const rangeEnd = Math.min(pageClamped * unitsPageSize, totalUnits);
 
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
@@ -232,6 +217,26 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
   useEffect(() => {
     setUnitsPage((p) => Math.min(p, totalPages));
   }, [totalPages, item.id]);
+
+  useEffect(() => {
+    let mounted = true;
+    setUnitsLoading(true);
+    void getEquipmentUnits(item.id)
+      .then((rows) => {
+        if (!mounted) return;
+        setUnits(rows.map(mapApiUnitToRow));
+      })
+      .catch((error) => {
+        console.error("Failed to load equipment units:", error);
+        if (mounted) setUnits([]);
+      })
+      .finally(() => {
+        if (mounted) setUnitsLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [item.id]);
 
   useEffect(() => {
     if (!open) return;
@@ -286,7 +291,7 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
             <div className={[styles.statCard, styles.statCardTotal].join(" ")}>
               <div className={styles.statLabel}>Total Units</div>
               <div className={styles.statTotalBottom}>
-                <div className={styles.statValue}>{item.totalUnits}</div>
+                <div className={styles.statValue}>{totalUnits}</div>
                 <div className={styles.statPills}>
                   <span className={styles.pillAvail}>Available: {available}</span>
                   <span className={styles.pillOos}>
@@ -437,6 +442,13 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
                     </td>
                   </tr>
                 ))}
+                {unitRows.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className={styles.cellMuted}>
+                      {unitsLoading ? "Loading units..." : "No units found for this equipment."}
+                    </td>
+                  </tr>
+                ) : null}
               </tbody>
             </table>
           </div>
@@ -495,7 +507,7 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
               </button>
             </div>
             <div className={styles.pagerMeta}>
-              {rangeStart === 0 ? "0" : `${rangeStart} - ${rangeEnd}`} OF {item.totalUnits}
+              {rangeStart === 0 ? "0" : `${rangeStart} - ${rangeEnd}`} OF {totalUnits}
             </div>
           </div>
           </div>

@@ -61,3 +61,32 @@ export async function createEquipmentUnit(payload: {
     { headers: getAuthHeaders() },
   );
 }
+
+export type EquipmentUnit = {
+  unitId: string;
+  serialNumber: string;
+  status: string;
+  lastUpdated: string;
+  updatedBy: string;
+};
+
+export async function getEquipmentUnits(equipmentId: string): Promise<EquipmentUnit[]> {
+  const response = await apiClient.get<any>(
+    `/api/equipment/${encodeURIComponent(equipmentId)}/units`,
+    { headers: getAuthHeaders() },
+  );
+  const rows: any[] = Array.isArray(response)
+    ? response
+    : Array.isArray(response?.units)
+      ? response.units
+      : Array.isArray(response?.data)
+        ? response.data
+        : [];
+  return rows.map((row, idx) => ({
+    unitId: String(row?.unit_id ?? row?.id ?? `${equipmentId}-unit-${idx + 1}`),
+    serialNumber: String(row?.serial_number ?? row?.serial ?? row?.serial_no ?? ""),
+    status: String(row?.status ?? ""),
+    lastUpdated: String(row?.last_updated ?? row?.updated_at ?? row?.date_created ?? ""),
+    updatedBy: String(row?.updated_by ?? row?.updated_by_name ?? row?.added_by ?? ""),
+  }));
+}
