@@ -892,6 +892,7 @@ export function EquipmentPage() {
               onClose={() => setAddUnitModalOpen(false)}
               title="Add equipment unit"
               titleId="add-equipment-unit-title"
+              titleClassName={styles.addUnitModalTitle}
               size="sm"
               footer={
                 <>

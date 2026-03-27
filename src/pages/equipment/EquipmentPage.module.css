@@ -377,6 +377,11 @@
   color: rgba(15, 24, 34, 0.9) !important;
 }
 
+.addUnitModalTitle {
+  font-weight: 800 !important;
+  font-style: italic !important;
+}
+
 .removeModalBody {
   margin: 0;
   font-family: Onest, Inter, system-ui, sans-serif;
