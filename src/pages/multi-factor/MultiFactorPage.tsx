@@ -186,7 +186,7 @@ export function MultiFactorPage() {
                   setIsProceeding(true);
                   try {
                     await api.csrfCookie("/sanctum/csrf-cookie");
-                    await api.post("/api/multi-factor", {
+                    await api.post("/api/multi-factor-login", {
                       token: resolvedTwoFactorToken,
                       otp: otpCode,
                     });
