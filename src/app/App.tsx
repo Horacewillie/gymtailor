@@ -110,8 +110,7 @@ export function App() {
           <Route path="/onboarding/add-equipment" element={<AddEquipmentPage />} />
           <Route path="/onboarding/loading" element={<OnboardingLoadingPage />} />
           <Route path="/onboarding/magic-login" element={<MagicLoginPage />} />
-          <Route path="/magic-login-callback" element={<MagicLoginCallbackPage />} />
-          <Route path="/onboarding/magic-login-callback" element={<MagicLoginCallbackPage />} />
+          <Route path="/magic-login" element={<MagicLoginCallbackPage />} />
           <Route path="/onboarding/multi-factor" element={<MultiFactorPage />} />
         </Routes>
       </AppErrorBoundary>
