@@ -46,3 +46,18 @@ export async function deleteEquipment(equipmentId: string): Promise<void> {
     headers: getAuthHeaders(),
   });
 }
+
+export async function createEquipmentUnit(payload: {
+  equipmentId: string;
+  serial_number: string;
+  status: string;
+}): Promise<unknown> {
+  return apiClient.post(
+    `/api/${encodeURIComponent(payload.equipmentId)}/units`,
+    {
+      serial_number: payload.serial_number,
+      status: payload.status,
+    },
+    { headers: getAuthHeaders() },
+  );
+}

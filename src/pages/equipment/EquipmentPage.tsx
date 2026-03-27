@@ -5,6 +5,7 @@ import { SuccessModal } from "../../components/success-modal/SuccessModal";
 import { DashboardShell } from "../../components/dashboard-shell/DashboardShell";
 import { getTenantId } from "../../lib/session";
 import {
+  createEquipmentUnit,
   createEquipment,
   deleteEquipment,
   getTenantEquipmentList,
@@ -152,6 +153,7 @@ export function EquipmentPage() {
   /** After add form submit. */
   const [addSuccessModalOpen, setAddSuccessModalOpen] = useState(false);
   const [addUnitModalOpen, setAddUnitModalOpen] = useState(false);
+  const [isAddingUnit, setIsAddingUnit] = useState(false);
   const [addUnitDraft, setAddUnitDraft] = useState<AddEquipmentUnitDraft>({
     equipmentId: "",
     equipmentName: "",
@@ -912,28 +914,42 @@ export function EquipmentPage() {
                     pill
                     fullWidth
                     size="sm"
-                    disabled={!canAddUnit}
+                    disabled={!canAddUnit || isAddingUnit}
                     onClick={() => {
-                      if (!canAddUnit) return;
-                      setItems((prev) =>
-                        prev.map((item) =>
-                          item.id === addUnitDraft.equipmentId
-                            ? {
-                                ...item,
-                                totalUnits: item.totalUnits + 1,
-                              }
-                            : item,
-                        ),
-                      );
-                      setAddUnitModalOpen(false);
-                      setAddUnitDraft((prev) => ({
-                        ...prev,
-                        serialNumber: "",
-                        status: "",
-                      }));
+                      if (!canAddUnit || isAddingUnit) return;
+                      void (async () => {
+                        setIsAddingUnit(true);
+                        try {
+                          await createEquipmentUnit({
+                            equipmentId: addUnitDraft.equipmentId,
+                            serial_number: addUnitDraft.serialNumber.trim(),
+                            status: addUnitDraft.status,
+                          });
+                          setItems((prev) =>
+                            prev.map((item) =>
+                              item.id === addUnitDraft.equipmentId
+                                ? {
+                                    ...item,
+                                    totalUnits: item.totalUnits + 1,
+                                  }
+                                : item,
+                            ),
+                          );
+                          setAddUnitModalOpen(false);
+                          setAddUnitDraft((prev) => ({
+                            ...prev,
+                            serialNumber: "",
+                            status: "",
+                          }));
+                        } catch (error) {
+                          console.error("Failed to add equipment unit:", error);
+                        } finally {
+                          setIsAddingUnit(false);
+                        }
+                      })();
                     }}
                   >
-                    ADD UNIT
+                    {isAddingUnit ? "ADDING..." : "ADD UNIT"}
                   </Button>
                 </>
               }
