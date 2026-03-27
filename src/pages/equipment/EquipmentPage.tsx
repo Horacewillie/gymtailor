@@ -156,6 +156,7 @@ export function EquipmentPage() {
   /** After add form submit. */
   const [addSuccessModalOpen, setAddSuccessModalOpen] = useState(false);
   const [addUnitModalOpen, setAddUnitModalOpen] = useState(false);
+  const [addUnitSuccessModalOpen, setAddUnitSuccessModalOpen] = useState(false);
   const [isAddingUnit, setIsAddingUnit] = useState(false);
   const [addUnitDraft, setAddUnitDraft] = useState<AddEquipmentUnitDraft>({
     equipmentId: "",
@@ -925,6 +926,7 @@ export function EquipmentPage() {
                             ),
                           );
                           setAddUnitModalOpen(false);
+                          setAddUnitSuccessModalOpen(true);
                           setAddUnitDraft((prev) => ({
                             ...prev,
                             serialNumber: "",
@@ -1334,6 +1336,7 @@ export function EquipmentPage() {
                         ),
                       );
                       setAddUnitModalOpen(false);
+                      setAddUnitSuccessModalOpen(true);
                       setAddUnitDraft((prev) => ({
                         ...prev,
                         serialNumber: "",
@@ -1412,6 +1415,17 @@ export function EquipmentPage() {
           onExitAnimationEnd={() => {}}
         />
       ) : null}
+
+      <SuccessModal
+        open={addUnitSuccessModalOpen}
+        onClose={() => setAddUnitSuccessModalOpen(false)}
+        titleId="equipment-unit-added-success-global"
+        line1="Equipment unit added"
+        line2="successfully"
+        primaryLabel="DISMISS"
+        onPrimary={() => setAddUnitSuccessModalOpen(false)}
+        primaryLayout="full"
+      />
     </div>
   );
 }

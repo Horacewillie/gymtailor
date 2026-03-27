@@ -465,10 +465,12 @@
 }
 
 .sectionTitle {
-  font-size: 0.72rem;
-  color: rgba(15, 24, 34, 0.88);
+  margin: 0;
   font-family: Onest, Inter, system-ui, sans-serif;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  color: #1a1f26;
 }
 
 .exportBtn {
