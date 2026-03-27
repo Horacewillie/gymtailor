@@ -194,6 +194,7 @@ type EquipmentDetailPanelProps = {
   /** When true, slide-in animation is active (entered). */
   open: boolean;
   onBack: () => void;
+  onAddUnit: () => void;
   /** Fires after exit animation so parent can unmount. */
   onExitAnimationEnd: () => void;
 };
@@ -202,7 +203,7 @@ type EquipmentDetailPanelProps = {
  * Full-viewport equipment detail layer (below dashboard header).
  * Slides in from bottom-right; list remains mounted underneath.
  */
-export function EquipmentDetailPanel({ item, open, onBack, onExitAnimationEnd }: EquipmentDetailPanelProps) {
+export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnimationEnd }: EquipmentDetailPanelProps) {
   const outOfService = Math.min(2, Math.max(0, Math.floor(item.totalUnits * 0.03)));
   const available = Math.max(0, item.totalUnits - outOfService);
   const usageRate = Math.min(99, 42 + (item.frequency % 40));
@@ -347,7 +348,7 @@ export function EquipmentDetailPanel({ item, open, onBack, onExitAnimationEnd }:
               <button type="button" className={styles.exportLink}>
                 <IconExport /> EXPORT
               </button>
-              <Button type="button" pill size="md" className={styles.addUnitBtn}>
+              <Button type="button" pill size="md" className={styles.addUnitBtn} onClick={onAddUnit}>
                 + ADD UNIT
               </Button>
             </div>

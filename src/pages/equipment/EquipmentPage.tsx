@@ -1284,6 +1284,15 @@ export function EquipmentPage() {
           item={equipmentDetailItem}
           open={equipmentDetailOpen}
           onBack={() => setEquipmentDetailOpen(false)}
+          onAddUnit={() => {
+            setAddUnitDraft({
+              equipmentId: equipmentDetailItem.id,
+              equipmentName: equipmentDetailItem.name,
+              serialNumber: "",
+              status: "",
+            });
+            setAddUnitModalOpen(true);
+          }}
           onExitAnimationEnd={() => setEquipmentDetailId(null)}
         />
       ) : null}
