@@ -11,6 +11,7 @@ import {
   deleteEquipment,
   getTenantEquipmentList,
   importEquipmentCsv,
+  updateEquipment,
 } from "../../services/equipmentService";
 import {
   EQUIPMENT_IMPORT_CSV_TEMPLATE,
@@ -171,6 +172,7 @@ export function EquipmentPage() {
   const csvImportFileInputId = useId();
 
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [isUpdatingEquipment, setIsUpdatingEquipment] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<AddEquipmentDraft>({
     imageFile: null,
@@ -751,32 +753,46 @@ export function EquipmentPage() {
                     fullWidth
                     size="lg"
                     className={styles.modalSaveBtn}
-                    disabled={!canSaveEdit}
+                    disabled={!canSaveEdit || isUpdatingEquipment}
                     onClick={() => {
-                      if (!canSaveEdit || !editingId) return;
-                      setItems((prev) =>
-                        prev.map((it) =>
-                          it.id === editingId
-                            ? {
-                                ...it,
-                                name: editDraft.name.trim(),
-                                category: editDraft.category,
-                              }
-                            : it,
-                        ),
-                      );
-                      setUpdateModalOpen(false);
-                      setEditingId(null);
-                      setEditDraft({
-                        imageFile: null,
-                        name: "",
-                        category: "",
-                        notifyMember: false,
-                      });
-                      setUpdateSuccessModalOpen(true);
+                      if (!canSaveEdit || !editingId || isUpdatingEquipment) return;
+                      void (async () => {
+                        setIsUpdatingEquipment(true);
+                        try {
+                          await updateEquipment({
+                            equipmentId: editingId,
+                            name: editDraft.name.trim(),
+                            category: editDraft.category,
+                          });
+                          setItems((prev) =>
+                            prev.map((it) =>
+                              it.id === editingId
+                                ? {
+                                    ...it,
+                                    name: editDraft.name.trim(),
+                                    category: editDraft.category,
+                                  }
+                                : it,
+                            ),
+                          );
+                          setUpdateModalOpen(false);
+                          setEditingId(null);
+                          setEditDraft({
+                            imageFile: null,
+                            name: "",
+                            category: "",
+                            notifyMember: false,
+                          });
+                          setUpdateSuccessModalOpen(true);
+                        } catch (error) {
+                          console.error("Failed to update equipment:", error);
+                        } finally {
+                          setIsUpdatingEquipment(false);
+                        }
+                      })();
                     }}
                   >
-                    SAVE CHANGES
+                    {isUpdatingEquipment ? "SAVING..." : "SAVE CHANGES"}
                   </Button>
                 </>
               }

@@ -117,6 +117,26 @@ export default class Api {
     const text = await response.text();
     return (text ? JSON.parse(text) : undefined) as T;
   }
+
+  async patch<T>(endpoint: string, data: any, options: RequestInit = {}): Promise<T> {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      ...options,
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json',
+        ...this.getXsrfHeader(),
+        ...(options.headers || {}),
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(`PATCH ${endpoint} failed: ${response.status}`);
+    }
+    return response.json();
+  }
 }
 
 export const apiClient = new Api();

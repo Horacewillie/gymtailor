@@ -62,6 +62,21 @@ export async function createEquipmentUnit(payload: {
   );
 }
 
+export async function updateEquipment(payload: {
+  equipmentId: string;
+  name: string;
+  category: string;
+}): Promise<unknown> {
+  return apiClient.patch(
+    `/equipment/${encodeURIComponent(payload.equipmentId)}`,
+    {
+      name: payload.name,
+      category: payload.category,
+    },
+    { headers: getAuthHeaders() },
+  );
+}
+
 export type EquipmentUnit = {
   unitId: string;
   serialNumber: string;
