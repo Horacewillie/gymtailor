@@ -11,6 +11,17 @@ type MagicLoginQueryResponse = {
   two_factor?: string;
 };
 
+function normalizeMagicLoginQuery(query: string): string {
+  const raw = query.startsWith("?") ? query.slice(1) : query;
+  const parsed = new URLSearchParams(raw);
+  const normalized = new URLSearchParams();
+  for (const [key, value] of parsed.entries()) {
+    const normalizedKey = key.startsWith("amp;") ? key.slice(4) : key;
+    normalized.append(normalizedKey, value);
+  }
+  return normalized.toString();
+}
+
 function getTenantIdFromAuthenticationStatus(data: any): string | number | null {
   if (!data || typeof data !== "object") return null;
   if (data.tenant_id !== undefined && data.tenant_id !== null && String(data.tenant_id).trim() !== "") {
@@ -51,7 +62,7 @@ export function MultiFactorPage() {
       return;
     }
 
-    const query = location.search.startsWith("?") ? location.search.slice(1) : location.search;
+    const query = normalizeMagicLoginQuery(location.search);
     if (!query) {
       console.warn("[MultiFactor] Missing query params on magic-login route.", {
         frontendRoute: `${window.location.pathname}${window.location.search}`,
