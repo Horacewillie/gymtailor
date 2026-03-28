@@ -68,7 +68,7 @@ export async function updateEquipment(payload: {
   category: string;
 }): Promise<unknown> {
   return apiClient.patch(
-    `/equipment/${encodeURIComponent(payload.equipmentId)}`,
+    `/api/equipment/${encodeURIComponent(payload.equipmentId)}`,
     {
       name: payload.name,
       category: payload.category,
