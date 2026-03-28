@@ -105,3 +105,9 @@ export async function getEquipmentUnits(equipmentId: string): Promise<EquipmentU
     updatedBy: String(row?.added_by_name ?? ""),
   }));
 }
+
+export async function getEquipmentDetail(equipmentId: string): Promise<any> {
+  return apiClient.get<any>(`/api/${encodeURIComponent(equipmentId)}/equipment`, {
+    headers: getAuthHeaders(),
+  });
+}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "../../components/button/Button";
-import { getEquipmentUnits, type EquipmentUnit } from "../../services/equipmentService";
+import { getEquipmentDetail, getEquipmentUnits, type EquipmentUnit } from "../../services/equipmentService";
 import equipmentPageStyles from "./EquipmentPage.module.css";
 import styles from "./EquipmentDetailPanel.module.css";
 
@@ -20,6 +20,22 @@ type UnitRow = {
   status: UnitStatus;
   lastUpdated: string;
   updatedBy: string;
+};
+
+type EquipmentDetailMetrics = {
+  totalUnits: number;
+  available: number;
+  outOfService: number;
+  usageRate: number;
+  uniqueMembers: number;
+  downtimeHours: number;
+  frequency: number;
+};
+
+type CommonUseRow = {
+  workout: string;
+  usage: number;
+  completion: number;
 };
 
 /** Upward / export style arrow — matches reference */
@@ -162,14 +178,6 @@ function buildPageList(totalPages: number, current: number): (number | "ellipsis
   return out;
 }
 
-const COMMON_USE = [
-  { workout: "Warm-up", usage: 13, completion: 75 },
-  { workout: "Incline Walk Session", usage: 10, completion: 80 },
-  { workout: "Endurance Builder", usage: 8, completion: 85 },
-  { workout: "Fat Loss Cardio Session", usage: 12, completion: 70 },
-  { workout: "HIIT Cardio (Intervals)", usage: 9, completion: 65 },
-] as const;
-
 type EquipmentDetailPanelProps = {
   item: EquipmentDetailSource;
   /** When true, slide-in animation is active (entered). */
@@ -187,11 +195,16 @@ type EquipmentDetailPanelProps = {
 export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnimationEnd }: EquipmentDetailPanelProps) {
   const [units, setUnits] = useState<UnitRow[]>([]);
   const [unitsLoading, setUnitsLoading] = useState(false);
-  const outOfService = units.filter((u) => u.status === "OUT OF SERVICE").length;
-  const available = Math.max(0, units.length - outOfService);
-  const usageRate = Math.min(99, 42 + (item.frequency % 40));
-  const uniqueMembers = Math.min(999, Math.round(item.totalUnits * 1.28 + item.frequency * 0.02));
-  const downtimeHours = 0;
+  const [metrics, setMetrics] = useState<EquipmentDetailMetrics>({
+    totalUnits: item.totalUnits,
+    available: item.totalUnits,
+    outOfService: 0,
+    usageRate: 0,
+    uniqueMembers: 0,
+    downtimeHours: 0,
+    frequency: item.frequency,
+  });
+  const [commonUseRows, setCommonUseRows] = useState<CommonUseRow[]>([]);
   const [unitsPage, setUnitsPage] = useState(1);
   const [unitsPageSize, setUnitsPageSize] = useState(10);
   const totalUnits = units.length;
@@ -237,6 +250,56 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
       mounted = false;
     };
   }, [item.id]);
+
+  useEffect(() => {
+    let mounted = true;
+    void getEquipmentDetail(item.id)
+      .then((response) => {
+        if (!mounted) return;
+        const detail = response?.equipment ?? response?.data ?? response ?? {};
+        const totalUnitsFromApi = Number(detail?.total_units ?? detail?.totalUnits);
+        const outOfServiceFromApi = Number(detail?.out_of_service ?? detail?.out_of_service_units ?? detail?.outOfService);
+        const safeTotalUnits = Number.isFinite(totalUnitsFromApi) ? totalUnitsFromApi : item.totalUnits;
+        const safeOutOfService = Number.isFinite(outOfServiceFromApi) ? outOfServiceFromApi : 0;
+        const availableFromApi = Number(detail?.available_units ?? detail?.available);
+        const safeAvailable = Number.isFinite(availableFromApi)
+          ? availableFromApi
+          : Math.max(0, safeTotalUnits - safeOutOfService);
+        const usageRateFromApi = Number(detail?.usage_rate ?? detail?.usageRate);
+        const uniqueMembersFromApi = Number(detail?.unique_members ?? detail?.uniqueMembers);
+        const downtimeFromApi = Number(detail?.downtime_hours ?? detail?.downtimeHours ?? detail?.downtime);
+        const frequencyFromApi = Number(detail?.frequency);
+
+        setMetrics({
+          totalUnits: safeTotalUnits,
+          available: safeAvailable,
+          outOfService: safeOutOfService,
+          usageRate: Number.isFinite(usageRateFromApi) ? usageRateFromApi : 0,
+          uniqueMembers: Number.isFinite(uniqueMembersFromApi) ? uniqueMembersFromApi : 0,
+          downtimeHours: Number.isFinite(downtimeFromApi) ? downtimeFromApi : 0,
+          frequency: Number.isFinite(frequencyFromApi) ? frequencyFromApi : item.frequency,
+        });
+
+        const commonUse = detail?.common_use ?? detail?.commonUse ?? response?.common_use ?? response?.commonUse ?? [];
+        if (!Array.isArray(commonUse)) {
+          setCommonUseRows([]);
+          return;
+        }
+        setCommonUseRows(
+          commonUse.map((row: any) => ({
+            workout: String(row?.workout ?? row?.name ?? row?.title ?? "—"),
+            usage: Number(row?.usage ?? row?.usage_count ?? row?.count ?? 0),
+            completion: Number(row?.completion ?? row?.completion_rate ?? row?.completion_percent ?? 0),
+          })),
+        );
+      })
+      .catch((error) => {
+        console.error("Failed to load equipment detail metrics:", error);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [item.id, item.totalUnits, item.frequency]);
 
   useEffect(() => {
     if (!open) return;
@@ -291,11 +354,11 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
             <div className={[styles.statCard, styles.statCardTotal].join(" ")}>
               <div className={styles.statLabel}>Total Units</div>
               <div className={styles.statTotalBottom}>
-                <div className={styles.statValue}>{totalUnits}</div>
+                <div className={styles.statValue}>{metrics.totalUnits}</div>
                 <div className={styles.statPills}>
-                  <span className={styles.pillAvail}>Available: {available}</span>
+                  <span className={styles.pillAvail}>Available: {metrics.available}</span>
                   <span className={styles.pillOos}>
-                    Out of Service {outOfService}
+                    Out of Service {metrics.outOfService}
                   </span>
                 </div>
               </div>
@@ -304,25 +367,25 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
             <div className={styles.statGrid2}>
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>Usage rate</div>
-                <div className={styles.statValue}>{usageRate}%</div>
+                <div className={styles.statValue}>{metrics.usageRate}%</div>
                 <div className={styles.statTrendBelow}>↑ 14% this week</div>
               </div>
 
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>Downtime</div>
                 <div className={styles.statValue}>
-                  {downtimeHours}h
+                  {metrics.downtimeHours}h
                 </div>
               </div>
 
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>Unique Members</div>
-                <div className={styles.statValue}>{uniqueMembers}</div>
+                <div className={styles.statValue}>{metrics.uniqueMembers}</div>
               </div>
 
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>Frequency</div>
-                <div className={styles.statValue}>{item.frequency}</div>
+                <div className={styles.statValue}>{metrics.frequency}</div>
               </div>
             </div>
           </div>
@@ -335,13 +398,20 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
               <span className={styles.commonHeadNum}>COMPLETION</span>
             </div>
             <div className={styles.commonList} role="list">
-              {COMMON_USE.map((row) => (
+              {commonUseRows.map((row) => (
                 <div key={row.workout} className={styles.commonBar} role="listitem">
                   <span className={styles.commonWorkout}>{row.workout}</span>
                   <span className={styles.commonUsage}>{row.usage}</span>
                   <span className={styles.commonCompletion}>{row.completion}%</span>
                 </div>
               ))}
+              {commonUseRows.length === 0 ? (
+                <div className={styles.commonBar} role="listitem">
+                  <span className={styles.commonWorkout}>No common use data.</span>
+                  <span className={styles.commonUsage}>0</span>
+                  <span className={styles.commonCompletion}>0%</span>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
