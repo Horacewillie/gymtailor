@@ -28,7 +28,7 @@ type EquipmentDetailMetrics = {
   outOfService: number;
   usageRate: number;
   uniqueMembers: number;
-  downtimeHours: number;
+  downtime: number;
   frequency: number;
 };
 
@@ -201,7 +201,7 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
     outOfService: 0,
     usageRate: 0,
     uniqueMembers: 0,
-    downtimeHours: 0,
+    downtime: 0,
     frequency: item.frequency,
   });
   const [commonUseRows, setCommonUseRows] = useState<CommonUseRow[]>([]);
@@ -265,9 +265,9 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
         const safeAvailable = Number.isFinite(availableFromApi)
           ? availableFromApi
           : Math.max(0, safeTotalUnits - safeOutOfService);
-        const usageRateFromApi = Number(detail?.usage_rate ?? detail?.usageRate);
+        const usageRateFromApi = Number(detail?.usage_rate);
         const uniqueMembersFromApi = Number(detail?.unique_members ?? detail?.uniqueMembers);
-        const downtimeFromApi = Number(detail?.downtime_hours ?? detail?.downtimeHours ?? detail?.downtime);
+        const downtimeFromApi = Number(detail?.downtime);
         const frequencyFromApi = Number(detail?.frequency);
 
         setMetrics({
@@ -276,7 +276,7 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
           outOfService: safeOutOfService,
           usageRate: Number.isFinite(usageRateFromApi) ? usageRateFromApi : 0,
           uniqueMembers: Number.isFinite(uniqueMembersFromApi) ? uniqueMembersFromApi : 0,
-          downtimeHours: Number.isFinite(downtimeFromApi) ? downtimeFromApi : 0,
+          downtime: Number.isFinite(downtimeFromApi) ? downtimeFromApi : 0,
           frequency: Number.isFinite(frequencyFromApi) ? frequencyFromApi : item.frequency,
         });
 
@@ -373,9 +373,7 @@ export function EquipmentDetailPanel({ item, open, onBack, onAddUnit, onExitAnim
 
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>Downtime</div>
-                <div className={styles.statValue}>
-                  {metrics.downtimeHours}h
-                </div>
+                <div className={styles.statValue}>{metrics.downtime}%</div>
               </div>
 
               <div className={styles.statCard}>
