@@ -12,6 +12,8 @@ import { OnboardingLoadingPage } from "../pages/onboarding-loading/OnboardingLoa
 import { EquipmentPage } from "../pages/equipment/EquipmentPage";
 import { MagicLoginPage } from "../pages/magic-login/MagicLoginPage";
 import { MultiFactorPage } from "../pages/multi-factor/MultiFactorPage";
+import { MembersPage } from "../pages/members/MembersPage";
+import { MemberDetailsPage } from "../pages/members/MemberDetailsPage";
 
 /**
  * App-level error boundary used during UI build-out.
@@ -55,7 +57,7 @@ class AppErrorBoundary extends React.Component<
           {String(this.state.error?.message || this.state.error)}
         </pre>
         <p style={{ marginTop: 10, color: "rgba(31, 39, 50, 0.65)" }}>
-          Copy the error text above and send it to me.
+          Copy the error text above and send it to Horace.
         </p>
       </div>
     );
@@ -76,13 +78,9 @@ export function App() {
           <Route path="/dashboard/equipment/:equipmentId" element={<EquipmentPage />} />
           <Route
             path="/dashboard/members"
-            element={
-              <DashboardPlaceholderPage
-                title="Members"
-                description="Members management is being prepared and will be available soon."
-              />
-            }
+            element={<MembersPage />}
           />
+          <Route path="/dashboard/members/:id" element={<MemberDetailsPage />} />
           <Route
             path="/dashboard/report"
             element={
