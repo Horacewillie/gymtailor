@@ -14,6 +14,12 @@ import { MagicLoginPage } from "../pages/magic-login/MagicLoginPage";
 import { MultiFactorPage } from "../pages/multi-factor/MultiFactorPage";
 import { MembersPage } from "../pages/members/MembersPage";
 import { MemberDetailsPage } from "../pages/members/MemberDetailsPage";
+import { MemberOnboardingWelcomePage } from "../pages/member-onboarding/MemberOnboardingWelcomePage";
+import { MemberOnboardingGymPage } from "../pages/member-onboarding/MemberOnboardingGymPage";
+import { MemberOnboardingConfirmPage } from "../pages/member-onboarding/MemberOnboardingConfirmPage";
+import { MemberOnboardingSentPage } from "../pages/member-onboarding/MemberOnboardingSentPage";
+import { MemberOnboardingTrainingIntroPage } from "../pages/member-onboarding/MemberOnboardingTrainingIntroPage";
+import { MemberOnboardingSetupPage } from "../pages/member-onboarding/MemberOnboardingSetupPage";
 
 /**
  * App-level error boundary used during UI build-out.
@@ -111,6 +117,25 @@ export function App() {
           <Route path="/onboarding/magic-login" element={<Navigate to="/onboarding/request-magic-link" replace />} />
           <Route path="/magic-login" element={<MultiFactorPage />} />
           <Route path="/onboarding/multi-factor" element={<MultiFactorPage />} />
+
+          {/* Member / end-user app (mobile-first); does not overlap admin `/dashboard` routes. */}
+          <Route path="/member" element={<MemberOnboardingWelcomePage />} />
+          <Route path="/member/onboarding/gym" element={<MemberOnboardingGymPage />} />
+          <Route path="/member/onboarding/confirm" element={<MemberOnboardingConfirmPage />} />
+          <Route path="/member/onboarding/sent" element={<MemberOnboardingSentPage />} />
+          <Route
+            path="/member/onboarding/training-intro"
+            element={<MemberOnboardingTrainingIntroPage />}
+          />
+          <Route
+            path="/member/onboarding/setup"
+            element={<Navigate to="/member/onboarding/setup/1" replace />}
+          />
+          <Route path="/member/onboarding/setup/:step" element={<MemberOnboardingSetupPage />} />
+          <Route
+            path="/member/onboarding/step-2"
+            element={<Navigate to="/member/onboarding/confirm" replace />}
+          />
         </Routes>
       </AppErrorBoundary>
     </div>

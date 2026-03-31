@@ -2,6 +2,7 @@
 
 export const API_BASE_URL = "http://localhost:8080";
 
+// Api class for making HTTP requests to the backend
 export default class Api {
   private baseUrl: string;
 
@@ -26,6 +27,7 @@ export default class Api {
     };
   }
 
+  // GET request to get CSRF cookie
   async csrfCookie(endpoint: string = '/sanctum/csrf-cookie'): Promise<void> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'GET',
@@ -39,6 +41,7 @@ export default class Api {
     }
   }
 
+  // GET request
   async get<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
@@ -56,6 +59,7 @@ export default class Api {
     return response.json();
   }
 
+  // POST request with JSON data
   async post<T>(endpoint: string, data: any, options: RequestInit = {}): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
@@ -76,6 +80,7 @@ export default class Api {
     return response.json();
   }
 
+  // POST request with FormData
   async postFormData<T>(endpoint: string, data: FormData, options: RequestInit = {}): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
@@ -95,6 +100,7 @@ export default class Api {
     return response.json();
   }
 
+  // DELETE request
   async delete<T = void>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
@@ -118,6 +124,7 @@ export default class Api {
     return (text ? JSON.parse(text) : undefined) as T;
   }
 
+  // PATCH request with JSON data
   async patch<T>(endpoint: string, data: any, options: RequestInit = {}): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,

@@ -1,0 +1,43 @@
+.root {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #000000;
+  transition: filter 0.15s ease, transform 0.12s ease;
+}
+
+.root:hover {
+  filter: brightness(0.97);
+}
+
+.root:active {
+  transform: scale(0.96);
+}
+
+.root:disabled {
+  background: #3a3a3e;
+  color: rgba(255, 255, 255, 0.32);
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+  opacity: 1;
+}
+
+.root:disabled:hover,
+.root:disabled:active {
+  filter: none;
+  transform: none;
+}
+
+.arrow {
+  width: 20px;
+  height: 20px;
+}

@@ -1,0 +1,55 @@
+.root {
+  margin: 0;
+}
+
+.rootAlignCenter {
+  text-align: center;
+}
+
+.rootAlignEnd {
+  text-align: right;
+}
+
+.compact {
+  /* used with .root for tighter header typography */
+}
+
+.muted {
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.root.compact .muted {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.root.compact .link {
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: 0.05em;
+}
+
+.link {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: "Geist Mono", "DM Mono", ui-monospace, monospace;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  color: var(--member-mint, #45f5a5);
+}

@@ -1,0 +1,141 @@
+.shell {
+  --member-mint: #45f5a5;
+
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--member-vv-offset, 0px);
+  width: 100%;
+  max-width: 100vw;
+  height: var(--member-vv-height, 100dvh);
+  max-height: var(--member-vv-height, 100dvh);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #0a0b10;
+  color: #ffffff;
+}
+
+.safe {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  padding-top: max(8px, env(safe-area-inset-top));
+  padding-right: max(14px, env(safe-area-inset-right));
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  padding-left: max(14px, env(safe-area-inset-left));
+}
+
+.topBar {
+  flex-shrink: 0;
+  width: 100%;
+  margin-top: clamp(6px, 1.8vw, 12px);
+}
+
+.centerColumn {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  justify-content: safe center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+.centerInner {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+
+.main {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.preTitle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: clamp(18px, 4vh, 28px);
+}
+
+.title {
+  margin: 0;
+  font-family: "Loubag", Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 36px;
+  line-height: 48px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: #ffffff;
+  leading-trim: none;
+}
+
+.lead {
+  margin: 14px 0 0;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.006em;
+  text-align: center;
+  leading-trim: none;
+  color: rgba(255, 255, 255, 0.62);
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.field {
+  margin-top: 24px;
+  width: 100%;
+}
+
+.bottom {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding-top: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ctaRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 10px;
+}
+
+.domainPill {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 12, 12, 0.82);
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  text-transform: lowercase;
+}
