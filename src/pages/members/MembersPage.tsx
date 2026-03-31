@@ -4,6 +4,7 @@ import { Button } from "../../components/button/Button";
 import { Modal } from "../../components/modal/Modal";
 import { SuccessModal } from "../../components/success-modal/SuccessModal";
 import { DashboardShell } from "../../components/dashboard-shell/DashboardShell";
+import { getTenantBranches, inviteMember } from "../../services/dashboardService";
 import styles from "./MembersPage.module.css";
 
 type MemberStatus = "ACTIVE" | "NEW" | "INACTIVE";
@@ -289,6 +290,8 @@ export function MembersPage() {
   });
   const [emailTouched, setEmailTouched] = useState(false);
   const [addSuccessOpen, setAddSuccessOpen] = useState(false);
+  const [isInvitingMember, setIsInvitingMember] = useState(false);
+  const [branchOptions, setBranchOptions] = useState<Array<{ id: string; name: string }>>([]);
 
   const isEmailValid = EMAIL_REGEX.test(memberDraft.email);
   const showEmailError = emailTouched && memberDraft.email.length > 0 && !isEmailValid;
@@ -298,6 +301,22 @@ export function MembersPage() {
     EMAIL_REGEX.test(memberDraft.email) &&
     memberDraft.phone.trim().length > 0 &&
     memberDraft.branch.length > 0;
+
+  useEffect(() => {
+    let mounted = true;
+    void getTenantBranches()
+      .then((branches) => {
+        if (!mounted) return;
+        setBranchOptions(branches);
+      })
+      .catch((error) => {
+        console.error("Failed to load branch options:", error);
+        if (mounted) setBranchOptions([]);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const addMenuOptions = useMemo(() => {
     return [
@@ -437,17 +456,26 @@ export function MembersPage() {
                     pill
                     fullWidth
                     size="sm"
-                    disabled={!canAddMember}
+                    disabled={!canAddMember || isInvitingMember}
                     onClick={() => {
-                      if (!canAddMember) return;
-                      // Form submission placeholder
-                      setAddManualModalOpen(false);
-                      setMemberDraft({ name: "", email: "", phone: "", branch: "" });
-                      setEmailTouched(false);
-                      setAddSuccessOpen(true);
+                      if (!canAddMember || isInvitingMember) return;
+                      void (async () => {
+                        setIsInvitingMember(true);
+                        try {
+                          await inviteMember(memberDraft.email.trim());
+                          setAddManualModalOpen(false);
+                          setMemberDraft({ name: "", email: "", phone: "", branch: "" });
+                          setEmailTouched(false);
+                          setAddSuccessOpen(true);
+                        } catch (error) {
+                          console.error("Failed to invite member:", error);
+                        } finally {
+                          setIsInvitingMember(false);
+                        }
+                      })();
                     }}
                   >
-                    ADD MEMBER
+                    {isInvitingMember ? "ADDING..." : "ADD MEMBER"}
                   </Button>
                 </>
               }
@@ -500,8 +528,11 @@ export function MembersPage() {
                   <option value="" disabled>
                     Select branch
                   </option>
-                  <option value="downtown">Downtown Gym</option>
-                  <option value="uptown">Uptown Fitness</option>
+                  {branchOptions.map((branch) => (
+                    <option key={branch.id} value={branch.name}>
+                      {branch.name}
+                    </option>
+                  ))}
                 </select>
 
                 <div className={styles.infoAlert}>

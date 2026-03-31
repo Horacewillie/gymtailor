@@ -47,3 +47,11 @@ export async function getTenantBranches(): Promise<TenantBranch[]> {
     }))
     .filter((row) => row.name.length > 0);
 }
+
+export async function inviteMember(recipientEmail: string): Promise<unknown> {
+  return apiClient.post(
+    "/api/invite-member",
+    { recipient_email: recipientEmail },
+    { headers: getAuthHeaders() },
+  );
+}
