@@ -134,18 +134,33 @@
 }
 
 .branchPill {
-  height: 30px;
+  height: 32px;
   border-radius: 999px;
-  padding: 0 10px;
+  padding: 0 8px 0 10px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(31, 39, 50, 0.08);
   color: rgba(15, 24, 34, 0.85);
   font-size: 0.64rem;
   font-weight: 600;
   font-family: Onest, Inter, system-ui, sans-serif;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
+}
+
+.branchPill:hover {
+  border-color: rgba(31, 39, 50, 0.16);
+  background: #ffffff;
+}
+
+.branchPill:focus-within {
+  border-color: rgba(56, 247, 161, 0.9);
+  box-shadow: 0 0 0 2px rgba(56, 247, 161, 0.18);
+  background: #ffffff;
 }
 
 .branchSelect {
@@ -159,7 +174,11 @@
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
+  -moz-appearance: none;
   padding-right: 2px;
+  min-width: 128px;
+  max-width: 220px;
+  line-height: 1.2;
 }
 
 .branchDot {
@@ -174,6 +193,7 @@
   height: 14px;
   display: inline-block;
   position: relative;
+  pointer-events: none;
 }
 
 .branchChev::after {
