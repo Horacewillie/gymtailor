@@ -612,7 +612,6 @@ export function MembersPage() {
                     <option value="month">This month</option>
                   </select>
                 </div>
-                <MemberActivityChart />
               </div>
               <div className={styles.chartCard}>
                 <div className={styles.chartCardTop}>
