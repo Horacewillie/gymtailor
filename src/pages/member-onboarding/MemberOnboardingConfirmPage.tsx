@@ -10,14 +10,16 @@ import stepStyles from "./MemberOnboardingStepLayout.module.css";
  */
 type ConfirmLocationState = { email?: string };
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function MemberOnboardingConfirmPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const prefilled = (state as ConfirmLocationState | null)?.email ?? "";
   const [email, setEmail] = useState(prefilled);
 
-  /* Match gym step: enable CTAs as soon as the field has any input */
-  const canSubmit = useMemo(() => email.trim().length > 0, [email]);
+  /* Match gym step: enable CTAs as soon as the field has a valid email */
+  const canSubmit = useMemo(() => EMAIL_REGEX.test(email.trim()), [email]);
 
   const goBack = useCallback(() => {
     navigate("/member/onboarding/gym");
