@@ -1,0 +1,170 @@
+.mailboxIcon {
+  width: clamp(44px, 14vw, 56px);
+  height: auto;
+  aspect-ratio: 44 / 43;
+  display: block;
+}
+
+.leadEmail {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.resendRow {
+  display: block;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.resendMuted {
+  font: inherit;
+  color: inherit;
+}
+
+.resendLink {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: "Geist Mono", "DM Mono", ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  color: var(--member-mint, #45f5a5);
+}
+
+.mailSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.continueToSetup {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.25);
+  text-underline-offset: 4px;
+}
+
+.continueToSetup:hover {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.mailAppLabel {
+  margin: 0;
+  font-family: "Geist Mono", "DM Mono", ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.mailButtonsRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  max-width: 268px;
+}
+
+.mailAppButton {
+  flex: 0 1 auto;
+  min-width: 0;
+  width: min(124px, 42vw);
+  max-width: 124px;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 52px;
+  padding: 8px 10px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  cursor: pointer;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 42%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  backdrop-filter: blur(22px) saturate(165%);
+  -webkit-backdrop-filter: blur(22px) saturate(165%);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+  transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mailAppButton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(120% 80% at 30% 0%, rgba(255, 255, 255, 0.14), transparent 55%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.mailAppButton:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 10px 36px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.mailAppButton:active {
+  transform: scale(0.98);
+}
+
+.mailAppButtonLabel {
+  font-family: "Geist Mono", "DM Mono", ui-monospace, monospace;
+  font-weight: 600;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  leading-trim: none;
+  white-space: nowrap;
+}
+
+.mailIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: block;
+}

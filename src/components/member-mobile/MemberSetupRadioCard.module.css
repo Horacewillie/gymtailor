@@ -1,0 +1,87 @@
+.card {
+  margin: 0;
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid #2a2e36;
+  background: rgba(15, 17, 23, 0.6);
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  box-sizing: border-box;
+  text-align: left;
+  transition: border-color 0.12s ease;
+}
+
+.card:hover {
+  border-color: rgba(65, 255, 167, 0.25);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--member-mint, #41ffa7);
+  outline-offset: 2px;
+}
+
+.cardSelected {
+  border-color: var(--member-mint, #41ffa7);
+}
+
+.radioOuter {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid #5c626e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.radioOuterSelected {
+  border-color: var(--member-mint, #41ffa7);
+  background: var(--member-mint, #41ffa7);
+}
+
+.radioInner {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #0f1117;
+}
+
+.textBlock {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+.subtitle {
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: -0.006em;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}

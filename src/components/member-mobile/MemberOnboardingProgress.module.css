@@ -1,0 +1,24 @@
+.track {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #2a2e36;
+}
+
+.pill {
+  flex-shrink: 0;
+  width: 28px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--member-mint, #41ffa7);
+}
