@@ -131,6 +131,7 @@ const DEFAULT_GYM_CATEGORIES = [
 ];
 
 const INITIAL_EQUIPMENT_ITEMS: EquipmentItem[] = [];
+const EQUIPMENT_CACHE_KEY = "equipment_table_cache_v1";
 
 /**
  * Equipment dashboard route (`/dashboard/equipment`).
@@ -143,7 +144,26 @@ const INITIAL_EQUIPMENT_ITEMS: EquipmentItem[] = [];
 export function EquipmentPage() {
   const navigate = useNavigate();
   const { equipmentId } = useParams<{ equipmentId?: string }>();
-  const [items, setItems] = useState<EquipmentItem[]>(INITIAL_EQUIPMENT_ITEMS);
+  const [items, setItems] = useState<EquipmentItem[]>(() => {
+    try {
+      const raw = localStorage.getItem(EQUIPMENT_CACHE_KEY);
+      if (!raw) return INITIAL_EQUIPMENT_ITEMS;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return INITIAL_EQUIPMENT_ITEMS;
+      return parsed.map((row: any) => ({
+        id: String(row?.id ?? ""),
+        name: String(row?.name ?? ""),
+        addedOn: new Date(String(row?.addedOn ?? "")),
+        category: String(row?.category ?? ""),
+        status: (row?.status === "Unavailable" ? "Unavailable" : "Available") as EquipmentStatus,
+        totalUnits: Number(row?.totalUnits ?? 0),
+        frequency: Number(row?.frequency ?? 0),
+      }));
+    } catch {
+      return INITIAL_EQUIPMENT_ITEMS;
+    }
+  });
+  const [equipmentLoading, setEquipmentLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"All" | EquipmentStatus>("All");
   const [category, setCategory] = useState<"All" | string>("All");
@@ -291,20 +311,29 @@ export function EquipmentPage() {
 
   useEffect(() => {
     let mounted = true;
+    if (items.length === 0) setEquipmentLoading(true);
     void getTenantEquipmentList()
       .then((loadedItems) => {
         if (!mounted) return;
         setItems(loadedItems);
+        localStorage.setItem(EQUIPMENT_CACHE_KEY, JSON.stringify(loadedItems));
         setPage(1);
       })
       .catch((error) => {
         console.error("Failed to load equipment list:", error);
+      })
+      .finally(() => {
+        if (mounted) setEquipmentLoading(false);
       });
 
     return () => {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(EQUIPMENT_CACHE_KEY, JSON.stringify(items));
+  }, [items]);
 
   const toggleAll = (next: boolean) => {
     setChecked((prev) => {
@@ -1084,15 +1113,15 @@ export function EquipmentPage() {
             <section className={styles.stats} aria-label="Equipment overview">
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>Total Equipment</div>
-                <div className={styles.statValue}>{total}</div>
+                <div className={styles.statValue}>{equipmentLoading && items.length === 0 ? "—" : total}</div>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>Available</div>
-                <div className={styles.statValue}>{availableCount}</div>
+                <div className={styles.statValue}>{equipmentLoading && items.length === 0 ? "—" : availableCount}</div>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statLabel}>Unavailable</div>
-                <div className={styles.statValue}>{unavailableCount}</div>
+                <div className={styles.statValue}>{equipmentLoading && items.length === 0 ? "—" : unavailableCount}</div>
               </div>
             </section>
 
@@ -1247,7 +1276,7 @@ export function EquipmentPage() {
                   {pageRows.length === 0 ? (
                     <tr>
                       <td colSpan={8} style={{ padding: 16, color: "rgba(31,39,50,0.55)" }}>
-                        No equipment matches your filters.
+                        {equipmentLoading ? "Loading equipment..." : "No equipment matches your filters."}
                       </td>
                     </tr>
                   ) : null}

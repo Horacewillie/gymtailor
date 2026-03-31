@@ -20,6 +20,7 @@ type MemberRow = {
 };
 
 type TabFilter = "ALL" | "ACTIVE" | "INACTIVE" | "NEW";
+const MEMBERS_CACHE_KEY = "members_table_cache_v1";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -255,7 +256,18 @@ export function MembersPage() {
   const [addSuccessOpen, setAddSuccessOpen] = useState(false);
   const [isInvitingMember, setIsInvitingMember] = useState(false);
   const [branchOptions, setBranchOptions] = useState<Array<{ id: string; name: string }>>([]);
-  const [members, setMembers] = useState<MemberRow[]>([]);
+  const [members, setMembers] = useState<MemberRow[]>(() => {
+    try {
+      const raw = localStorage.getItem(MEMBERS_CACHE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return parsed as MemberRow[];
+    } catch {
+      return [];
+    }
+  });
+  const [membersLoading, setMembersLoading] = useState(false);
 
   const isEmailValid = EMAIL_REGEX.test(memberDraft.email);
   const showEmailError = emailTouched && memberDraft.email.length > 0 && !isEmailValid;
@@ -282,11 +294,11 @@ export function MembersPage() {
     };
   }, []);
 
-  const refreshMembers = () => {
+  const refreshMembers = (showLoading = members.length === 0) => {
+    if (showLoading) setMembersLoading(true);
     void getTenantMembers()
       .then((rows) => {
-        setMembers(
-          rows.map((row, idx) => ({
+        const mapped = rows.map((row, idx) => ({
             id: row.id || `member-${idx + 1}`,
             name: row.name || "—",
             phone: row.phone || "—",
@@ -294,16 +306,20 @@ export function MembersPage() {
             status: mapApiStatus(row.invitation_status),
             lastActive: formatApiDate(row.last_active ?? row.updated_at),
             addOn: formatApiDate(row.created_at),
-          })),
-        );
+          }));
+        setMembers(mapped);
+        localStorage.setItem(MEMBERS_CACHE_KEY, JSON.stringify(mapped));
       })
       .catch((error) => {
         console.error("Failed to load tenant members:", error);
+      })
+      .finally(() => {
+        setMembersLoading(false);
       });
   };
 
   useEffect(() => {
-    refreshMembers();
+    refreshMembers(members.length === 0);
   }, []);
 
   const addMenuOptions = useMemo(() => {
@@ -548,7 +564,9 @@ export function MembersPage() {
                     <IconInfo />
                   </span>
                 </div>
-                <div className={styles.statValue}>{stats.total.toLocaleString()}</div>
+                <div className={styles.statValue}>
+                  {membersLoading && members.length === 0 ? "—" : stats.total.toLocaleString()}
+                </div>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statCardHead}>
@@ -557,7 +575,9 @@ export function MembersPage() {
                     <IconInfo />
                   </span>
                 </div>
-                <div className={styles.statValue}>{stats.active.toLocaleString()}</div>
+                <div className={styles.statValue}>
+                  {membersLoading && members.length === 0 ? "—" : stats.active.toLocaleString()}
+                </div>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statCardHead}>
@@ -566,7 +586,9 @@ export function MembersPage() {
                     <IconInfo />
                   </span>
                 </div>
-                <div className={styles.statValue}>{stats.inactive.toLocaleString()}</div>
+                <div className={styles.statValue}>
+                  {membersLoading && members.length === 0 ? "—" : stats.inactive.toLocaleString()}
+                </div>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statCardHead}>
@@ -575,7 +597,9 @@ export function MembersPage() {
                     <IconInfo />
                   </span>
                 </div>
-                <div className={styles.statValue}>{stats.pending.toLocaleString()}</div>
+                <div className={styles.statValue}>
+                  {membersLoading && members.length === 0 ? "—" : stats.pending.toLocaleString()}
+                </div>
               </div>
             </section>
 
@@ -723,6 +747,13 @@ export function MembersPage() {
                       </td>
                     </tr>
                   ))}
+                  {pageRows.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} style={{ padding: 16, color: "rgba(31,39,50,0.55)" }}>
+                        {membersLoading ? "Loading members..." : "No members found."}
+                      </td>
+                    </tr>
+                  ) : null}
                 </tbody>
               </table>
 
