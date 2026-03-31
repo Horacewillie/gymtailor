@@ -1,0 +1,28 @@
+.back {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 4px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.back:focus-visible {
+  outline: 2px solid var(--member-mint, #41ffa7);
+  outline-offset: 2px;
+}
+
+.backIcon {
+  width: 26px;
+  height: 20px;
+  display: block;
+}

@@ -1,0 +1,270 @@
+.header {
+  height: 64px;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(31, 39, 50, 0.12);
+  background: linear-gradient(180deg, rgba(224, 250, 236, 0.95) -104.29%, rgba(224, 250, 236, 0) 100%);
+}
+
+.header[data-variant="auth"] {
+  border-top-color: rgba(31, 39, 50, 0.12);
+}
+
+.header[data-variant="dashboard"] {
+  border-top-color: rgba(31, 39, 50, 0.12);
+}
+
+.brand {
+  font-size: 0.68rem;
+  letter-spacing: 0.36em;
+  text-decoration: none;
+  color: rgba(31, 39, 50, 0.88);
+  font-weight: 700;
+}
+
+.accountText {
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #0e121b;
+}
+
+.signInLink {
+  margin-left: 0.25rem;
+  color: #0e121b;
+  letter-spacing: 0.18em;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(14, 18, 27, 0.35);
+  padding-bottom: 0.05rem;
+}
+
+.signInLink:hover {
+  color: #2b9f69;
+  border-bottom-color: #2b9f69;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #38f7a1;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: rgba(19, 29, 25, 0.85);
+}
+
+/* Dashboard navbar variant (brand left, tabs centered, controls right) */
+.header[data-variant="dashboardNav"] {
+  padding: 0;
+}
+
+.dashboardNav {
+  height: 64px;
+  width: 100%;
+  padding: 0 28px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+.dashboardLeft {
+  justify-self: start;
+  display: flex;
+  align-items: center;
+}
+
+.tabs {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tab,
+.tabActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-size: 0.66rem;
+  color: rgba(31, 39, 50, 0.62);
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 500;
+  padding: 8px 10px;
+  border-radius: 999px;
+}
+
+.tabActive {
+  background: #fff;
+  color: rgba(15, 24, 34, 0.86);
+  border: 1px solid rgba(31, 39, 50, 0.08);
+}
+
+.tabIcon {
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  color: rgba(31, 39, 50, 0.55);
+}
+
+.dashboardRight {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pillIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(31, 39, 50, 0.08);
+  color: rgba(31, 39, 50, 0.65);
+}
+
+.branchWrap {
+  position: relative;
+}
+
+.branchPill {
+  height: 32px;
+  border-radius: 999px;
+  padding: 0 8px 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 170px;
+  max-width: 240px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(31, 39, 50, 0.1);
+  color: rgba(15, 24, 34, 0.9);
+  font-size: 0.64rem;
+  font-weight: 600;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
+}
+
+.branchPill:hover {
+  border-color: rgba(31, 39, 50, 0.22);
+  background: #ffffff;
+}
+
+.branchPill:focus-visible {
+  outline: none;
+  border-color: rgba(56, 247, 161, 0.95);
+  box-shadow: 0 0 0 2px rgba(56, 247, 161, 0.2);
+}
+
+.branchValue {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.branchDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(15, 24, 34, 0.92);
+}
+
+.branchChev {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  position: relative;
+  pointer-events: none;
+}
+
+.branchChev::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid rgba(31, 39, 50, 0.55);
+  border-bottom: 2px solid rgba(31, 39, 50, 0.55);
+  transform: translate(-50%, -55%) rotate(45deg);
+}
+
+.branchMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  max-width: 280px;
+  background: #ffffff;
+  border: 1px solid rgba(31, 39, 50, 0.1);
+  border-radius: 12px;
+  box-shadow:
+    0 10px 30px rgba(17, 25, 37, 0.18),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  padding: 6px;
+  z-index: 20;
+}
+
+.branchOption {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  padding: 8px 10px;
+  text-align: left;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(15, 24, 34, 0.88);
+  cursor: pointer;
+}
+
+.branchOption:hover {
+  background: rgba(31, 39, 50, 0.05);
+}
+
+.branchOptionActive {
+  background: rgba(56, 247, 161, 0.2);
+  color: rgba(15, 24, 34, 0.95);
+  font-weight: 600;
+}
+
+.avatarSmall {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #38f7a1;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: rgba(19, 29, 25, 0.85);
+}
+
+@media (max-width: 980px) {
+  .dashboardNav {
+    padding: 0 16px;
+  }
+
+  .tabs {
+    display: none;
+  }
+}

@@ -1,0 +1,119 @@
+.page {
+  min-height: 100vh;
+  background: #fff;
+  color: #1f2732;
+}
+
+.main {
+  min-height: calc(100vh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 34px 24px 48px;
+}
+
+.intro {
+  width: min(430px, 100%);
+  margin-bottom: -4px;
+}
+
+.card {
+  width: min(390px, 100%);
+  background: #ffffff;
+  border: 1px solid rgba(31, 39, 50, 0.08);
+  border-radius: 18px;
+  padding: 18px 22px 22px;
+  box-shadow: 0 24px 56px rgba(17, 25, 37, 0.06);
+}
+
+.title {
+  margin: 0;
+  text-align: center;
+  font-family: "Loubag", Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  font-size: clamp(2rem, 3.2vw, 2.7rem);
+  line-height: 0.95;
+  color: rgba(15, 24, 34, 0.9);
+}
+
+.subtitle {
+  margin: 10px auto 0;
+  max-width: 430px;
+  text-align: center;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: rgba(31, 39, 50, 0.6);
+}
+
+.otpRow {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.otpItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.otpDivider {
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(31, 39, 50, 0.62);
+  line-height: 1;
+}
+
+.otpInput {
+  width: 40px;
+  height: 36px;
+  border: 1px solid rgba(31, 39, 50, 0.2);
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: center;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.8rem;
+  color: rgba(15, 24, 34, 0.9);
+  outline: none;
+}
+
+.otpInput:focus {
+  border-color: rgba(56, 247, 161, 0.85);
+  box-shadow: 0 0 0 3px rgba(56, 247, 161, 0.16);
+}
+
+.error {
+  margin: 10px 0 0;
+  text-align: center;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.66rem;
+  color: #b42318;
+}
+
+.ctaWrap {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.cta {
+  width: min(320px, 100%) !important;
+}
+
+@media (max-width: 640px) {
+  .intro {
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  .card {
+    padding: 26px 18px 22px;
+  }
+}
