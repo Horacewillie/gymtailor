@@ -21,10 +21,6 @@ type MemberRow = {
 
 type TabFilter = "ALL" | "ACTIVE" | "INACTIVE" | "NEW";
 
-const STAT_TOTAL = 1834;
-const STAT_ACTIVE = 1734;
-const STAT_INACTIVE = 100;
-const STAT_NEW = 34;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function IconPlus(props: { className?: string }) {
@@ -232,6 +228,7 @@ function formatApiDate(value: string | undefined): string {
 function mapApiStatus(raw: string | undefined): MemberStatus {
   const normalized = String(raw ?? "").trim().toLowerCase();
   if (normalized === "accepted") return "ACTIVE";
+  if (normalized === "cancelled") return "INACTIVE";
   if (normalized === "pending") return "NEW";
   return "NEW";
 }
@@ -367,6 +364,14 @@ export function MembersPage() {
     }
     return rows;
   }, [members, tab, query, statusSelect, lastActiveFilter]);
+
+  const stats = useMemo(() => {
+    const total = members.length;
+    const active = members.filter((m) => m.status === "ACTIVE").length;
+    const inactive = members.filter((m) => m.status === "INACTIVE").length;
+    const pending = members.filter((m) => m.status === "NEW").length;
+    return { total, active, inactive, pending };
+  }, [members]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
   const safePage = Math.min(page, totalPages);
@@ -543,7 +548,7 @@ export function MembersPage() {
                     <IconInfo />
                   </span>
                 </div>
-                <div className={styles.statValue}>{STAT_TOTAL.toLocaleString()}</div>
+                <div className={styles.statValue}>{stats.total.toLocaleString()}</div>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statCardHead}>
@@ -552,7 +557,7 @@ export function MembersPage() {
                     <IconInfo />
                   </span>
                 </div>
-                <div className={styles.statValue}>{STAT_ACTIVE.toLocaleString()}</div>
+                <div className={styles.statValue}>{stats.active.toLocaleString()}</div>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statCardHead}>
@@ -561,7 +566,7 @@ export function MembersPage() {
                     <IconInfo />
                   </span>
                 </div>
-                <div className={styles.statValue}>{STAT_INACTIVE.toLocaleString()}</div>
+                <div className={styles.statValue}>{stats.inactive.toLocaleString()}</div>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statCardHead}>
@@ -570,7 +575,7 @@ export function MembersPage() {
                     <IconInfo />
                   </span>
                 </div>
-                <div className={styles.statValue}>{STAT_NEW.toLocaleString()}</div>
+                <div className={styles.statValue}>{stats.pending.toLocaleString()}</div>
               </div>
             </section>
 
