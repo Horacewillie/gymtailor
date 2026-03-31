@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { DashboardShell } from "../../components/dashboard-shell/DashboardShell";
 import { Button } from "../../components/button/Button";
@@ -10,7 +10,7 @@ import {
   SessionsOverTimeChart,
   WeightRecordChart,
 } from "../../components/member-performance-charts/MemberPerformanceCharts";
-import { MOCK_MEMBERS } from "./MembersPage";
+import { getTenantMembers } from "../../services/dashboardService";
 import imgBarbellBenchPress from "../../assets/BarbellBenchPress.png";
 import imgDeadlift from "../../assets/Deadlift.png";
 import imgBicepCurl from "../../assets/BicepCurl.png";
@@ -154,6 +154,18 @@ const SESSION_WORKOUTS: readonly WorkoutSession[] = [
 export function MemberDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [members, setMembers] = useState<
+    Array<{
+      id: string;
+      name: string;
+      email: string;
+      phone: string;
+      status: "ACTIVE" | "NEW" | "INACTIVE";
+      lastActive: string;
+      addOn: string;
+    }>
+  >([]);
+  const [membersLoading, setMembersLoading] = useState(true);
   
   // Tab state
   const [activeTab, setActiveTab] = useState<"PROFILE" | "PERFORMANCE" | "SESSION">("PROFILE");
@@ -177,7 +189,59 @@ export function MemberDetailsPage() {
     dob: ""
   });
 
-  const rawMember = MOCK_MEMBERS.find((m) => m.id === id);
+  useEffect(() => {
+    let mounted = true;
+    setMembersLoading(true);
+    void getTenantMembers()
+      .then((rows) => {
+        if (!mounted) return;
+        const mapped = rows.map((row) => {
+          const invitationStatus = String(row.invitation_status ?? "").trim().toLowerCase();
+          const status: "ACTIVE" | "NEW" | "INACTIVE" =
+            invitationStatus === "accepted"
+              ? "ACTIVE"
+              : invitationStatus === "cancelled"
+                ? "INACTIVE"
+                : "NEW";
+          const dateValue = row.created_at ? new Date(row.created_at) : null;
+          const addOn = dateValue && !Number.isNaN(dateValue.getTime())
+            ? dateValue.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+            : "—";
+          return {
+            id: row.id,
+            name: row.name || "—",
+            email: row.email || "—",
+            phone: row.phone || "—",
+            status,
+            lastActive: "—",
+            addOn,
+          };
+        });
+        setMembers(mapped);
+      })
+      .catch((error) => {
+        console.error("Failed to load members for details page:", error);
+        if (mounted) setMembers([]);
+      })
+      .finally(() => {
+        if (mounted) setMembersLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const rawMember = useMemo(() => members.find((m) => m.id === id), [members, id]);
+
+  if (membersLoading) {
+    return (
+      <div className={styles.page}>
+        <DashboardShell>
+          <div style={{ padding: 40, textAlign: "center" }}>Loading member...</div>
+        </DashboardShell>
+      </div>
+    );
+  }
 
   if (!rawMember) {
     return (
