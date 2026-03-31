@@ -8,7 +8,7 @@ import stepStyles from "./MemberOnboardingStepLayout.module.css";
  * Member onboarding — confirm identity / email for magic link.
  * Route: `/member/onboarding/confirm`.
  */
-type ConfirmLocationState = { email?: string };
+type ConfirmLocationState = { email?: string; gymName?: string };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -16,6 +16,7 @@ export function MemberOnboardingConfirmPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const prefilled = (state as ConfirmLocationState | null)?.email ?? "";
+  const gymName = (state as ConfirmLocationState | null)?.gymName ?? "";
   const [email, setEmail] = useState(prefilled);
 
   /* Match gym step: enable CTAs as soon as the field has a valid email */
@@ -27,8 +28,10 @@ export function MemberOnboardingConfirmPage() {
 
   const goNext = useCallback(() => {
     if (!canSubmit) return;
-    navigate("/member/onboarding/sent", { state: { email: email.trim() } });
-  }, [canSubmit, email, navigate]);
+    navigate("/member/onboarding/sent", {
+      state: { email: email.trim(), gymName },
+    });
+  }, [canSubmit, email, gymName, navigate]);
 
   return (
     <MemberOnboardingStepLayout

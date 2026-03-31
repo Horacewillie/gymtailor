@@ -21,7 +21,7 @@ import {
 } from "./memberOnboardingSetupData";
 import styles from "./MemberOnboardingSetupPage.module.css";
 
-type SetupLocationState = { email?: string };
+type SetupLocationState = { email?: string; gymName?: string };
 
 function LightbulbIcon({ className }: { className?: string }) {
   return (
@@ -54,6 +54,7 @@ export function MemberOnboardingSetupPage() {
   const { step } = useParams();
   const { state } = useLocation();
   const email = (state as SetupLocationState | null)?.email ?? "";
+  const gymName = (state as SetupLocationState | null)?.gymName ?? "";
 
   const stepNum = Number(step);
   const stepValid =
@@ -69,7 +70,7 @@ export function MemberOnboardingSetupPage() {
   const [workAround, setWorkAround] = useState<string[]>([]);
   const [workAroundNote, setWorkAroundNote] = useState("");
 
-  const passState = useMemo(() => ({ email }), [email]);
+  const passState = useMemo(() => ({ email, gymName }), [email, gymName]);
 
   const goBack = useCallback(() => {
     if (stepNum <= 1) {
@@ -81,7 +82,7 @@ export function MemberOnboardingSetupPage() {
 
   const goNext = useCallback(() => {
     if (stepNum >= MEMBER_SETUP_TOTAL_STEPS) {
-      navigate("/member", { state: passState });
+      navigate("/member/onboarding/plan-loading", { state: passState });
       return;
     }
     navigate(`/member/onboarding/setup/${stepNum + 1}`, { state: passState });

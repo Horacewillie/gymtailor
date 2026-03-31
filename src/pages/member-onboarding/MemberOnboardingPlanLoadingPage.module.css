@@ -1,0 +1,134 @@
+.shell {
+  --member-mint: #41ffa7;
+
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--member-vv-offset, 0px);
+  width: 100%;
+  max-width: 100vw;
+  height: var(--member-vv-height, 100dvh);
+  max-height: var(--member-vv-height, 100dvh);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #0f1117;
+  color: #ffffff;
+}
+
+.safe {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: calc(max(8px, env(safe-area-inset-top)) + 20px);
+  padding-right: max(20px, env(safe-area-inset-right));
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+  padding-left: max(20px, env(safe-area-inset-left));
+}
+
+.main {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.loaderSlot {
+  display: flex;
+  justify-content: center;
+}
+
+.title {
+  margin: 0;
+  font-family: "Loubag", Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 36px;
+  letter-spacing: 0.01em;
+  text-align: center;
+  color: #ffffff;
+  leading-trim: none;
+}
+
+.body {
+  margin: 0;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.72);
+  leading-trim: none;
+}
+
+.bodyStrong {
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.note {
+  margin: 0;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.006em;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.48);
+  leading-trim: none;
+}
+
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 16px;
+}
+
+.domainPill {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 12, 12, 0.82);
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  text-transform: lowercase;
+}

@@ -4,7 +4,7 @@ import { MemberOnboardingStepLayout } from "./MemberOnboardingStepLayout";
 import { maskEmailForDisplay } from "./maskEmailForDisplay";
 import styles from "./MemberOnboardingSentPage.module.css";
 
-type SentLocationState = { email?: string };
+type SentLocationState = { email?: string; gymName?: string };
 
 function MailboxIllustration() {
   return (
@@ -159,6 +159,7 @@ export function MemberOnboardingSentPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const email = (state as SentLocationState | null)?.email ?? "";
+  const gymName = (state as SentLocationState | null)?.gymName ?? "";
 
   const masked = useMemo(() => {
     if (!email) return null;
@@ -166,12 +167,12 @@ export function MemberOnboardingSentPage() {
   }, [email]);
 
   const goBack = useCallback(() => {
-    navigate("/member/onboarding/confirm");
-  }, [navigate]);
+    navigate("/member/onboarding/confirm", { state: { email, gymName } });
+  }, [email, gymName, navigate]);
 
   const onResend = useCallback(() => {
-    navigate("/member/onboarding/confirm", { state: { email } });
-  }, [email, navigate]);
+    navigate("/member/onboarding/confirm", { state: { email, gymName } });
+  }, [email, gymName, navigate]);
 
   const openGmail = useCallback(() => {
     window.open("https://mail.google.com/mail/", "_blank", "noopener,noreferrer");
@@ -182,8 +183,8 @@ export function MemberOnboardingSentPage() {
   }, []);
 
   const goTrainingIntro = useCallback(() => {
-    navigate("/member/onboarding/training-intro", { state: { email } });
-  }, [email, navigate]);
+    navigate("/member/onboarding/training-intro", { state: { email, gymName } });
+  }, [email, gymName, navigate]);
 
   const lead = (
     <>

@@ -20,3 +20,4 @@ export { MemberSetupRadioCard, MemberSetupRadioStack } from "./MemberSetupRadioC
 export type { MemberSetupRadioCardProps } from "./MemberSetupRadioCard";
 export { MemberSetupCheckboxCard, MemberSetupCheckboxStack } from "./MemberSetupCheckboxCard";
 export type { MemberSetupCheckboxCardProps } from "./MemberSetupCheckboxCard";
+export { MemberBarsBallLoader } from "./MemberBarsBallLoader";

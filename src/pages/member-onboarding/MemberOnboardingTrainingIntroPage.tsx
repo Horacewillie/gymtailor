@@ -5,7 +5,7 @@ import { useBindVisualViewportToElement } from "../../hooks/useBindVisualViewpor
 import { firstNameFromEmail } from "./firstNameFromEmail";
 import styles from "./MemberOnboardingTrainingIntroPage.module.css";
 
-type TrainingIntroState = { email?: string };
+type TrainingIntroState = { email?: string; gymName?: string };
 
 function CheckIcon({ className }: { className?: string }) {
   return (
@@ -38,11 +38,12 @@ export function MemberOnboardingTrainingIntroPage() {
   useBindVisualViewportToElement(shellRef);
 
   const email = (state as TrainingIntroState | null)?.email ?? "";
+  const gymName = (state as TrainingIntroState | null)?.gymName ?? "";
   const firstName = useMemo(() => (email ? firstNameFromEmail(email) : "there"), [email]);
 
   const startSetup = useCallback(() => {
-    navigate("/member/onboarding/setup/1", { state: { email } });
-  }, [email, navigate]);
+    navigate("/member/onboarding/setup/1", { state: { email, gymName } });
+  }, [email, gymName, navigate]);
 
   return (
     <div ref={shellRef} className={styles.shell}>
