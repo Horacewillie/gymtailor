@@ -148,6 +148,20 @@
   font-family: Onest, Inter, system-ui, sans-serif;
 }
 
+.branchSelect {
+  border: 0;
+  background: transparent;
+  color: rgba(15, 24, 34, 0.85);
+  font-size: 0.64rem;
+  font-weight: 600;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2px;
+}
+
 .branchDot {
   width: 14px;
   height: 14px;

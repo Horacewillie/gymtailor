@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { AuthHeader } from "../auth-header/AuthHeader";
+import { getTenantBranches } from "../../services/dashboardService";
 function DotHome() {
   return <span aria-hidden="true" style={{ display: "inline-block", width: 7, height: 7, borderRadius: 999, background: "rgba(15,24,34,0.9)" }} />;
 }
@@ -94,6 +95,23 @@ export function DashboardShell({
 }: DashboardShellProps) {
   const { pathname } = useLocation();
   const active = useMemo(() => getActiveTab(pathname), [pathname]);
+  const [branchNames, setBranchNames] = useState<string[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    void getTenantBranches()
+      .then((branches) => {
+        if (!mounted) return;
+        setBranchNames(branches.map((b) => b.name));
+      })
+      .catch((error) => {
+        console.error("Failed to load tenant branches:", error);
+        if (mounted) setBranchNames([]);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <>
@@ -101,6 +119,7 @@ export function DashboardShell({
         variant="dashboardNav"
         userInitial={userInitial}
         branchLabel={branchLabel}
+        branchOptions={branchNames}
         dashboardRightIcon={rightIcon ?? <IconGlobe />}
         dashboardTabs={[
           {

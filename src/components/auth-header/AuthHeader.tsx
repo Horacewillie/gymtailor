@@ -25,6 +25,8 @@ type AuthHeaderProps = {
   dashboardRightIcon?: React.ReactNode;
   /** Branch selector label shown in the right-side pill. */
   branchLabel?: string;
+  /** Branch selector options loaded from API. */
+  branchOptions?: string[];
 };
 
 export function AuthHeader({
@@ -35,6 +37,7 @@ export function AuthHeader({
   dashboardTabs = [],
   dashboardRightIcon,
   branchLabel = "All branches",
+  branchOptions = [],
 }: AuthHeaderProps) {
   return (
     <header className={styles.header} data-variant={variant}>
@@ -78,10 +81,16 @@ export function AuthHeader({
               </div>
             ) : null}
 
-            {/* Visual-only selector pill for the "All branches" control. */}
             <div className={styles.branchPill}>
               <span className={styles.branchDot} aria-hidden="true" />
-              <span>{branchLabel}</span>
+              <select className={styles.branchSelect} aria-label="Select branch" defaultValue="">
+                <option value="">{branchLabel}</option>
+                {branchOptions.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
               <span className={styles.branchChev} aria-hidden="true" />
             </div>
 
