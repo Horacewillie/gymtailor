@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import styles from "./AuthHeader.module.css";
 import { Link } from "react-router-dom";
 
@@ -39,6 +40,31 @@ export function AuthHeader({
   branchLabel = "All branches",
   branchOptions = [],
 }: AuthHeaderProps) {
+  const [branchOpen, setBranchOpen] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState("");
+  const branchWrapRef = useRef<HTMLDivElement | null>(null);
+  const selectedBranchLabel = selectedBranch || branchLabel;
+
+  useEffect(() => {
+    if (!branchOpen) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const el = branchWrapRef.current;
+      if (!el) return;
+      if (e.target instanceof Node && !el.contains(e.target)) {
+        setBranchOpen(false);
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setBranchOpen(false);
+    };
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [branchOpen]);
+
   return (
     <header className={styles.header} data-variant={variant}>
       {variant === "dashboardNav" ? (
@@ -81,17 +107,51 @@ export function AuthHeader({
               </div>
             ) : null}
 
-            <div className={styles.branchPill}>
-              <span className={styles.branchDot} aria-hidden="true" />
-              <select className={styles.branchSelect} aria-label="Select branch" defaultValue="">
-                <option value="">{branchLabel}</option>
-                {branchOptions.map((name) => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-              <span className={styles.branchChev} aria-hidden="true" />
+            <div className={styles.branchWrap} ref={branchWrapRef}>
+              <button
+                type="button"
+                className={styles.branchPill}
+                aria-haspopup="listbox"
+                aria-expanded={branchOpen}
+                onClick={() => setBranchOpen((v) => !v)}
+              >
+                <span className={styles.branchDot} aria-hidden="true" />
+                <span className={styles.branchValue}>{selectedBranchLabel}</span>
+                <span className={styles.branchChev} aria-hidden="true" />
+              </button>
+              {branchOpen ? (
+                <div className={styles.branchMenu} role="listbox" aria-label="Branches">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={selectedBranch === ""}
+                    className={[styles.branchOption, selectedBranch === "" ? styles.branchOptionActive : ""].join(" ")}
+                    onClick={() => {
+                      setSelectedBranch("");
+                      setBranchOpen(false);
+                    }}
+                  >
+                    {branchLabel}
+                  </button>
+                  {branchOptions.map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      role="option"
+                      aria-selected={selectedBranch === name}
+                      className={[styles.branchOption, selectedBranch === name ? styles.branchOptionActive : ""].join(
+                        " ",
+                      )}
+                      onClick={() => {
+                        setSelectedBranch(name);
+                        setBranchOpen(false);
+                      }}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             <div className={styles.avatarSmall} aria-label="Account">

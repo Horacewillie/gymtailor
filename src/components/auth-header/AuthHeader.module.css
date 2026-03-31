@@ -133,6 +133,10 @@
   color: rgba(31, 39, 50, 0.65);
 }
 
+.branchWrap {
+  position: relative;
+}
+
 .branchPill {
   height: 32px;
   border-radius: 999px;
@@ -140,12 +144,16 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(31, 39, 50, 0.08);
-  color: rgba(15, 24, 34, 0.85);
+  min-width: 170px;
+  max-width: 240px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(31, 39, 50, 0.1);
+  color: rgba(15, 24, 34, 0.9);
   font-size: 0.64rem;
   font-weight: 600;
   font-family: Onest, Inter, system-ui, sans-serif;
+  cursor: pointer;
   transition:
     border-color 0.16s ease,
     box-shadow 0.16s ease,
@@ -153,32 +161,23 @@
 }
 
 .branchPill:hover {
-  border-color: rgba(31, 39, 50, 0.16);
+  border-color: rgba(31, 39, 50, 0.22);
   background: #ffffff;
 }
 
-.branchPill:focus-within {
-  border-color: rgba(56, 247, 161, 0.9);
-  box-shadow: 0 0 0 2px rgba(56, 247, 161, 0.18);
-  background: #ffffff;
-}
-
-.branchSelect {
-  border: 0;
-  background: transparent;
-  color: rgba(15, 24, 34, 0.85);
-  font-size: 0.64rem;
-  font-weight: 600;
-  font-family: Onest, Inter, system-ui, sans-serif;
+.branchPill:focus-visible {
   outline: none;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  padding-right: 2px;
-  min-width: 128px;
-  max-width: 220px;
-  line-height: 1.2;
+  border-color: rgba(56, 247, 161, 0.95);
+  box-shadow: 0 0 0 2px rgba(56, 247, 161, 0.2);
+}
+
+.branchValue {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .branchDot {
@@ -206,6 +205,46 @@
   border-right: 2px solid rgba(31, 39, 50, 0.55);
   border-bottom: 2px solid rgba(31, 39, 50, 0.55);
   transform: translate(-50%, -55%) rotate(45deg);
+}
+
+.branchMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  max-width: 280px;
+  background: #ffffff;
+  border: 1px solid rgba(31, 39, 50, 0.1);
+  border-radius: 12px;
+  box-shadow:
+    0 10px 30px rgba(17, 25, 37, 0.18),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  padding: 6px;
+  z-index: 20;
+}
+
+.branchOption {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  padding: 8px 10px;
+  text-align: left;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(15, 24, 34, 0.88);
+  cursor: pointer;
+}
+
+.branchOption:hover {
+  background: rgba(31, 39, 50, 0.05);
+}
+
+.branchOptionActive {
+  background: rgba(56, 247, 161, 0.2);
+  color: rgba(15, 24, 34, 0.95);
+  font-weight: 600;
 }
 
 .avatarSmall {
