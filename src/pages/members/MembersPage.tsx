@@ -21,59 +21,11 @@ type MemberRow = {
 
 type TabFilter = "ALL" | "ACTIVE" | "INACTIVE" | "NEW";
 
-const TOTAL_MEMBERS = 124;
 const STAT_TOTAL = 1834;
 const STAT_ACTIVE = 1734;
 const STAT_INACTIVE = 100;
 const STAT_NEW = 34;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-const FIRST = [
-  "Jesse",
-  "Morgan",
-  "Alex",
-  "Riley",
-  "Jordan",
-  "Casey",
-  "Taylor",
-  "Quinn",
-  "Avery",
-  "Skyler",
-];
-const LAST = [
-  "Hayes",
-  "Brooks",
-  "Chen",
-  "Patel",
-  "Reed",
-  "Nguyen",
-  "Fox",
-  "Diaz",
-  "Stone",
-  "Rivera",
-];
-
-function buildMockMembers(count: number): MemberRow[] {
-  return Array.from({ length: count }, (_, i) => {
-    const n = i + 1;
-    let status: MemberStatus;
-    if (i % 11 === 0) status = "INACTIVE";
-    else if (i % 6 === 0) status = "NEW";
-    else status = "ACTIVE";
-    return {
-      id: `member-${n}`,
-      name: `${FIRST[i % FIRST.length]} ${LAST[i % LAST.length]}`,
-      phone: `+1 (555) ${String(200 + (i % 700)).padStart(3, "0")}-${String(3000 + i).slice(-4)}`,
-      email: `${FIRST[i % FIRST.length].toLowerCase()}.${LAST[i % LAST.length].toLowerCase()}@email.com`,
-      status,
-      lastActive: `${15 + (i % 10)} Dec 2026`,
-      addOn: `${1 + (i % 28)} Nov 2025`,
-    };
-  });
-}
-
-export const MOCK_MEMBERS = buildMockMembers(TOTAL_MEMBERS);
 
 function IconPlus(props: { className?: string }) {
   return (
@@ -306,7 +258,7 @@ export function MembersPage() {
   const [addSuccessOpen, setAddSuccessOpen] = useState(false);
   const [isInvitingMember, setIsInvitingMember] = useState(false);
   const [branchOptions, setBranchOptions] = useState<Array<{ id: string; name: string }>>([]);
-  const [members, setMembers] = useState<MemberRow[]>(MOCK_MEMBERS);
+  const [members, setMembers] = useState<MemberRow[]>([]);
 
   const isEmailValid = EMAIL_REGEX.test(memberDraft.email);
   const showEmailError = emailTouched && memberDraft.email.length > 0 && !isEmailValid;
