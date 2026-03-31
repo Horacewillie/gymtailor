@@ -4,7 +4,7 @@ import { Button } from "../../components/button/Button";
 import { Modal } from "../../components/modal/Modal";
 import { SuccessModal } from "../../components/success-modal/SuccessModal";
 import { DashboardShell } from "../../components/dashboard-shell/DashboardShell";
-import { getTenantBranches, inviteMember } from "../../services/dashboardService";
+import { getTenantBranches, getTenantMembers, inviteMember } from "../../services/dashboardService";
 import styles from "./MembersPage.module.css";
 
 type MemberStatus = "ACTIVE" | "NEW" | "INACTIVE";
@@ -270,6 +270,20 @@ function statusLabel(s: MemberStatus) {
   return "INACTIVE";
 }
 
+function formatApiDate(value: string | undefined): string {
+  if (!value) return "—";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "—";
+  return parsed.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function mapApiStatus(raw: string | undefined): MemberStatus {
+  const normalized = String(raw ?? "").trim().toLowerCase();
+  if (normalized === "accepted") return "ACTIVE";
+  if (normalized === "pending") return "NEW";
+  return "NEW";
+}
+
 export function MembersPage() {
   const [tab, setTab] = useState<TabFilter>("ALL");
   const [query, setQuery] = useState("");
@@ -292,6 +306,7 @@ export function MembersPage() {
   const [addSuccessOpen, setAddSuccessOpen] = useState(false);
   const [isInvitingMember, setIsInvitingMember] = useState(false);
   const [branchOptions, setBranchOptions] = useState<Array<{ id: string; name: string }>>([]);
+  const [members, setMembers] = useState<MemberRow[]>(MOCK_MEMBERS);
 
   const isEmailValid = EMAIL_REGEX.test(memberDraft.email);
   const showEmailError = emailTouched && memberDraft.email.length > 0 && !isEmailValid;
@@ -316,6 +331,30 @@ export function MembersPage() {
     return () => {
       mounted = false;
     };
+  }, []);
+
+  const refreshMembers = () => {
+    void getTenantMembers()
+      .then((rows) => {
+        setMembers(
+          rows.map((row, idx) => ({
+            id: row.id || `member-${idx + 1}`,
+            name: row.name || "—",
+            phone: row.phone || "—",
+            email: row.email || "—",
+            status: mapApiStatus(row.invitation_status),
+            lastActive: formatApiDate(row.last_active ?? row.updated_at),
+            addOn: formatApiDate(row.created_at),
+          })),
+        );
+      })
+      .catch((error) => {
+        console.error("Failed to load tenant members:", error);
+      });
+  };
+
+  useEffect(() => {
+    refreshMembers();
   }, []);
 
   const addMenuOptions = useMemo(() => {
@@ -356,7 +395,7 @@ export function MembersPage() {
   }, [addMenuOpen]);
 
   const filtered = useMemo(() => {
-    let rows = [...MOCK_MEMBERS];
+    let rows = [...members];
     if (tab !== "ALL") {
       rows = rows.filter((r) => r.status === tab);
     }
@@ -375,7 +414,7 @@ export function MembersPage() {
       rows = rows.filter((r) => r.lastActive.includes("Dec 2026"));
     }
     return rows;
-  }, [tab, query, statusSelect, lastActiveFilter]);
+  }, [members, tab, query, statusSelect, lastActiveFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
   const safePage = Math.min(page, totalPages);
@@ -788,12 +827,18 @@ export function MembersPage() {
 
       <SuccessModal
         open={addSuccessOpen}
-        onClose={() => setAddSuccessOpen(false)}
+        onClose={() => {
+          setAddSuccessOpen(false);
+          refreshMembers();
+        }}
         titleId="member-success-title"
         line1="Member added"
         line2="successfully"
         primaryLabel="DISMISS"
-        onPrimary={() => setAddSuccessOpen(false)}
+        onPrimary={() => {
+          setAddSuccessOpen(false);
+          refreshMembers();
+        }}
         primaryLayout="full"
       />
     </div>
