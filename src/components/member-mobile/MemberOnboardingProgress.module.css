@@ -13,6 +13,7 @@
   height: 8px;
   border-radius: 999px;
   background: #2a2e36;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .pill {
@@ -21,4 +22,5 @@
   height: 8px;
   border-radius: 999px;
   background: var(--member-mint, #41ffa7);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }

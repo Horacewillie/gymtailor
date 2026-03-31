@@ -54,10 +54,6 @@ export function MemberOnboardingWelcomePage() {
 
             <div className={styles.bottomSpacer} aria-hidden />
           </div>
-{/* 
-          <footer className={styles.footer}>
-            <span className={styles.domainPill}>gymtailor.com</span>
-          </footer> */}
         </div>
       </div>
     </div>

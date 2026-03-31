@@ -76,7 +76,6 @@ export function MemberOnboardingStepLayout({
                   />
                 </div>
               )}
-              <span className={styles.domainPill}>gymtailor.com</span>
             </footer>
           </div>
         </div>

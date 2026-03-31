@@ -68,7 +68,6 @@ export function MemberOnboardingTrainingIntroPage() {
                 </MemberMobilePillButton>
                 <MemberMobileCircleNextButton type="button" onClick={startSetup} label="Start setup" />
               </div>
-              <span className={styles.domainPill}>gymtailor.com</span>
             </div>
           </div>
         </div>
