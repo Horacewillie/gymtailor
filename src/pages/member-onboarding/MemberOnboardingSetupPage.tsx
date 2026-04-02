@@ -19,9 +19,8 @@ import {
   SETUP_WORK_AROUND,
   type WeightUnit,
 } from "./memberOnboardingSetupData";
+import { readEmailGymLocationState } from "./onboardingRouteState";
 import styles from "./MemberOnboardingSetupPage.module.css";
-
-type SetupLocationState = { email?: string; gymName?: string };
 
 function LightbulbIcon({ className }: { className?: string }) {
   return (
@@ -48,13 +47,217 @@ function InfoIcon({ className }: { className?: string }) {
 }
 
 const NOTE_MAX = 200;
+type ToggleMultiFn = (id: string, setList: Dispatch<SetStateAction<string[]>>) => void;
+
+function GoalsStep({
+  goals,
+  toggleMulti,
+  setGoals,
+}: {
+  goals: string[];
+  toggleMulti: ToggleMultiFn;
+  setGoals: Dispatch<SetStateAction<string[]>>;
+}) {
+  return (
+    <MemberSetupChipRow>
+      {SETUP_GOALS.map((g) => (
+        <MemberSetupChip
+          key={g.id}
+          label={g.label}
+          selected={goals.includes(g.id)}
+          onClick={() => toggleMulti(g.id, setGoals)}
+        />
+      ))}
+    </MemberSetupChipRow>
+  );
+}
+
+function ExperienceStep({
+  experience,
+  setExperience,
+}: {
+  experience: string | null;
+  setExperience: Dispatch<SetStateAction<string | null>>;
+}) {
+  return (
+    <MemberSetupRadioStack>
+      {SETUP_EXPERIENCE.map((e) => (
+        <MemberSetupRadioCard
+          key={e.id}
+          value={e.id}
+          title={e.title}
+          subtitle={e.subtitle}
+          selected={experience === e.id}
+          onClick={() => setExperience(e.id)}
+        />
+      ))}
+    </MemberSetupRadioStack>
+  );
+}
+
+function TrainStylesStep({
+  trainStyles,
+  toggleMulti,
+  setTrainStyles,
+}: {
+  trainStyles: string[];
+  toggleMulti: ToggleMultiFn;
+  setTrainStyles: Dispatch<SetStateAction<string[]>>;
+}) {
+  return (
+    <MemberSetupCheckboxStack>
+      {SETUP_TRAIN_STYLES.map((t) => (
+        <MemberSetupCheckboxCard
+          key={t.id}
+          label={t.label}
+          selected={trainStyles.includes(t.id)}
+          onClick={() => toggleMulti(t.id, setTrainStyles)}
+        />
+      ))}
+    </MemberSetupCheckboxStack>
+  );
+}
+
+function FrequencyStep({
+  frequency,
+  setFrequency,
+}: {
+  frequency: string | null;
+  setFrequency: Dispatch<SetStateAction<string | null>>;
+}) {
+  return (
+    <MemberSetupRadioStack>
+      {SETUP_FREQUENCY.map((f) => (
+        <MemberSetupRadioCard
+          key={f.id}
+          value={f.id}
+          title={f.label}
+          selected={frequency === f.id}
+          onClick={() => setFrequency(f.id)}
+        />
+      ))}
+    </MemberSetupRadioStack>
+  );
+}
+
+function SexStep({
+  sex,
+  setSex,
+  onWhySex,
+}: {
+  sex: string | null;
+  setSex: Dispatch<SetStateAction<string | null>>;
+  onWhySex: () => void;
+}) {
+  return (
+    <div className={styles.stackGap}>
+      <MemberSetupRadioStack>
+        {SETUP_SEX.map((s) => (
+          <MemberSetupRadioCard
+            key={s.id}
+            value={s.id}
+            title={s.label}
+            selected={sex === s.id}
+            onClick={() => setSex(s.id)}
+          />
+        ))}
+      </MemberSetupRadioStack>
+      <button type="button" className={styles.whyRow} onClick={onWhySex}>
+        <InfoIcon className={styles.whyIcon} />
+        Why do we need this?
+      </button>
+    </div>
+  );
+}
+
+function WeightStep({
+  weight,
+  setWeight,
+  weightUnit,
+  setWeightUnit,
+}: {
+  weight: string;
+  setWeight: Dispatch<SetStateAction<string>>;
+  weightUnit: WeightUnit;
+  setWeightUnit: Dispatch<SetStateAction<WeightUnit>>;
+}) {
+  return (
+    <div className={styles.weightRow}>
+      <input
+        className={styles.weightInput}
+        inputMode="decimal"
+        autoComplete="off"
+        placeholder="175"
+        value={weight}
+        onChange={(e) => setWeight(e.target.value)}
+        aria-label="Current weight"
+      />
+      <select
+        className={styles.unitSelect}
+        value={weightUnit}
+        onChange={(e) => setWeightUnit(e.target.value as WeightUnit)}
+        aria-label="Weight unit"
+      >
+        <option value="lbs">Lbs</option>
+        <option value="kg">Kg</option>
+      </select>
+    </div>
+  );
+}
+
+function WorkAroundStep({
+  workAround,
+  toggleMulti,
+  setWorkAround,
+  workAroundNote,
+  setWorkAroundNote,
+}: {
+  workAround: string[];
+  toggleMulti: ToggleMultiFn;
+  setWorkAround: Dispatch<SetStateAction<string[]>>;
+  workAroundNote: string;
+  setWorkAroundNote: Dispatch<SetStateAction<string>>;
+}) {
+  return (
+    <div className={styles.stackGap}>
+      <MemberSetupCheckboxStack>
+        {SETUP_WORK_AROUND.map((w) => (
+          <MemberSetupCheckboxCard
+            key={w.id}
+            label={w.label}
+            selected={workAround.includes(w.id)}
+            onClick={() => toggleMulti(w.id, setWorkAround)}
+          />
+        ))}
+      </MemberSetupCheckboxStack>
+      <div className={styles.textareaWrap}>
+        <textarea
+          className={styles.textarea}
+          placeholder="Tell us more"
+          maxLength={NOTE_MAX}
+          value={workAroundNote}
+          onChange={(e) => setWorkAroundNote(e.target.value.slice(0, NOTE_MAX))}
+          aria-label="Additional notes"
+        />
+        <span className={styles.charCount}>
+          {workAroundNote.length}/{NOTE_MAX}
+        </span>
+      </div>
+      <div className={styles.hintRow}>
+        <LightbulbIcon className={styles.hintIcon} />
+        <p className={styles.hintText}>
+          Your trainer will adjust, not push through pain.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export function MemberOnboardingSetupPage() {
   const navigate = useNavigate();
   const { step } = useParams();
   const { state } = useLocation();
-  const email = (state as SetupLocationState | null)?.email ?? "";
-  const gymName = (state as SetupLocationState | null)?.gymName ?? "";
+  const { email, gymName } = readEmailGymLocationState(state);
 
   const stepNum = Number(step);
   const stepValid =
@@ -162,6 +365,70 @@ export function MemberOnboardingSetupPage() {
     );
   }, []);
 
+  const content = useMemo(() => {
+    switch (stepNum) {
+      case 1:
+        return <GoalsStep goals={goals} toggleMulti={toggleMulti} setGoals={setGoals} />;
+      case 2:
+        return <ExperienceStep experience={experience} setExperience={setExperience} />;
+      case 3:
+        return (
+          <TrainStylesStep
+            trainStyles={trainStyles}
+            toggleMulti={toggleMulti}
+            setTrainStyles={setTrainStyles}
+          />
+        );
+      case 4:
+        return <FrequencyStep frequency={frequency} setFrequency={setFrequency} />;
+      case 5:
+        return <SexStep sex={sex} setSex={setSex} onWhySex={onWhySex} />;
+      case 6:
+        return (
+          <WeightStep
+            weight={weight}
+            setWeight={setWeight}
+            weightUnit={weightUnit}
+            setWeightUnit={setWeightUnit}
+          />
+        );
+      case 7:
+        return (
+          <WorkAroundStep
+            workAround={workAround}
+            toggleMulti={toggleMulti}
+            setWorkAround={setWorkAround}
+            workAroundNote={workAroundNote}
+            setWorkAroundNote={setWorkAroundNote}
+          />
+        );
+      default:
+        return null;
+    }
+  }, [
+    stepNum,
+    goals,
+    toggleMulti,
+    setGoals,
+    experience,
+    setExperience,
+    trainStyles,
+    setTrainStyles,
+    frequency,
+    setFrequency,
+    sex,
+    setSex,
+    onWhySex,
+    weight,
+    setWeight,
+    weightUnit,
+    setWeightUnit,
+    workAround,
+    setWorkAround,
+    workAroundNote,
+    setWorkAroundNote,
+  ]);
+
   if (!stepValid) {
     return <Navigate to="/member/onboarding/setup/1" replace state={passState} />;
   }
@@ -179,137 +446,7 @@ export function MemberOnboardingSetupPage() {
       onPrimary={goNext}
       circleLabel={circleLabel}
     >
-      {stepNum === 1 ? (
-        <MemberSetupChipRow>
-          {SETUP_GOALS.map((g) => (
-            <MemberSetupChip
-              key={g.id}
-              label={g.label}
-              selected={goals.includes(g.id)}
-              onClick={() => toggleMulti(g.id, setGoals)}
-            />
-          ))}
-        </MemberSetupChipRow>
-      ) : null}
-
-      {stepNum === 2 ? (
-        <MemberSetupRadioStack>
-          {SETUP_EXPERIENCE.map((e) => (
-            <MemberSetupRadioCard
-              key={e.id}
-              value={e.id}
-              title={e.title}
-              subtitle={e.subtitle}
-              selected={experience === e.id}
-              onClick={() => setExperience(e.id)}
-            />
-          ))}
-        </MemberSetupRadioStack>
-      ) : null}
-
-      {stepNum === 3 ? (
-        <MemberSetupCheckboxStack>
-          {SETUP_TRAIN_STYLES.map((t) => (
-            <MemberSetupCheckboxCard
-              key={t.id}
-              label={t.label}
-              selected={trainStyles.includes(t.id)}
-              onClick={() => toggleMulti(t.id, setTrainStyles)}
-            />
-          ))}
-        </MemberSetupCheckboxStack>
-      ) : null}
-
-      {stepNum === 4 ? (
-        <MemberSetupRadioStack>
-          {SETUP_FREQUENCY.map((f) => (
-            <MemberSetupRadioCard
-              key={f.id}
-              value={f.id}
-              title={f.label}
-              selected={frequency === f.id}
-              onClick={() => setFrequency(f.id)}
-            />
-          ))}
-        </MemberSetupRadioStack>
-      ) : null}
-
-      {stepNum === 5 ? (
-        <div className={styles.stackGap}>
-          <MemberSetupRadioStack>
-            {SETUP_SEX.map((s) => (
-              <MemberSetupRadioCard
-                key={s.id}
-                value={s.id}
-                title={s.label}
-                selected={sex === s.id}
-                onClick={() => setSex(s.id)}
-              />
-            ))}
-          </MemberSetupRadioStack>
-          <button type="button" className={styles.whyRow} onClick={onWhySex}>
-            <InfoIcon className={styles.whyIcon} />
-            Why do we need this?
-          </button>
-        </div>
-      ) : null}
-
-      {stepNum === 6 ? (
-        <div className={styles.weightRow}>
-          <input
-            className={styles.weightInput}
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder="175"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            aria-label="Current weight"
-          />
-          <select
-            className={styles.unitSelect}
-            value={weightUnit}
-            onChange={(e) => setWeightUnit(e.target.value as WeightUnit)}
-            aria-label="Weight unit"
-          >
-            <option value="lbs">Lbs</option>
-            <option value="kg">Kg</option>
-          </select>
-        </div>
-      ) : null}
-
-      {stepNum === 7 ? (
-        <div className={styles.stackGap}>
-          <MemberSetupCheckboxStack>
-            {SETUP_WORK_AROUND.map((w) => (
-              <MemberSetupCheckboxCard
-                key={w.id}
-                label={w.label}
-                selected={workAround.includes(w.id)}
-                onClick={() => toggleMulti(w.id, setWorkAround)}
-              />
-            ))}
-          </MemberSetupCheckboxStack>
-          <div className={styles.textareaWrap}>
-            <textarea
-              className={styles.textarea}
-              placeholder="Tell us more"
-              maxLength={NOTE_MAX}
-              value={workAroundNote}
-              onChange={(e) => setWorkAroundNote(e.target.value.slice(0, NOTE_MAX))}
-              aria-label="Additional notes"
-            />
-            <span className={styles.charCount}>
-              {workAroundNote.length}/{NOTE_MAX}
-            </span>
-          </div>
-          <div className={styles.hintRow}>
-            <LightbulbIcon className={styles.hintIcon} />
-            <p className={styles.hintText}>
-              Your trainer will adjust, not push through pain.
-            </p>
-          </div>
-        </div>
-      ) : null}
+      {content}
     </MemberOnboardingSetupLayout>
   );
 }

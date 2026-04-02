@@ -2,14 +2,10 @@ import { useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MemberBarsBallLoader } from "../../components/member-mobile";
 import { useBindVisualViewportToElement } from "../../hooks/useBindVisualViewportToElement";
+import { readEmailGymLocationState } from "./onboardingRouteState";
 import styles from "./MemberOnboardingPlanLoadingPage.module.css";
 
 export const MEMBER_PLAN_LOADING_DEFAULT_GYM = "i-Fitness Gym & Wellness Center, Ikeja.";
-
-type PlanLoadingState = {
-  email?: string;
-  gymName?: string;
-};
 
 const REDIRECT_MS = 3200;
 
@@ -20,7 +16,7 @@ const REDIRECT_MS = 3200;
 export function MemberOnboardingPlanLoadingPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { email, gymName } = (state as PlanLoadingState | null) ?? {};
+  const { email, gymName } = readEmailGymLocationState(state);
 
   const resolvedGym = useMemo(
     () => (gymName?.trim() ? gymName.trim() : MEMBER_PLAN_LOADING_DEFAULT_GYM),
@@ -28,7 +24,7 @@ export function MemberOnboardingPlanLoadingPage() {
   );
 
   const passThrough = useMemo(
-    () => ({ email: email ?? "", gymName: gymName ?? "" }),
+    () => ({ email, gymName }),
     [email, gymName],
   );
 

@@ -18,6 +18,7 @@ type AuthHeaderProps = {
    */
   variant?: "auth" | "dashboard" | "dashboardNav";
   userInitial?: string;
+  showUserInitial?: boolean;
   showSignIn?: boolean;
   signInHref?: string;
   /** Tabs are only rendered for the "dashboardNav" variant. */
@@ -33,6 +34,7 @@ type AuthHeaderProps = {
 export function AuthHeader({
   variant = "auth",
   userInitial = "J",
+  showUserInitial = true,
   showSignIn = true,
   signInHref = "#",
   dashboardTabs = [],
@@ -154,9 +156,11 @@ export function AuthHeader({
               ) : null}
             </div>
 
-            <div className={styles.avatarSmall} aria-label="Account">
-              {userInitial}
-            </div>
+            {showUserInitial ? (
+              <div className={styles.avatarSmall} aria-label="Account">
+                {userInitial}
+              </div>
+            ) : null}
           </div>
         </div>
       ) : (
@@ -183,9 +187,11 @@ export function AuthHeader({
           <span />
         )
       ) : variant === "dashboard" ? (
-        <div className={styles.avatar} aria-label="Account">
-          {userInitial}
-        </div>
+        showUserInitial ? (
+          <div className={styles.avatar} aria-label="Account">
+            {userInitial}
+          </div>
+        ) : null
       ) : null}
     </header>
   );

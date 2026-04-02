@@ -6,9 +6,8 @@ import {
   MemberMobileSearchField,
 } from "../../components/member-mobile";
 import { useBindVisualViewportToElement } from "../../hooks/useBindVisualViewportToElement";
+import { readEmailGymLocationState } from "./onboardingRouteState";
 import styles from "./MemberOnboardingWelcomeBackPage.module.css";
-
-type WelcomeBackState = { email?: string; gymName?: string };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -19,15 +18,15 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function MemberOnboardingWelcomeBackPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const incoming = (state as WelcomeBackState | null) ?? {};
-  const [email, setEmail] = useState(() => incoming.email?.trim() ?? "");
+  const incoming = readEmailGymLocationState(state);
+  const [email, setEmail] = useState(() => incoming.email.trim());
 
   const shellRef = useRef<HTMLDivElement>(null);
   useBindVisualViewportToElement(shellRef);
 
   const canContinue = useMemo(() => EMAIL_REGEX.test(email.trim()), [email]);
 
-  const gymName = incoming.gymName ?? "";
+  const gymName = incoming.gymName;
 
   const onContinue = useCallback(() => {
     if (!canContinue) return;

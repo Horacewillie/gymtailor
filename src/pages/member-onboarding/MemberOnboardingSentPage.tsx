@@ -1,10 +1,9 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MemberOnboardingStepLayout } from "./MemberOnboardingStepLayout";
 import { maskEmailForDisplay } from "./maskEmailForDisplay";
+import { readEmailGymLocationState } from "./onboardingRouteState";
 import styles from "./MemberOnboardingSentPage.module.css";
-
-type SentLocationState = { email?: string; gymName?: string };
 
 function MailboxIllustration() {
   return (
@@ -158,33 +157,26 @@ function OutlookMark({ className }: { className?: string }) {
 export function MemberOnboardingSentPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const email = (state as SentLocationState | null)?.email ?? "";
-  const gymName = (state as SentLocationState | null)?.gymName ?? "";
+  const { email, gymName } = readEmailGymLocationState(state);
 
-  const masked = useMemo(() => {
-    if (!email) return null;
-    return maskEmailForDisplay(email);
-  }, [email]);
+  const masked = email ? maskEmailForDisplay(email) : null;
 
-  const goBack = useCallback(() => {
+  const goConfirmStep = useCallback(() => {
     navigate("/member/onboarding/confirm", { state: { email, gymName } });
   }, [email, gymName, navigate]);
 
-  const onResend = useCallback(() => {
-    navigate("/member/onboarding/confirm", { state: { email, gymName } });
-  }, [email, gymName, navigate]);
-
-  const openGmail = useCallback(() => {
-    window.open("https://mail.google.com/mail/", "_blank", "noopener,noreferrer");
-  }, []);
-
-  const openOutlook = useCallback(() => {
-    window.open("https://outlook.live.com/mail/", "_blank", "noopener,noreferrer");
+  const openMailApp = useCallback((url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
   }, []);
 
   const goTrainingIntro = useCallback(() => {
     navigate("/member/onboarding/training-intro", { state: { email, gymName } });
   }, [email, gymName, navigate]);
+
+  const mailApps = [
+    { key: "gmail", label: "Gmail", url: "https://mail.google.com/mail/", Icon: GmailMark },
+    { key: "outlook", label: "Outlook", url: "https://outlook.live.com/mail/", Icon: OutlookMark },
+  ] as const;
 
   const lead = (
     <>
@@ -200,7 +192,7 @@ export function MemberOnboardingSentPage() {
       )}
       <span className={styles.resendRow}>
         <span className={styles.resendMuted}>Didn&apos;t get it? </span>
-        <button type="button" className={styles.resendLink} onClick={onResend}>
+        <button type="button" className={styles.resendLink} onClick={goConfirmStep}>
           RESEND LINK
         </button>
       </span>
@@ -211,14 +203,12 @@ export function MemberOnboardingSentPage() {
     <div className={styles.mailSection}>
       <p className={styles.mailAppLabel}>OPEN MAIL APP</p>
       <div className={styles.mailButtonsRow}>
-        <button type="button" className={styles.mailAppButton} onClick={openGmail}>
-          <GmailMark className={styles.mailIcon} />
-          <span className={styles.mailAppButtonLabel}>Gmail</span>
-        </button>
-        <button type="button" className={styles.mailAppButton} onClick={openOutlook}>
-          <OutlookMark className={styles.mailIcon} />
-          <span className={styles.mailAppButtonLabel}>Outlook</span>
-        </button>
+        {mailApps.map(({ key, label, url, Icon }) => (
+          <button key={key} type="button" className={styles.mailAppButton} onClick={() => openMailApp(url)}>
+            <Icon className={styles.mailIcon} />
+            <span className={styles.mailAppButtonLabel}>{label}</span>
+          </button>
+        ))}
       </div>
       <button type="button" className={styles.continueToSetup} onClick={goTrainingIntro}>
         I&apos;ve opened my email — continue
@@ -228,7 +218,7 @@ export function MemberOnboardingSentPage() {
 
   return (
     <MemberOnboardingStepLayout
-      onBack={goBack}
+      onBack={goConfirmStep}
       preTitle={<MailboxIllustration />}
       title="Check Your Email"
       lead={lead}
