@@ -1,0 +1,51 @@
+.root {
+  flex: 0 1 auto;
+  min-width: 0;
+  width: auto;
+  max-width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background: var(--member-mint, #45f5a5);
+  color: #000000;
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.08em;
+  letter-spacing: 8%;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  leading-trim: none;
+  transition: filter 0.15s ease, transform 0.12s ease;
+}
+
+.root:hover {
+  filter: brightness(1.03);
+}
+
+.root:active {
+  transform: scale(0.98);
+}
+
+.root:disabled {
+  background: #3a3a3e;
+  color: rgba(255, 255, 255, 0.38);
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+  opacity: 1;
+}
+
+.root:disabled:hover,
+.root:disabled:active {
+  filter: none;
+  transform: none;
+}

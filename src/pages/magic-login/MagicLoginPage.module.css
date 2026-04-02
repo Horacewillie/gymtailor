@@ -1,0 +1,144 @@
+.page {
+  min-height: 100vh;
+  background: #fff;
+  color: #1f2732;
+}
+
+.main {
+  min-height: calc(100vh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 34px 24px 48px;
+}
+
+.intro {
+  width: min(360px, 100%);
+  margin-bottom: -4px;
+  height: 0px;
+}
+
+.card {
+  width: min(390px, 100%);
+  background: #ffffff;
+  border: 1px solid rgba(31, 39, 50, 0.08);
+  border-radius: 18px;
+  padding: 18px 22px 22px;
+  box-shadow: 0 24px 56px rgba(17, 25, 37, 0.06);
+}
+
+.title {
+  margin: 0;
+  text-align: center;
+  font-family: "Loubag", Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  font-size: clamp(2rem, 3.2vw, 2.7rem);
+  line-height: 0.95;
+  color: rgba(15, 24, 34, 0.9);
+}
+
+.subtitle {
+  margin: 10px auto 0;
+  max-width: 360px;
+  text-align: center;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: rgba(31, 39, 50, 0.6);
+}
+
+.fieldWrap {
+  width: min(320px, 100%);
+  margin: 0 auto;
+}
+
+.label {
+  display: block;
+  margin-top: 2px;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+  color: rgba(31, 39, 50, 0.66);
+}
+
+.input {
+  margin-top: 8px;
+  width: min(320px, 100%);
+  height: 40px;
+  border: 1px solid rgba(31, 39, 50, 0.2);
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0 14px;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.76rem;
+  color: rgba(15, 24, 34, 0.88);
+  outline: none;
+}
+
+.input::placeholder {
+  font-weight: 600;
+  color: rgba(31, 39, 50, 0.56);
+}
+
+.input:focus {
+  border-color: rgba(56, 247, 161, 0.85);
+  box-shadow: 0 0 0 3px rgba(56, 247, 161, 0.16);
+}
+
+.error {
+  margin: 10px 0 0;
+  text-align: center;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.66rem;
+  color: #b42318;
+}
+
+.success {
+  margin: 10px 0 0;
+  text-align: center;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.66rem;
+  color: #127a49;
+}
+
+.ctaWrap {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.cta {
+  width: min(320px, 100%) !important;
+}
+
+.inlineHint {
+  margin-top: 10px;
+  text-align: center;
+  font-family: Onest, Inter, system-ui, sans-serif;
+  font-size: 0.62rem;
+  color: rgba(31, 39, 50, 0.56);
+}
+
+.inlineLink {
+  border: 0;
+  background: transparent;
+  color: rgba(31, 39, 50, 0.8);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+@media (max-width: 640px) {
+  .intro {
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  .card {
+    padding: 26px 18px 22px;
+  }
+}
