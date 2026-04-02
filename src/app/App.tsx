@@ -20,6 +20,8 @@ import { MemberOnboardingConfirmPage } from "../pages/member-onboarding/MemberOn
 import { MemberOnboardingSentPage } from "../pages/member-onboarding/MemberOnboardingSentPage";
 import { MemberOnboardingTrainingIntroPage } from "../pages/member-onboarding/MemberOnboardingTrainingIntroPage";
 import { MemberOnboardingSetupPage } from "../pages/member-onboarding/MemberOnboardingSetupPage";
+import { MemberOnboardingPlanLoadingPage } from "../pages/member-onboarding/MemberOnboardingPlanLoadingPage";
+import { MemberOnboardingWelcomeBackPage } from "../pages/member-onboarding/MemberOnboardingWelcomeBackPage";
 
 /**
  * App-level error boundary used during UI build-out.
@@ -132,6 +134,14 @@ export function App() {
             element={<Navigate to="/member/onboarding/setup/1" replace />}
           />
           <Route path="/member/onboarding/setup/:step" element={<MemberOnboardingSetupPage />} />
+          <Route
+            path="/member/onboarding/plan-loading"
+            element={<MemberOnboardingPlanLoadingPage />}
+          />
+          <Route
+            path="/member/onboarding/welcome-back"
+            element={<MemberOnboardingWelcomeBackPage />}
+          />
           <Route
             path="/member/onboarding/step-2"
             element={<Navigate to="/member/onboarding/confirm" replace />}

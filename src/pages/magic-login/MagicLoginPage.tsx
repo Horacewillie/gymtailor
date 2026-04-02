@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiClient } from "../../api/Api";
 import { AuthHeader } from "../../components/auth-header/AuthHeader";
@@ -16,12 +16,50 @@ export function MagicLoginPage() {
   const [error, setError] = useState(callbackError);
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [authenticatedInitial, setAuthenticatedInitial] = useState<string | null>(null);
 
   const canContinue = email.trim().length > 0;
 
+  useEffect(() => {
+    let mounted = true;
+
+    void (async () => {
+      try {
+        const status = await api.get<any>("/api/authentication-status");
+        if (!mounted) return;
+
+        const user = status?.user;
+        const isAuthenticated = Boolean(status?.authenticated ?? user);
+        if (!isAuthenticated) {
+          setAuthenticatedInitial(null);
+          return;
+        }
+
+        const name = String(user?.name ?? user?.first_name ?? "").trim();
+        if (name) {
+          setAuthenticatedInitial(name.slice(0, 1).toUpperCase());
+          return;
+        }
+
+        const emailFallback = String(user?.email ?? "").trim();
+        setAuthenticatedInitial(emailFallback ? emailFallback.slice(0, 1).toUpperCase() : "U");
+      } catch {
+        if (mounted) setAuthenticatedInitial(null);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [api]);
+
   return (
     <div className={styles.page}>
-      <AuthHeader variant="dashboard" userInitial="J" />
+      <AuthHeader
+        variant="dashboard"
+        showUserInitial={authenticatedInitial !== null}
+        userInitial={authenticatedInitial ?? "U"}
+      />
 
       <main className={styles.main}>
         <div className={styles.intro}>

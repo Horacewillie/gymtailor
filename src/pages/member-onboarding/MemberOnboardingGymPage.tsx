@@ -21,8 +21,8 @@ export function MemberOnboardingGymPage() {
 
   const goNext = useCallback(() => {
     if (!canContinue) return;
-    navigate("/member/onboarding/confirm");
-  }, [canContinue, navigate]);
+    navigate("/member/onboarding/confirm", { state: { gymName: gymQuery.trim() } });
+  }, [canContinue, gymQuery, navigate]);
 
   return (
     <MemberOnboardingStepLayout

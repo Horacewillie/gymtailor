@@ -1,6 +1,5 @@
 // src/api/Api.ts
 
-//Remember to change base url.
 export const API_BASE_URL = "http://localhost:8080";
 
 // Api class for making HTTP requests to the backend

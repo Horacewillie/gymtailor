@@ -1,11 +1,10 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MemberMobileCircleNextButton, MemberMobilePillButton } from "../../components/member-mobile";
 import { useBindVisualViewportToElement } from "../../hooks/useBindVisualViewportToElement";
 import { firstNameFromEmail } from "./firstNameFromEmail";
+import { readEmailGymLocationState } from "./onboardingRouteState";
 import styles from "./MemberOnboardingTrainingIntroPage.module.css";
-
-type TrainingIntroState = { email?: string };
 
 function CheckIcon({ className }: { className?: string }) {
   return (
@@ -37,12 +36,12 @@ export function MemberOnboardingTrainingIntroPage() {
   const shellRef = useRef<HTMLDivElement>(null);
   useBindVisualViewportToElement(shellRef);
 
-  const email = (state as TrainingIntroState | null)?.email ?? "";
-  const firstName = useMemo(() => (email ? firstNameFromEmail(email) : "there"), [email]);
+  const { email, gymName } = readEmailGymLocationState(state);
+  const firstName = email ? firstNameFromEmail(email) : "there";
 
   const startSetup = useCallback(() => {
-    navigate("/member/onboarding/setup/1", { state: { email } });
-  }, [email, navigate]);
+    navigate("/member/onboarding/setup/1", { state: { email, gymName } });
+  }, [email, gymName, navigate]);
 
   return (
     <div ref={shellRef} className={styles.shell}>

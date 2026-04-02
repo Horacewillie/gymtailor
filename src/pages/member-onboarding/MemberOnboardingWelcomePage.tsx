@@ -1,4 +1,5 @@
 import membersHeroPhoto from "../../assets/member-homescreen.jpg";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   MemberMobileCircleNextButton,
@@ -14,7 +15,9 @@ import styles from "./MemberOnboardingWelcomePage.module.css";
  */
 export function MemberOnboardingWelcomePage() {
   const navigate = useNavigate();
-  const goFindGym = () => navigate("/member/onboarding/gym");
+  const goFindGym = useCallback(() => {
+    navigate("/member/onboarding/gym");
+  }, [navigate]);
 
   return (
     <div className={styles.screenOuter}>
