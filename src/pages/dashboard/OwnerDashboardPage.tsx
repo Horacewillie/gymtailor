@@ -315,7 +315,12 @@ export function OwnerDashboardPage() {
                     email.
                   </div>
                 </div>
-                <Button className={styles.darkBtn} pill size="md">
+                <Button
+                  className={styles.darkBtn}
+                  pill
+                  size="md"
+                  onClick={() => navigate("/dashboard/members")}
+                >
                   ADD MEMBERS
                 </Button>
               </div>
