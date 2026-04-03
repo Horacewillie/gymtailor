@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Button } from "../../components/button/Button";
 import { DashboardShell } from "../../components/dashboard-shell/DashboardShell";
-import { getDashboardData, type DashboardResponse } from "../../services/dashboardService";
+import {
+  getDashboardData,
+  getTenantMembers,
+  type DashboardResponse,
+} from "../../services/dashboardService";
 import styles from "./OwnerDashboardPage.module.css";
 
 type TimeKey = "7d" | "1m" | "3m" | "6m" | "1y" | "ytd";
@@ -16,6 +20,7 @@ const TIME_OPTIONS: Array<{ value: TimeKey; label: string }> = [
   { value: "1y", label: "1Y" },
   { value: "ytd", label: "YTD" },
 ];
+const MEMBERS_CACHE_KEY = "members_table_cache_v1";
 
 // Helper to map API equipment to table row format
 type EquipmentApi = {
@@ -171,6 +176,16 @@ export function OwnerDashboardPage() {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [membersCount, setMembersCount] = useState<number | null>(() => {
+    try {
+      const raw = localStorage.getItem(MEMBERS_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.length : null;
+    } catch {
+      return null;
+    }
+  });
 
   // Fallback: fetch from API if not present in state
   useEffect(() => {
@@ -188,15 +203,31 @@ export function OwnerDashboardPage() {
     }
   }, [dashboardData]);
 
+  useEffect(() => {
+    let mounted = true;
+    void getTenantMembers()
+      .then((rows) => {
+        if (!mounted) return;
+        setMembersCount(rows.length);
+      })
+      .catch(() => {
+        // Keep fallback count from cache/dashboard if live members fetch fails.
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const tableRows = Array.isArray(dashboardData?.equipments)
     ? dashboardData.equipments.map(mapEquipmentToRow)
     : [];
 
   // Fallbacks for member count and utilization
   const memberCount =
-    typeof dashboardData?.member_count === "number"
+    membersCount ??
+    (typeof dashboardData?.member_count === "number"
       ? dashboardData.member_count
-      : 0;
+      : 0);
   const equipmentUtilization =
     typeof dashboardData?.equipment_utilization === "number"
       ? dashboardData.equipment_utilization.toFixed(2)
