@@ -101,8 +101,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 6px;
+  padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid #38f7a1;
   background: transparent;
@@ -110,13 +110,21 @@
   font-family: "Geist Mono", monospace;
   font-weight: 600;
   font-style: normal;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 13px;
+  line-height: 1.2;
   letter-spacing: 0.08em;
   text-align: center;
   text-decoration: none;
   text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: all 0.2s ease;
+}
+
+.returnBtn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .returnBtn:hover {
